@@ -13,6 +13,7 @@ public:
 	ObjectStartPos(float X, float Y, const AnimSet* S) : OriginX(X), OriginY(Y), Set(S) {}
 };
 
+class GameState;
 class GameObject {
 	friend class ObjectInitialization;
 
@@ -37,7 +38,7 @@ private:
 	const AnimSet* Set;
 public:
 	unsigned int AnimID, FrameID;
-	virtual void Behave(Level&) = 0;
+	virtual void Behave(GameState&) = 0;
 	virtual void Draw(Layer*) const = 0;
 protected:
 	void DetermineFrame(int);
@@ -45,7 +46,6 @@ protected:
 
 typedef GameObject* (*ObjectInitializationFunc)(ObjectStartPos&);
 
-class Level;
 class ObjectInitialization {
 public:
 	int AnimSetID;

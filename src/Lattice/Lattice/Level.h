@@ -12,6 +12,7 @@
 #include "Objects.h"
 
 class GameObject;
+class KeyStates;
 class Level : public LevelTileset, public sf::Drawable {
 private:
 	struct LevelHeader {
@@ -75,5 +76,14 @@ public:
 	void ForEachEvent(std::function<void(Event&, int, int)>);
 	Tile GetRealTile(Tile) const;
 
-	void Update(sf::Vector2i, ObjectActivityFunction&);
+	void Update(sf::Vector2i, ObjectActivityFunction&, KeyStates&);
+};
+
+class GameState {
+private:
+	Level& Lev;
+public:
+	KeyStates& Keys;
+	unsigned int& GameTicks;
+	GameState(Level& l, KeyStates& k) : Lev(l), Keys(k), GameTicks(l.GameTicks) {}
 };

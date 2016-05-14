@@ -28,12 +28,17 @@ void Lattice::ProcessInput()
 	{
 		if (event.type == sf::Event::Closed)
 			Window->close();
+		else if (event.type == sf::Event::KeyPressed)
+			Keys.SetKey(event.key.code, true);
+		else if (event.type == sf::Event::KeyReleased)
+			Keys.SetKey(event.key.code, false);
 	}
 }
 
 void Lattice::Update()
 {
-	Level->Update(sf::Mouse::getPosition(*Window), *ActivateObjects);
+	Level->Update(sf::Mouse::getPosition(*Window), *ActivateObjects, Keys);
+	Keys.Update();
 }
 
 void Lattice::Render(double leftoverTimeElapsed)

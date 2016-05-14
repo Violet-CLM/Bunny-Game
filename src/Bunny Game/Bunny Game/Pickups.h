@@ -16,7 +16,7 @@ class Pickup : public BunnyObject {
 
 	void Draw(Layer*) const override;
 protected:
-	void Behave(Level&) override;
+	void Behave(GameState&) override;
 public:
 	Pickup(ObjectStartPos& objStart, int ai) : BunnyObject(objStart) {
 		AnimID = ai;
@@ -29,7 +29,7 @@ class AmmoPickup : public Pickup {
 	int AnimIDNormal;
 	int AnimIDPoweredUp;
 
-	void Behave(Level&) override;
+	void Behave(GameState&) override;
 public:
 	AmmoPickup(ObjectStartPos& objStart, int ai, int an, int anp) : Pickup(objStart, ai), AmmoID(ai), AnimIDNormal(an), AnimIDPoweredUp(anp) {}
 };
@@ -87,5 +87,5 @@ public:
 class Bee : public BunnyObject {
 	using BunnyObject::BunnyObject;
 	int Counter;
-	void Behave(Level&) override;
+	void Behave(GameState&) override;
 };

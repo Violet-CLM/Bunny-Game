@@ -1,4 +1,5 @@
 #include "Pickups.h"
+#include "Game.h"
 
 void BunnyObject::Draw(Layer* layers) const
 {
@@ -13,10 +14,10 @@ float costable(int a) {
 	return sintable(a + 256);
 }
 
-void Pickup::Behave(Level& level)
+void Pickup::Behave(GameState& gameState)
 {
-	DetermineFrame(level.GameTicks >> 2);
-	BounceYOffset = float(4 * sintable(int((level.GameTicks + /*obj.objectID * 8*/ + OriginX + PositionY * 256) * 16)));
+	DetermineFrame(gameState.GameTicks >> 2);
+	BounceYOffset = float(4 * sintable(int((gameState.GameTicks + /*obj.objectID * 8*/ + OriginX + PositionY * 256) * 16)));
 }
 
 void Pickup::Draw(Layer* layers) const
@@ -24,16 +25,18 @@ void Pickup::Draw(Layer* layers) const
 	GetFrame().Draw(layers[SPRITELAYER], int(PositionX), int(PositionY + BounceYOffset), DirectionX < 0);
 }
 
-void AmmoPickup::Behave(Level& level)
+void AmmoPickup::Behave(GameState& gameState)
 {
 	AnimID = AnimIDNormal; //todo check player powerup status
-	Pickup::Behave(level);
+	if (gameState.Keys.KeyPressed(sf::Keyboard::Up))
+		PositionY -= 1;
+	Pickup::Behave(gameState);
 }
 
-void Bee::Behave(Level& level)
+void Bee::Behave(GameState& gameState)
 {
 	++Counter;
-	DetermineFrame(level.GameTicks / 6);
+	DetermineFrame(gameState.GameTicks / 6);
 
 	PositionX = OriginX + sintable(Counter * 8) * 16;
 	if ((Counter & 127) < 63)
@@ -42,5 +45,5 @@ void Bee::Behave(Level& level)
 		DirectionX = +1;
 	PositionY = OriginY +
 		costable(Counter * 8) * 16 +
-		sintable(level.GameTicks * 8) * 4;
+		sintable(gameState.GameTicks * 8) * 4;
 }

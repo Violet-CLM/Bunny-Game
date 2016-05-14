@@ -185,7 +185,7 @@ void Level::UpdateAnimatedTiles() {
 			QuadsPerTile[animTileID] = QuadsPerTile[it->CurFrame.ID];
 	}
 }
-void Level::Update(sf::Vector2i mousePosition, ObjectActivityFunction& updateActiveObjects)
+void Level::Update(sf::Vector2i mousePosition, ObjectActivityFunction& updateActiveObjects, KeyStates& keys)
 {
 	++GameTicks;
 
@@ -195,8 +195,9 @@ void Level::Update(sf::Vector2i mousePosition, ObjectActivityFunction& updateAct
 		Layers[layerID].ClearSpriteQueue();
 
 	updateActiveObjects(*this);
+	GameState gameState(*this, keys);
 	for (std::deque<std::unique_ptr<GameObject>>::iterator it = Objects.begin(); it != Objects.end(); ++it) {
-		(**it).Behave(*this);
+		(**it).Behave(gameState);
 		//if ((**it).IsActive)
 			(**it).Draw(Layers);
 	}
