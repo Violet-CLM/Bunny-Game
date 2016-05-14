@@ -28,9 +28,9 @@ static int GetVersionSpecificAnimationID(int originalAnimID, bool isTSF) {
 }
 
 static ObjectList ObjectInitializationList;
-#define Obj(a, b, c, d, ...) {EventIDs::a, {GetVersionSpecificAnimationID(AnimSets::b, isTSF), [](GameObject* objBase){objBase->Behavior = std::unique_ptr<GameObjectBehavior>(new c(__VA_ARGS__)); return objBase; }, d}}
-#define ObjT(a, b, c) Obj(a, b, c, true, objBase)
-#define ObjTC(a, b, c, ...) Obj(a, b, c, true, objBase, __VA_ARGS__)
+#define Obj(a, b, c, d, ...) {EventIDs::a, {GetVersionSpecificAnimationID(AnimSets::b, isTSF), [](ObjectStartPos& objStart){ return (GameObject*)(new c(__VA_ARGS__)); }, d}}
+#define ObjT(a, b, c) Obj(a, b, c, true, objStart)
+#define ObjTC(a, b, c, ...) Obj(a, b, c, true, objStart, __VA_ARGS__)
 ObjectList* GetObjectList(bool isTSF) {
 	return &(ObjectInitializationList = {
 		ObjTC(GUN2AMMO3, Ammo, AmmoPickup, 1, 25, 24),
@@ -131,7 +131,7 @@ PreloadedAnimationsList GetDefaultAnimList(bool isTSF) {
 }
 
 bool ObjectsShouldCollide(const GameObject& a, const GameObject& b) {
-	return false;
+	return false; //todo
 }
 
 void ShouldObjectsBeActive(Level& level) {

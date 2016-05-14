@@ -1,22 +1,6 @@
 #include "Objects.h"
 #include "Level.h"
 
-bool GameObject::IsActive() const
-{
-	return Behavior != nullptr;
-}
-
-void GameObject::Behave(Level& level)
-{
-	if (IsActive())
-		Behavior->Behave(level);
-}
-void GameObject::Draw(Layer* layers) const
-{
-	if (IsActive())
-		Behavior->Draw(layers);
-}
-
 bool GameObject::CollidesWith(const GameObject& other) const
 {
 	if (!RoundedCorners && !other.RoundedCorners) { //both rectangular
@@ -40,16 +24,11 @@ AnimFrame & GameObject::GetFrame() const
 
 void ObjectInitialization::AddObject(Level& level, int x, int y) const
 {
-	level.Objects.push_back(std::unique_ptr<GameObject>(Function(new GameObject(x, y, AnimSets[AnimSetID], 0, 0))));
+	level.Objects.push_back(std::unique_ptr<GameObject>(Function(ObjectStartPos(float(x), float(y), AnimSets[AnimSetID]))));
 }
 
-void GameObjectBehavior::DetermineFrame(int frameID)
+void GameObject::DetermineFrame(int frameID)
 {
-	const int frameCount = BasicProperties->Set->Animations[BasicProperties->AnimID].AnimFrames->size();
-	BasicProperties->FrameID = (!!frameCount) ? (frameID % frameCount) : 0;
-}
-void GameObjectBehavior::DetermineFrame(int animID, int frameID)
-{
-	BasicProperties->AnimID = animID;
-	DetermineFrame(frameID);
+	const int frameCount = Set->Animations[AnimID].AnimFrames->size();
+	FrameID = (!!frameCount) ? (frameID % frameCount) : 0;
 }

@@ -4,39 +4,30 @@
 #include "Resources.h"
 #include "Layer.h"
 
-class GameObjectBehavior {
+class ObjectStartPos {
 	friend class GameObject;
+private:
+	float OriginX, OriginY;
+	const AnimSet* Set;
 public:
-	GameObjectBehavior(GameObject* go) : BasicProperties(go) {}
-
-protected:
-	GameObject* BasicProperties;
-	virtual void Behave(Level&) = 0;
-	virtual void Draw(Layer*) const = 0;
-
-	void DetermineFrame(int);
-	void DetermineFrame(int, int);
+	ObjectStartPos(float X, float Y, const AnimSet* S) : OriginX(X), OriginY(Y), Set(S) {}
 };
 
 class GameObject {
-	friend class GameObjectBehavior;
 	friend class ObjectInitialization;
 
 public:
 	float PositionX, PositionY;
 
-	bool IsActive() const;
-	void Behave(Level&);
-	void Draw(Layer*) const;
 	bool CollidesWith(const GameObject&) const;
 	AnimFrame& GetFrame() const;
 
-	GameObject(int x, int y, const AnimSet* a, unsigned int ai, unsigned int fi) : OriginX(float(x)), OriginY(float(y)), Set(a), AnimID(ai), FrameID(fi) {
-		PositionX = OriginX;
-		PositionY = OriginY;
+	GameObject(ObjectStartPos& objStart) {
+		PositionX = OriginX = objStart.OriginX;
+		PositionY = OriginY = objStart.OriginY;
+		Set = objStart.Set;
 	}
 
-	std::unique_ptr<GameObjectBehavior> Behavior;
 	float OriginX, OriginY;
 private:
 
@@ -46,9 +37,13 @@ private:
 	const AnimSet* Set;
 public:
 	unsigned int AnimID, FrameID;
+	virtual void Behave(Level&) = 0;
+	virtual void Draw(Layer*) const = 0;
+protected:
+	void DetermineFrame(int);
 };
 
-typedef GameObject* (*ObjectInitializationFunc)(GameObject*);
+typedef GameObject* (*ObjectInitializationFunc)(ObjectStartPos&);
 
 class Level;
 class ObjectInitialization {
