@@ -1,7 +1,9 @@
 #include <memory>
+#include "Level.h"
 #include "BunnyObjectList.h"
 #include "Pickups.h"
-#include "Level.h"
+#include "Bunny.h"
+#include "Diamondus.h"
 
 
 static int GetVersionSpecificAnimationID(int originalAnimID, bool isTSF) {
@@ -33,6 +35,8 @@ static ObjectList ObjectInitializationList;
 #define ObjTC(a, b, c, ...) Obj(a, b, c, true, objStart, __VA_ARGS__)
 ObjectList* GetObjectList(bool isTSF) {
 	return &(ObjectInitializationList = {
+		ObjT(BUBBLE, Jazz, Bunny),//todo
+
 		ObjTC(GUN2AMMO3, Ammo, AmmoPickup, 1, 25, 24),
 		ObjTC(GUN3AMMO3, Ammo, AmmoPickup, 2, 29, 28),
 		ObjTC(GUN4AMMO3, Ammo, AmmoPickup, 3, 34, 33),

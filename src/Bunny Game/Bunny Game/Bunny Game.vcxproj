@@ -168,12 +168,18 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BunnyObject.cpp" />
     <ClCompile Include="BunnyObjectList.cpp" />
+    <ClCompile Include="Diamondus.cpp" />
+    <ClCompile Include="Bunny.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Pickups.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BunnyObject.h" />
     <ClInclude Include="BunnyObjectList.h" />
+    <ClInclude Include="Diamondus.h" />
+    <ClInclude Include="Bunny.h" />
     <ClInclude Include="Pickups.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

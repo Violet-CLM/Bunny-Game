@@ -14,6 +14,7 @@
 class GameObject;
 class KeyStates;
 class Level : public LevelTileset, public sf::Drawable {
+	friend class GameState;
 private:
 	struct LevelHeader {
 	private:
@@ -56,6 +57,7 @@ private:
 	unsigned int MaskedHLine(int, int, int) const;	//
 	unsigned int MaskedVLine(int, int, int) const;	//
 
+	sf::Vector2f Camera;
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 public:
@@ -76,14 +78,17 @@ public:
 	void ForEachEvent(std::function<void(Event&, int, int)>);
 	Tile GetRealTile(Tile) const;
 
-	void Update(sf::Vector2i, ObjectActivityFunction&, KeyStates&);
+	void Update(ObjectActivityFunction&, KeyStates&);
 };
 
 class GameState {
 private:
 	Level& Lev;
 public:
-	KeyStates& Keys;
-	unsigned int& GameTicks;
-	GameState(Level& l, KeyStates& k) : Lev(l), Keys(k), GameTicks(l.GameTicks) {}
+	const KeyStates& Keys;
+	const unsigned int& GameTicks;
+	GameState(Level& l, const KeyStates& k) : Lev(l), Keys(k), GameTicks(l.GameTicks) {}
+
+	void SetCamera(float, float);
+	void CenterCamera(float, float);
 };

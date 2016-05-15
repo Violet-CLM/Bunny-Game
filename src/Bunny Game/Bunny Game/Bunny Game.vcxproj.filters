@@ -18,6 +18,18 @@
     <Filter Include="Stuff">
       <UniqueIdentifier>{c691131e-5481-4575-95c8-e549ea3c1010}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Behaviors">
+      <UniqueIdentifier>{89a160d7-2ca4-4501-9852-4c379e76aaf4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Behaviors">
+      <UniqueIdentifier>{44aea4da-998e-41d4-a1e3-90e39d543939}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Behaviors\Common">
+      <UniqueIdentifier>{981aeff3-776f-4ca5-ae44-4e2ec0429aa9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Behaviors\Common">
+      <UniqueIdentifier>{4a37f020-06b0-4457-bce6-674ae96519a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -27,7 +39,16 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Pickups.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Behaviors\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="BunnyObject.cpp">
+      <Filter>Source Files\Behaviors\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Diamondus.cpp">
+      <Filter>Source Files\Behaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="Bunny.cpp">
+      <Filter>Source Files\Behaviors\Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -45,7 +66,16 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Pickups.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Behaviors\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="BunnyObject.h">
+      <Filter>Header Files\Behaviors\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Diamondus.h">
+      <Filter>Header Files\Behaviors</Filter>
+    </ClInclude>
+    <ClInclude Include="Bunny.h">
+      <Filter>Header Files\Behaviors\Common</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

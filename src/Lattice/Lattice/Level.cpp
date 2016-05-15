@@ -185,7 +185,7 @@ void Level::UpdateAnimatedTiles() {
 			QuadsPerTile[animTileID] = QuadsPerTile[it->CurFrame.ID];
 	}
 }
-void Level::Update(sf::Vector2i mousePosition, ObjectActivityFunction& updateActiveObjects, KeyStates& keys)
+void Level::Update(ObjectActivityFunction& updateActiveObjects, KeyStates& keys)
 {
 	++GameTicks;
 
@@ -202,12 +202,10 @@ void Level::Update(sf::Vector2i mousePosition, ObjectActivityFunction& updateAct
 			(**it).Draw(Layers);
 	}
 
-	const sf::Vector2f camera(
-		mousePosition.x / float(WINDOW_WIDTH_PIXELS) * (WidthPixelsF - WINDOW_WIDTH_PIXELS),
-		mousePosition.y / float(WINDOW_HEIGHT_PIXELS) * (HeightPixelsF - WINDOW_HEIGHT_PIXELS)
-	);
+	//Camera.x = mousePosition.x / float(WINDOW_WIDTH_PIXELS) * (WidthPixelsF - WINDOW_WIDTH_PIXELS);
+	//Camera.y = mousePosition.y / float(WINDOW_HEIGHT_PIXELS) * (HeightPixelsF - WINDOW_HEIGHT_PIXELS);
 	for (int layerID = LEVEL_LAYERCOUNT - 1; layerID >= 0; --layerID)
-		Layers[layerID].Update(GameTicks, AnimOffset, camera);
+		Layers[layerID].Update(GameTicks, AnimOffset, Camera);
 }
 
 bool Level::MaskedPixel(int x, int y) const {
@@ -218,4 +216,15 @@ unsigned int Level::MaskedHLine(int x, int y, int length) const {
 }
 unsigned int Level::MaskedVLine(int x, int y, int length) const {
 	return Layers[SPRITELAYER].MaskedHLine(x, y, length);
+}
+
+void GameState::SetCamera(float x, float y)
+{
+	Lev.Camera.x = min(Lev.WidthPixelsF, max(0, x));
+	Lev.Camera.y = min(Lev.HeightPixelsF, max(0, y));
+}
+
+void GameState::CenterCamera(float x, float y)
+{
+	SetCamera(x - WINDOW_WIDTH_PIXELS / 2, y - WINDOW_HEIGHT_PIXELS / 2);
 }

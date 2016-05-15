@@ -1,13 +1,5 @@
 #pragma once
-#include "Objects.h"
-#include "Level.h"
-
-class BunnyObject : public GameObject { //put deactivates, etc. code in here
-	using GameObject::GameObject;
-	void Draw(Layer*) const override;
-protected:
-	int DirectionX, DirectionY;
-};
+#include "BunnyObject.h"
 
 class Pickup : public BunnyObject {
 	using BunnyObject::BunnyObject;
@@ -18,11 +10,7 @@ class Pickup : public BunnyObject {
 protected:
 	void Behave(GameState&) override;
 public:
-	Pickup(ObjectStartPos& objStart, int ai) : BunnyObject(objStart) {
-		AnimID = ai;
-		if (((int(OriginX) >> 5) & 1) != ((int(OriginY) >> 5) & 1)) //checkerboard
-			DirectionX = -1;
-	}
+	Pickup(ObjectStartPos& objStart, int ai);
 };
 class AmmoPickup : public Pickup {
 	int AmmoID;
@@ -31,7 +19,7 @@ class AmmoPickup : public Pickup {
 
 	void Behave(GameState&) override;
 public:
-	AmmoPickup(ObjectStartPos& objStart, int ai, int an, int anp) : Pickup(objStart, ai), AmmoID(ai), AnimIDNormal(an), AnimIDPoweredUp(anp) {}
+	AmmoPickup(ObjectStartPos& objStart, int ai, int an, int anp);
 };
 class Food : public Pickup {
 	using Pickup::Pickup;
@@ -81,11 +69,4 @@ public:
 class StopWatch : public Pickup {
 public:
 	StopWatch(ObjectStartPos& objStart) : Pickup(objStart, 87) {}
-};
-
-
-class Bee : public BunnyObject {
-	using BunnyObject::BunnyObject;
-	int Counter;
-	void Behave(GameState&) override;
 };

@@ -37,7 +37,7 @@ void Lattice::ProcessInput()
 
 void Lattice::Update()
 {
-	Level->Update(sf::Mouse::getPosition(*Window), *ActivateObjects, Keys);
+	Level->Update(*ActivateObjects, Keys);
 	Keys.Update();
 }
 
