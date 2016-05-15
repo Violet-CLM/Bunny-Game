@@ -220,8 +220,8 @@ unsigned int Level::MaskedVLine(int x, int y, int length) const {
 
 void GameState::SetCamera(float x, float y)
 {
-	Lev.Camera.x = min(Lev.WidthPixelsF, max(0, x));
-	Lev.Camera.y = min(Lev.HeightPixelsF, max(0, y));
+	Lev.Camera.x = max(0, min(Lev.WidthPixelsF - WINDOW_WIDTH_PIXELS, x));
+	Lev.Camera.y = max(0, min(Lev.HeightPixelsF- WINDOW_HEIGHT_PIXELS, y));
 }
 
 void GameState::CenterCamera(float x, float y)
