@@ -77,24 +77,18 @@ void Bunny::ProcessInputNoAirboard() {
 						SpeedX = 0;
 					else {
 						if (SpeedX) {
-							if (SpeedX < 0) {
-								if (run) {
-									if (SpeedX < -0.427246094)
-										SpeedX += 0.427246094;
-								}
-								else if (SpeedX < -0.122070312)
-									SpeedX += 0.122070312;
+							const float maxSpeedX = run ? 0.427246094f : 0.122070312f;
+							if (SpeedX > 0) {
+								if (SpeedX > maxSpeedX)
+									SpeedX -= maxSpeedX;
+								else
+									SpeedX = 0;
+							} else {
+								if (SpeedX < -maxSpeedX)
+									SpeedX += maxSpeedX;
 								else
 									SpeedX = 0;
 							}
-							else if (run) {
-								if (SpeedX > 0.427246094)
-									SpeedX -= 0.427246094;
-							}
-							else if (SpeedX > 0.122070312)
-								SpeedX -= 0.122070312;
-							else
-								SpeedX = 0;
 						}
 					}
 				}
@@ -461,16 +455,14 @@ void Bunny::ProcessInput()
 						//PlaySample(PositionX, PositionY, sAMMO_BULFL2, 0, 0); //todo sounds
 						if (runDash > 80)
 							runDash = runDash = 80;
-						int v70 = DirectionX * runDash << 16;
-						SpeedX = v70 >> 2;
-						int v71 = DirectionX * runDash << 11;
-						AccelerationX = v71 >> 4;
+						SpeedX = (DirectionX * runDash) / 4.f;
+						AccelerationX = SpeedX / 32.f;
 						runDash = 4 * (-250 - runDash);
 					}
 				}
 			}
 			else if ((runDash = ++runDash) & 3)
-				;// PlaySample(PositionX, PositionY, sCOMMON_REVUP, 20, 0); //todo sounds
+				{}// PlaySample(PositionX, PositionY, sCOMMON_REVUP, 20, 0); //todo sounds
 		}
 		/*if (vine && (move->jump || move->fire)) { //todo swinging vine
 			TgameObj* swingingVine = &gameObjects[0][vine];
@@ -867,10 +859,10 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 		PositionX = newPositionX;
 		PositionY = newPositionY;
 		hang = 0;
-		goLeft = 1;
-		goRight = 1;
-		goDown = 1;
-		goUp = 1;
+		goLeft = true;
+		goRight = true;
+		goDown = true;
+		goUp = true;
 
 		return;
 	}*/
@@ -936,9 +928,8 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 						}
 					}
 
-					newPositionY = (gravDir * 9 + py + ty);//+32767;
+					newPositionY = float(gravDir * 9 + py + ty);
 
-															  //debug6=9+py+ty;
 					mSpeedY = newPositionY - PositionY;
 					SpeedY = 0;
 					AccelerationY = 0;
@@ -950,8 +941,6 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 
 	  //start checking 24x24 block
 	firstPixelY = 0;
-
-	//debug2=0;
 
 	for (ty = 1; ty < 24; ++ty) {
 		check = gameState.MaskedHLine(px, py + ty*gravDir, 24, tileAttr);
@@ -969,9 +958,6 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 		}
 	}	//for ty
 
-		//debug5=-1;
-		//debug4=firstPixelY;
-
 	backtrace = 0;
 	if (firstPixelY) {	//if there are any pixels inside this block!
 		calc = 20 - int(abs(SpeedX));
@@ -983,7 +969,6 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 				check = gameState.MaskedHLine(px, py + ty*gravDir, 24, tileAttr);
 				if (mSpeedY < 0 && (tileAttr.ID == EventIDs::ONEWAY || tileAttr.ID == EventIDs::VINE || tileAttr.ID == EventIDs::HOOK)) {
 					check = 0;	//override for ONEWAY+VINE event (not bouncing ur head)
-					OutputDebugString(L"Hey!");
 				}
 
 				if (check) {
@@ -1013,7 +998,6 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 			backtrace = 1;	//do backtrace
 		}
 
-		//debug5=backtrace;
 		if (backtrace) {
 			//start backtracing, to see how far we could still walk in that
 			//particular direction
@@ -1076,17 +1060,16 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 		}	//fly=0
 
 		if (mSpeedX < 0) {
-			goLeft = 1;
+			goLeft = true;
 		}
 		else if (mSpeedX > 0) {
-			goRight = 1;
+			goRight = true;
 		}
 	}
 
 	px = int(PositionX) - 12;
 	py = int(PositionY) - (gravDir << 2);
 
-	//int(__cdecl *gameState.MaskedVLine)(int, int, int) = (gravDir == 1) ? gameState.MaskedVLine : gameState.MaskedVLineUpsideDown; //todo negative mask checks
 	goLeft = !gameState.MaskedVLine(px - 1, py, 20 * gravDir);
 	goRight = !gameState.MaskedVLine(px + 25, py, 20 * gravDir);
 	if (slope == 0) {
@@ -1099,7 +1082,7 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 	goUp = !gameState.MaskedHLine(px, py - (gravDir << 3), 24, tileAttr);
 
 	if (tileAttr.ID == EventIDs::VINE || tileAttr.ID == EventIDs::HOOK || (SpeedY < 0 && tileAttr.ID == EventIDs::ONEWAY)) {
-		goUp = 1;
+		goUp = true;
 	}
 
 	if (slope == 0 && !goUp && SpeedY < 0) {
@@ -1108,15 +1091,15 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 
 	goDown = !gameState.MaskedHLine(px, py + ((gravDir == 1) ? 25 : -25), 24, tileAttr);
 	if ((tileAttr.ID == EventIDs::VINE || tileAttr.ID == EventIDs::HOOK) && !hang/* && characterIndex != char2FROG*/) {
-		goDown = 1;
+		goDown = true;
 	}
 
 	 //todo buttstomp
 #ifndef NOWALLJUMPING
 	if (backtrace && downAttack < DOWNATTACKLEN) {
-		goUp = 1;
+		goUp = true;
 		SpeedY = -4;
-		goDown = 0;
+		goDown = false;
 		lastJump += 15; //so that you don't immediately resume copter-earing
 		downAttack = DOWNATTACKLEN;	//crash.... if oneway or backtraced
 	}
@@ -1127,7 +1110,7 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 	}
 
 	if (!goDown) {
-		goFarDown = 0;
+		goFarDown = false;
 
 		if (downAttack < DOWNATTACKLEN) {
 			downAttack = DOWNATTACKLEN;
@@ -1175,8 +1158,8 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 		if (goDown && SpeedY > 0) {
 			SpeedY = 0;
 		}
-		goDown = 0;
-		goFarDown = 0;
+		goDown = false;
+		goFarDown = false;
 		if (downAttack < DOWNATTACKLEN)
 			downAttack = DOWNATTACKLEN;
 	}*/
