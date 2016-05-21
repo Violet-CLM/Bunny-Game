@@ -2,13 +2,21 @@
 #include "Misc.h"
 #include "Windows.h"
 
+sf::Texture* PaletteTexture;
+
 quad PossibleQuadOrientations[2 * 2 * 2];
 quad FullScreenQuad;
 
 void GeneratePaletteTexture(sf::Texture& tex, const sf::Uint8* palette)
 {
+	PaletteTexture = &tex;
+
+	sf::Color buffer[COLORSPERPALETTE];
 	tex.create(COLORSPERPALETTE, pallineNUMBEROFPALLINES);
 	tex.update(palette, COLORSPERPALETTE, 1, 0, pallineNORMALPALETTE);
+	for (int i = 0; i < COLORSPERPALETTE; ++i)
+		buffer[i].r = i;
+	tex.update((sf::Uint8*)buffer, COLORSPERPALETTE, 1, 0, pallineXPOSTOINDEX);
 
 	for (int i = 0; i < shader_LAST; ++i) {
 		shaders[i]->setParameter("tables", tex); //cannot be used more than once...

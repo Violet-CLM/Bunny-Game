@@ -69,6 +69,8 @@ public:
 	bool SmallerThan(unsigned int) const;
 
 	void Draw(Layer&, int, int, bool=false, bool=false) const;
+	static void DrawRectangle(Layer&, int, int, int, int, sf::Uint8);
+	static void DrawPixel(Layer&, int, int, sf::Uint8);
 };
 class Animation {
 private:

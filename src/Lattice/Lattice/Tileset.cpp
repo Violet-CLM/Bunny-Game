@@ -78,8 +78,10 @@ bool Tileset::ProcessTilesetData(const char* TileTypes) //called after Open()
 
 	const sf::Uint32* MaskAddress = (const sf::Uint32*)data1Ptr;
 	const sf::Uint8* Masks = UncompressedData[3].data();
-	for (int i = 0; i < MAX_TILES * 2; ++i)
+	for (int i = 0; i < numberOfTilesInData1Arrays; ++i)
 		TileMaskPtrs[i] = *MaskAddress++ + Masks;
+	for (int i = 0; i < numberOfTilesInData1Arrays; ++i)
+		TileMaskPtrs[MAX_TILES + i] = *MaskAddress++ + Masks;
 
 	for (int i = 0; i < 3; ++i) { //these sections are no longer needed
 		UncompressedData[i].resize(0); UncompressedData[i].shrink_to_fit();
@@ -92,20 +94,30 @@ const sf::Uint8* Tileset::GetTileMask(Tile tile) const
 	return TileMaskPtrs[tile.ID + int(tile.HFlipped) * MAX_TILES];
 }
 
+void Tileset::CopyMask(int destID, int srcID)
+{
+	TileMaskPtrs[destID] = TileMaskPtrs[srcID];
+	TileMaskPtrs[destID ^ TILE_HFLIPPED] = TileMaskPtrs[srcID ^ TILE_HFLIPPED];
+}
+
 bool Tileset::MaskedPixel(Tile tile, unsigned int x, unsigned int y) const
 {
+	if (!tile.ID)
+		return false;
 	if (tile.VFlipped)
 		y = TILEHEIGHT - 1 - y;
 	if (tile.Rotated) {
 		unsigned int swap = x;
 		x = TILEWIDTH - 1 - y;
-		y = x;
+		y = swap;
 	}
 	return !!(GetTileMask(tile)[(x + y*TILEWIDTH) / BITS_PER_MASKBYTE] & (1 << (x % BITS_PER_MASKBYTE)));
 }
 
 unsigned int Tileset::MaskedVLine(Tile tile, unsigned int x, unsigned int y, unsigned int length) const
 {
+	if (!tile.ID)
+		return 0;
 	if (tile.VFlipped)
 		y = TILEHEIGHT - 1 - y;
 	if (tile.Rotated) {
@@ -123,6 +135,8 @@ unsigned int Tileset::MaskedVLine(Tile tile, unsigned int x, unsigned int y, uns
 
 unsigned int Tileset::MaskedHLine(Tile tile, unsigned int x, unsigned int y, unsigned int length) const
 {
+	if (!tile.ID)
+		return 0;
 	if (tile.VFlipped)
 		y = TILEHEIGHT - 1 - y;
 	if (tile.Rotated) {
@@ -138,18 +152,20 @@ unsigned int Tileset::MaskedHLine(Tile tile, unsigned int x, unsigned int y, uns
 		++x;
 	}
 	++mask;
-	while (distanceTested - length >= BITS_PER_MASKBYTE) {
-		if (!!*mask) {
-			++distanceTested;
-			if (!!(*mask & (1 << (x % BITS_PER_MASKBYTE))))
-				return distanceTested;
-			++x;
-		}
+	while (int(length - distanceTested) >= BITS_PER_MASKBYTE) {
+		if (!!*mask)
+			for (int i = 0; i < BITS_PER_MASKBYTE; ++i) {
+				++distanceTested;
+				if (!!(*mask & (1 << i)))
+					return distanceTested;
+			}
+		else distanceTested += BITS_PER_MASKBYTE;
 		++mask;
 	}
+	x = 0;
 	while (length > distanceTested) {
 		++distanceTested;
-		if (!!(*mask & (1 << (x % BITS_PER_MASKBYTE))))
+		if (!!(*mask & (1 << x)))
 			return distanceTested;
 		++x;
 	}

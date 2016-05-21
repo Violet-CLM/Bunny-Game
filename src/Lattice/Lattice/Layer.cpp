@@ -130,15 +130,16 @@ unsigned int Layer::MaskedHLine(int x, int y, int length) const //negative lengt
 	y /= TILEHEIGHT;
 	unsigned int lengthElapsed = 0;
 	if (xPosInTile != 0) {
-		const unsigned int lengthInTile = min(length, (TILEWIDTH - 1) - xPosInTile);
+		const unsigned int lengthInTile = min(length, TILEWIDTH - xPosInTile);
 		const unsigned int firstTileResult = LevelPtr->TilesetPtr->MaskedHLine(GetTile(x, y), xPosInTile, yPosInTile, lengthInTile);
 		if (firstTileResult != 0)
 			return firstTileResult;
 		length -= lengthInTile;
 		lengthElapsed += lengthInTile;
+		++x;
 	}
 	while (length > 0) {
-		if (++x >= Width)
+		if (x >= Width)
 			return 0;
 		const unsigned int lengthInTile = min(length, TILEWIDTH);
 		const unsigned int laterTileResult = LevelPtr->TilesetPtr->MaskedHLine(GetTile(x, y), 0, yPosInTile, lengthInTile);
@@ -146,6 +147,7 @@ unsigned int Layer::MaskedHLine(int x, int y, int length) const //negative lengt
 			return laterTileResult + lengthElapsed;
 		length -= lengthInTile;
 		lengthElapsed += lengthInTile;
+		++x;
 	}
 	return 0;
 }

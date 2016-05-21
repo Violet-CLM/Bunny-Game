@@ -192,3 +192,5 @@ void GenerateTilesetTextures(sf::Texture**, const char*, const sf::Uint32*, cons
 
 void InitPopulateTextureArrays();
 void InitCreateShaders();
+
+extern sf::Texture* PaletteTexture;

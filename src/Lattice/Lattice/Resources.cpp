@@ -1,5 +1,6 @@
 #include "Windows.h"
 #include "Resources.h"
+#include "Drawing.h"
 #include "Misc.h"
 
 std::vector<AnimSet*> AnimSets;
@@ -236,6 +237,19 @@ void AnimFrame::Draw(Layer& layer, int x, int y, bool flipX, bool flipY) const
 		repositionedQuad.flipVertically();
 	repositionedQuad.positionPositionAt(x + (!flipX ? HotspotX : -(Width+HotspotX)), y + (!flipY ? HotspotY : -(Height + HotspotY)));
 	layer.DrawQuad(repositionedQuad, Texture);
+}
+void AnimFrame::DrawRectangle(Layer& layer, int x, int y, int width, int height, sf::Uint8 color)
+{
+	quad rectangleQuad(static_cast<float>(width), static_cast<float>(height));
+	const sf::Vector2f texCoords(static_cast<float>(color), static_cast<float>(pallineXPOSTOINDEX));
+	rectangleQuad.positionPositionAt(x, y);
+	for (int i = 0; i < 4; ++i)
+		rectangleQuad.vertices[i].texCoords = texCoords;
+	layer.DrawQuad(rectangleQuad, PaletteTexture);
+}
+void AnimFrame::DrawPixel(Layer& layer, int x, int y, sf::Uint8 color)
+{
+	return DrawRectangle(layer, x, y, 1, 1, color);
 }
 Animation::Animation(const sf::Uint8*& animInfoData, const sf::Uint8*& frameInfoData, const sf::Uint8* const imageData)
 {

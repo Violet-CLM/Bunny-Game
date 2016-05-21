@@ -147,8 +147,10 @@ bool Level::ProcessLevelData(PreloadedAnimationsList defaultAnimList, ObjectList
 		it->GenerateFullFrameList(AnimatedTileFrames);
 	}
 	int animTileID = AnimOffset;
-	for (std::vector<AnimatedTile>::iterator it = AnimatedTiles.begin(); it != AnimatedTiles.end(); ++it, ++animTileID)
+	for (std::vector<AnimatedTile>::iterator it = AnimatedTiles.begin(); it != AnimatedTiles.end(); ++it, ++animTileID) {
 		QuadsPerTile[animTileID] = QuadsPerTile[it->CurFrame.ID];
+		TilesetPtr->CopyMask(animTileID, it->CurFrame.ID);
+	}
 
 	//more bytes may be stored after this in the .j2l depending on which level editor was used, but they're all useless
 
@@ -181,8 +183,10 @@ void Level::UpdateAnimatedTiles() {
 
 	for (std::vector<AnimatedTile>::iterator it = AnimatedTiles.begin(); it != AnimatedTiles.end(); ++it, ++animTileID) {
 		it->Update(time);
-		if (it->CurFrame.ID != it->LastCurFrame)
+		if (it->CurFrame.ID != it->LastCurFrame) {
 			QuadsPerTile[animTileID] = QuadsPerTile[it->CurFrame.ID];
+			TilesetPtr->CopyMask(animTileID, it->CurFrame.ID);
+		}
 	}
 }
 void Level::Update(ObjectActivityFunction& updateActiveObjects, KeyStates& keys)
@@ -208,14 +212,18 @@ void Level::Update(ObjectActivityFunction& updateActiveObjects, KeyStates& keys)
 		Layers[layerID].Update(GameTicks, AnimOffset, Camera);
 }
 
-bool Level::MaskedPixel(int x, int y) const {
-	return Layers[SPRITELAYER].MaskedPixel(x, y);
+bool GameState::MaskedPixel(int x, int y) const {
+	return Lev.Layers[SPRITELAYER].MaskedPixel(x, y);
 }
-unsigned int Level::MaskedHLine(int x, int y, int length) const {
-	return Layers[SPRITELAYER].MaskedHLine(x, y, length);
+unsigned int GameState::MaskedHLine(int x, int y, int length) const {
+	const auto retval = Lev.Layers[SPRITELAYER].MaskedHLine(x, y, length);
+	//AnimFrame::DrawRectangle(Lev.Layers[SPRITELAYER], x, y, length, 1, retval ? 16 : 24);
+	return retval;
 }
-unsigned int Level::MaskedVLine(int x, int y, int length) const {
-	return Layers[SPRITELAYER].MaskedHLine(x, y, length);
+unsigned int GameState::MaskedVLine(int x, int y, int length) const {
+	const auto retval = Lev.Layers[SPRITELAYER].MaskedVLine(x, y, length);
+	//AnimFrame::DrawRectangle(Lev.Layers[SPRITELAYER], x, y, 1, length, retval ? 16 : 24);
+	return retval;
 }
 
 void GameState::SetCamera(float x, float y)

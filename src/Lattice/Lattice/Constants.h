@@ -25,8 +25,9 @@ typedef sf::Rect<unsigned int> SpriteCoordinateRectangle;
 //LUTs stored in the GPU in the texture "tables", corresponding to paletteTexture32 in the CPU. Each row is 256 colors wide and is a single LUT (or a space where one could be added later). They may be rearranged freely--the shaders in drawing32shaders.cpp are generated using these enum values to determine which row to use for any given lookup.
 enum paletteLineNames {
 	pallineNORMALPALETTE = 0,
-	//pallineXPOSTOINDEX, pallineBRIGHTNESS, pallineBRIGHTNESSTOFREEZECOLORS, pallineMENUPLAYERSPRITEMAPPING, pallineTBGFADEINTENSITY, pallineHEATEFFECTOFFSETS, pallinePLAYERS, pallineGEMS = pallinePLAYERS + 32,
-	pallineNUMBEROFPALLINES = 1//64 //lowest containing power of 2; even if the platform supports other sizes, this makes for cleaner division and therefore access to specific lines
+	pallineXPOSTOINDEX,
+	//pallineBRIGHTNESS, pallineBRIGHTNESSTOFREEZECOLORS, pallineMENUPLAYERSPRITEMAPPING, pallineTBGFADEINTENSITY, pallineHEATEFFECTOFFSETS, pallinePLAYERS, pallineGEMS = pallinePLAYERS + 32,
+	pallineNUMBEROFPALLINES = 2//64 //lowest containing power of 2; even if the platform supports other sizes, this makes for cleaner division and therefore access to specific lines
 };
 enum shaderTypes { //or do I move this into the game-specific code?
 	shader_NORMAL,

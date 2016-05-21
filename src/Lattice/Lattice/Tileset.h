@@ -39,6 +39,7 @@ public:
 	bool ProcessTilesetData(const char*);
 
 	const sf::Uint8* GetTileMask(Tile) const;
+	void CopyMask(int, int);
 	bool MaskedPixel(Tile, unsigned int, unsigned int) const;
 	unsigned int MaskedVLine(Tile, unsigned int, unsigned int, unsigned int) const;
 	unsigned int MaskedHLine(Tile, unsigned int, unsigned int, unsigned int) const;

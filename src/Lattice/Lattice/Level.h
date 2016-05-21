@@ -53,10 +53,6 @@ private:
 	bool ReadSpecificFileHeader(std::ifstream&) override;
 	Level(std::wstring&);
 
-	bool MaskedPixel(int, int) const;				//shortcuts for Layers[SPRITELAYER]
-	unsigned int MaskedHLine(int, int, int) const;	//
-	unsigned int MaskedVLine(int, int, int) const;	//
-
 	sf::Vector2f Camera;
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
@@ -91,4 +87,8 @@ public:
 
 	void SetCamera(float, float);
 	void CenterCamera(float, float);
+
+	bool MaskedPixel(int, int) const;				//shortcuts for Layers[SPRITELAYER]
+	unsigned int MaskedHLine(int, int, int) const;	//
+	unsigned int MaskedVLine(int, int, int) const;	//
 };
