@@ -1,4 +1,5 @@
 #include "Bunny.h"
+#include "BunnyObjectList.h"
 
 
 Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), platformType(PlatformTypes::None), AccelerationX(0), SpeedY(0), AccelerationY(0), platform_relX(0), platform_relY(0), freeze(0), invincibility(0), airBoard(0), helicopter(0), helicopterTotal(0), specialJump(0), dive(0), lastDive(0), fire(0), lastFire(0), lastDownAttack(0), hit(0), hDir(0), vDir(0), moveSpeedX(0), moveSpeedY(0), fixScrollX(0), quakeX(0), warpCounter(0), frogMorph(0), bossActive(0), vPole(0), swim(0), stop(0), stoned(0), stonedLen(0), spring(0), specialMove(0), slope(0), shiftPositionX(0), runDash(0), run(0), lastRun(0), rolling(0), quake(0), platform(0), ledgeWiggle(0), lastSpring(0), lastJump(0), idleTime(0), hPole(0), hang(0), vine(0), goUp(0), goRight(0), goLeft(0), goDown(0), goFarDown(0), fly(0), fixStartX(0), downAttack(DOWNATTACKLEN), charCurr(0), characterIndex(0), beMoved(0)
@@ -76,7 +77,6 @@ void Bunny::ProcessInputNoAirboard() {
 						SpeedX = 0;
 					else {
 						if (SpeedX) {
-							//SpeedX = 0; //??
 							if (SpeedX < 0) {
 								if (run) {
 									if (SpeedX < -0.427246094)
@@ -84,6 +84,8 @@ void Bunny::ProcessInputNoAirboard() {
 								}
 								else if (SpeedX < -0.122070312)
 									SpeedX += 0.122070312;
+								else
+									SpeedX = 0;
 							}
 							else if (run) {
 								if (SpeedX > 0.427246094)
@@ -91,6 +93,8 @@ void Bunny::ProcessInputNoAirboard() {
 							}
 							else if (SpeedX > 0.122070312)
 								SpeedX -= 0.122070312;
+							else
+								SpeedX = 0;
 						}
 					}
 				}
@@ -506,7 +510,7 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 	int stepN;
 	float stepX, stepY;
 	int checkY;
-
+	Event tileAttr;
 
 	/*	this function checks the player against a 24x24 pixel block, which
 	should be completely empty for the player to walk through.
@@ -909,14 +913,14 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 
 	//first: check if we gonna hit a vine
 	//if (mSpeedY>=0)
-	/*if (!fly && characterIndex != char2FROG) { //todo vine stuff
+	if (!fly) {// && characterIndex != char2FROG) { //todo frog
 		for (ty = (gravDir == 1 ? -8 : 11); ty; ty += gravDir) {
 			check = gameState.MaskedHLine(px, py + ty, 24);
 			if (!check) {	//really nothing there
-				check = gameState.MaskedHLine(px, py + ty, 24); //now, test for *tileAttr3
-				if (check && (*tileAttr == areaVINE || *tileAttr == areaHOOK)) {
+				check = gameState.MaskedHLine(px, py + ty, 24, tileAttr);
+				if (check && (tileAttr.ID == EventIDs::VINE || tileAttr.ID == EventIDs::HOOK)) {
 					if (!hang) {
-						if (*tileAttr == areaVINE) {
+						if (tileAttr.ID == EventIDs::VINE) {
 							hang = 1;
 						}
 						else {
@@ -928,7 +932,7 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 						}
 
 						if (SpeedY > 4) {
-							PlaySample(PositionX, PositionY, sCOMMON_FOEW3, 0, 30000);
+							//PlaySample(PositionX, PositionY, sCOMMON_FOEW3, 0, 30000); //todo sample
 						}
 					}
 
@@ -942,7 +946,7 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 				}
 			}
 		}	//for ty
-	} //else helicopter = 0;	//if not a bird/flier: falling*/
+	} //else helicopter = 0;	//if not a bird/flier: falling
 
 	  //start checking 24x24 block
 	firstPixelY = 0;
@@ -950,17 +954,15 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 	//debug2=0;
 
 	for (ty = 1; ty < 24; ++ty) {
-		check = gameState.MaskedHLine(px, py + ty*gravDir, 24);
+		check = gameState.MaskedHLine(px, py + ty*gravDir, 24, tileAttr);
 		if (check) {
-			/*if (*tileAttr == areaVINE || *tileAttr == areaHOOK) { //todo tileattr
-				//check=0;
-				//break;
+			if (tileAttr.ID == EventIDs::VINE || tileAttr.ID == EventIDs::HOOK) {
+				//do nothing
 			}
-			else if (mSpeedY < 0 && *tileAttr == areaONEWAY) {
-				//check=0;	//override for ONEWAY+VINE event
-				//break;
+			else if (mSpeedY < 0 && tileAttr.ID == EventIDs::ONEWAY) {
+				//do nothing
 			}
-			else*/ {
+			else {
 				firstPixelY = ty;
 				break;	//break out of ty loop
 			}
@@ -978,10 +980,11 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 		if (firstPixelY >= calc) {	//4=max stephite
 			checkCeiling = 0;
 			for (ty = 1; ty >= firstPixelY - 24; --ty) {
-				check = gameState.MaskedHLine(px, py + ty*gravDir, 24);
-				/*if (mSpeedY < 0 && (*tileAttr == areaONEWAY || *tileAttr == areaVINE || *tileAttr == areaHOOK)) { //todo tileattr
+				check = gameState.MaskedHLine(px, py + ty*gravDir, 24, tileAttr);
+				if (mSpeedY < 0 && (tileAttr.ID == EventIDs::ONEWAY || tileAttr.ID == EventIDs::VINE || tileAttr.ID == EventIDs::HOOK)) {
 					check = 0;	//override for ONEWAY+VINE event (not bouncing ur head)
-				}*/
+					OutputDebugString(L"Hey!");
+				}
 
 				if (check) {
 					checkCeiling = ty;
@@ -1024,18 +1027,18 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 				py = int(PositionY) - (gravDir << 2);
 
 				for (ty = 0; ty < 24; ++ty) {	//check 24x24
-					check = gameState.MaskedHLine(px, py + ty*gravDir, 24);
-					//if (stepY < 0 && (*tileAttr == areaONEWAY || *tileAttr == areaVINE))
+					check = gameState.MaskedHLine(px, py + ty*gravDir, 24, tileAttr);
+					if (stepY < 0 && (tileAttr.ID == EventIDs::ONEWAY || tileAttr.ID == EventIDs::VINE))
 
-					/*if (*tileAttr == areaVINE || *tileAttr == areaHOOK) //todo tileattr
+					if (tileAttr.ID == EventIDs::VINE || tileAttr.ID == EventIDs::HOOK)
 						check = 0;	//override for ONEWAY+VINE event
 					else {
-						if (*tileAttr == areaONEWAY && (mSpeedY < 0 || ty < 20))
+						if (tileAttr.ID == EventIDs::ONEWAY && (mSpeedY < 0 || ty < 20))
 							check = 0;
-						else*/ if (check){
+						else if (check){
 							break;
 						}
-					/*}*/
+					}
 				} //for ty
 
 				if (!check) {
@@ -1093,23 +1096,20 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 		}
 	}
 
-	goUp = !gameState.MaskedHLine(px, py - (gravDir << 3), 24);
+	goUp = !gameState.MaskedHLine(px, py - (gravDir << 3), 24, tileAttr);
 
-	/*if (*tileAttr == areaVINE || *tileAttr == areaHOOK) { //todo tileattr
+	if (tileAttr.ID == EventIDs::VINE || tileAttr.ID == EventIDs::HOOK || (SpeedY < 0 && tileAttr.ID == EventIDs::ONEWAY)) {
 		goUp = 1;
 	}
-	else if (SpeedY < 0 && *tileAttr == areaONEWAY) {
-		goUp = 1;
-	}*/
 
 	if (slope == 0 && !goUp && SpeedY < 0) {
 		SpeedY = 0;
 	}
 
-	goDown = !gameState.MaskedHLine(px, py + ((gravDir == 1) ? 25 : -25), 24);
-	/*if ((*tileAttr == areaVINE || *tileAttr == areaHOOK) && !hang && characterIndex != char2FROG) { //todo tileattr
+	goDown = !gameState.MaskedHLine(px, py + ((gravDir == 1) ? 25 : -25), 24, tileAttr);
+	if ((tileAttr.ID == EventIDs::VINE || tileAttr.ID == EventIDs::HOOK) && !hang/* && characterIndex != char2FROG*/) {
 		goDown = 1;
-	}*/
+	}
 
 	 //todo buttstomp
 #ifndef NOWALLJUMPING

@@ -145,13 +145,15 @@ unsigned int Tileset::MaskedHLine(Tile tile, unsigned int x, unsigned int y, uns
 	}
 	const sf::Uint8* mask = GetTileMask(tile) + (x + y*TILEWIDTH) / BITS_PER_MASKBYTE;
 	unsigned int distanceTested = 0;
-	while (x % BITS_PER_MASKBYTE != 0 && length > distanceTested) {
-		++distanceTested;
-		if (!!(*mask & (1 << (x % BITS_PER_MASKBYTE))))
-			return distanceTested;
-		++x;
+	if (x % BITS_PER_MASKBYTE != 0) {
+		while (x % BITS_PER_MASKBYTE != 0 && length > distanceTested) {
+			++distanceTested;
+			if (!!(*mask & (1 << (x % BITS_PER_MASKBYTE))))
+				return distanceTested;
+			++x;
+		}
+		++mask;
 	}
-	++mask;
 	while (int(length - distanceTested) >= BITS_PER_MASKBYTE) {
 		if (!!*mask)
 			for (int i = 0; i < BITS_PER_MASKBYTE; ++i) {

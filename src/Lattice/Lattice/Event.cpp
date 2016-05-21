@@ -72,3 +72,8 @@ int Event::SetParameter(int offset, int size, int value)
 	raw |= (nVal << (offset + 12)); //add the new (size) bits at (offset)
 	return value;
 }
+
+sf::Uint32 Event::operator=(sf::Uint32 other)
+{
+	return raw = other;
+}

@@ -22,5 +22,7 @@ public:
 
 	int GetParameter(int, int) const;
 	int SetParameter(int, int, int);
+
+	sf::Uint32 operator=(sf::Uint32);
 };
 static_assert(sizeof(Event) == sizeof(sf::Uint32), "Event incorrect size!");

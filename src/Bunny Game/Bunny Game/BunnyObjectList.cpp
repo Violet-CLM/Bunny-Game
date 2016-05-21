@@ -35,7 +35,7 @@ static ObjectList ObjectInitializationList;
 #define ObjTC(a, b, c, ...) Obj(a, b, c, true, objStart, __VA_ARGS__)
 ObjectList* GetObjectList(bool isTSF) {
 	return &(ObjectInitializationList = {
-		ObjT(BUBBLE, Jazz, Bunny),//todo
+		ObjT(JAZZSTART, Jazz, Bunny),//todo
 
 		ObjTC(GUN2AMMO3, Ammo, AmmoPickup, 1, 25, 24),
 		ObjTC(GUN3AMMO3, Ammo, AmmoPickup, 2, 29, 28),

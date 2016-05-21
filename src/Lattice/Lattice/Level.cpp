@@ -58,7 +58,7 @@ void Level::draw(sf::RenderTarget& target, sf::RenderStates states) const
 }
 Event& Level::GetEvent(unsigned int x, unsigned int y)
 {
-	return ((Event*)UncompressedData[1].data())[x + y * HeightTiles];
+	return ((Event*)UncompressedData[1].data())[x + y * WidthTiles];
 }
 void Level::ForEachEvent(std::function<void(Event&, int, int)> func)
 {
@@ -224,6 +224,33 @@ unsigned int GameState::MaskedVLine(int x, int y, int length) const {
 	const auto retval = Lev.Layers[SPRITELAYER].MaskedVLine(x, y, length);
 	//AnimFrame::DrawRectangle(Lev.Layers[SPRITELAYER], x, y, 1, length, retval ? 16 : 24);
 	return retval;
+}
+bool GameState::MaskedPixel(int x, int y, Event& outEvent) const {
+	const auto retval = MaskedPixel(x, y);
+	if (retval) {
+		outEvent = Lev.GetEvent(x / TILEWIDTH, y / TILEHEIGHT);
+		return true;
+	}
+	outEvent = 0;
+	return false;
+}
+unsigned int GameState::MaskedHLine(int x, int y, int length, Event& outEvent) const {
+	const auto retval = MaskedHLine(x, y, length);
+	if (retval) {
+		outEvent = Lev.GetEvent((x + retval-1) / TILEWIDTH, y / TILEHEIGHT);
+		return retval;
+	}
+	outEvent = 0;
+	return 0;
+}
+unsigned int GameState::MaskedVLine(int x, int y, int length, Event& outEvent) const {
+	const auto retval = MaskedVLine(x, y, length);
+	if (retval) {
+		outEvent = Lev.GetEvent(x / TILEWIDTH, (y + retval - 1) / TILEHEIGHT);
+		return retval;
+	}
+	outEvent = 0;
+	return 0;
 }
 
 void GameState::SetCamera(float x, float y)

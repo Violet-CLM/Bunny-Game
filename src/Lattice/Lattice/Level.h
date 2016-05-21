@@ -91,4 +91,7 @@ public:
 	bool MaskedPixel(int, int) const;				//shortcuts for Layers[SPRITELAYER]
 	unsigned int MaskedHLine(int, int, int) const;	//
 	unsigned int MaskedVLine(int, int, int) const;	//
+	bool MaskedPixel(int, int, Event&) const;		//tileAttr variants
+	unsigned int MaskedHLine(int, int, int, Event&) const;	//
+	unsigned int MaskedVLine(int, int, int, Event&) const;	//
 };
