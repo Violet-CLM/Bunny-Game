@@ -253,6 +253,11 @@ unsigned int GameState::MaskedVLine(int x, int y, int length, Event& outEvent) c
 	return 0;
 }
 
+Event GameState::GetEvent(unsigned int x, unsigned int y) const
+{
+	return Lev.GetEvent(x, y);
+}
+
 void GameState::SetCamera(float x, float y)
 {
 	Lev.Camera.x = max(0, min(Lev.WidthPixelsF - WINDOW_WIDTH_PIXELS, x));

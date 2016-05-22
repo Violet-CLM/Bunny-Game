@@ -94,4 +94,6 @@ public:
 	bool MaskedPixel(int, int, Event&) const;		//tileAttr variants
 	unsigned int MaskedHLine(int, int, int, Event&) const;	//
 	unsigned int MaskedVLine(int, int, int, Event&) const;	//
+
+	Event GetEvent(unsigned int, unsigned int) const;
 };

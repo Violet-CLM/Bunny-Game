@@ -437,13 +437,13 @@ void Bunny::ProcessInput()
 			downAttack = downAttack;
 		}
 		if (KeyRun){// && characterProfile[characterIndex].canRun) { //changed //todo? character profiles
-			run = std::min(32, ++run);
+			run = std::min(32, run + 1);
 			if (lastRun > 2 && lastRun < 15 && !runDash)
 				runDash = 1;
 			lastRun = 0;
 		}
 		else {
-			run = std::max(0, run -= 2);
+			run = std::max(0, run - 2);
 			++lastRun;
 		}
 		if (!SpeedX && !AccelerationX && !SpeedY && !hang) { //start up a runDash
@@ -743,81 +743,73 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 
 	//check for conveyor belts
 
-	/*if (!goDown) { //todo belts
-		bx = (PositionX + 15) / (32);
-		by = (PositionY + ((24 << 16) ^ gravDir)) / (32);
-		check = GetEvent(bx, by);
-		bx = calc = GetEventParam(bx, by, 0, -8);
+	if (!goDown) {
+		bx = int(PositionX + 15) / TILEWIDTH;
+		by = int(PositionY + (24 * gravDir)) / TILEHEIGHT;
+		Event floorEvent = gameState.GetEvent(bx, by);
+		bx = calc = floorEvent.GetParameter(0, -8);
+		if (!calc) calc = 2;
 
-		switch (check) {
-		case areaBELTRIGHT:
+		switch (floorEvent.ID) {
+		case EventIDs::BELTRIGHT:
 			mSpeedX += calc;
 			break;
-		case areaBELTLEFT:
+		case EventIDs::BELTLEFT:
 			mSpeedX -= calc;
 			break;
-		case areaBELTACCRIGHT:
+		case EventIDs::BELTACCRIGHT:
 			SpeedX += calc;
 			mSpeedX += calc;
 			break;
-		case areaBELTACCLEFT:
+		case EventIDs::BELTACCLEFT:
 			SpeedX -= calc;
 			mSpeedX -= calc;
 			break;
 			// violet
 			// ideally this would affect the deceleration somehow, instead of continually
 			// upping the speed, but doing it this way is a lot easier.
-		case areaSLIDE:
+		case EventIDs::SLIDE:
 			bx &= 3;
 			if (SpeedX && (
 				!AccelerationX ||
 				(AccelerationX < 0 && SpeedX > 0) ||
 				(AccelerationX > 0 && SpeedX < 0)
 				)) {
-				SpeedX += (((run) ? (16000 + bx * 2500) : (4000 + bx * 800)) * ((SpeedX > 0) ? 1 : -1));
+				SpeedX += (((run) ? (16000 + bx * 2500) : (4000 + bx * 800)) * ((SpeedX > 0) ? 1 : -1)) / 65536.f;
 			}
 			break;
 		}
-	}*/
+	}
 	//check for wind
 	//need to build in code that finds these events, and then
 	//executes these parts of code when the events are in a level
 	//at all! should speed up a tad
 	bx = int(PositionX / TILEWIDTH);
 	by = int(PositionY / TILEHEIGHT);
-	/*if (hPole < -5 && vPole < -5) for (stepY = 0; stepY < 2; stepY++) { //todo wind
-		for (stepX = 0; stepX < 2; stepX++) {
-			check = GetEvent(bx + stepX, by + stepY);
-			if (check == areaWINDLEFT) {
-				//SpeedX-=16384;
-				calc = GetEventParam(bx + stepX, by + stepY, 0, -8);
+	if (hPole < -5 && vPole < -5) for (int stepY = 0; stepY < 2; stepY++) { //todo wind
+		for (int stepX = 0; stepX < 2; stepX++) {
+			Event eventHere = gameState.GetEvent(bx + stepX, by + stepY);
+			if (eventHere.ID == EventIDs::WINDLEFT) {
+				calc = eventHere.GetParameter(0, -8);
 				if (!calc) {
-					mSpeedX -= 2 * 32768;
+					mSpeedX -= 1;
 				}
 				else {
-					mSpeedX += calc * 16384;
+					mSpeedX += calc * 0.25f;
 				}
 				idleTime = 0;
-			}
-			else if (check == areaWINDRIGHT) {
-				calc = GetEventParam(bx + stepX, by + stepY, 0, -8);
+			} else if (eventHere.ID == EventIDs::WINDRIGHT) {
+				calc = eventHere.GetParameter(0, -8);
 				if (!calc) {
-					mSpeedX += 2 * 32768;
+					mSpeedX += 1;
 				}
 				else {
-					mSpeedX += calc * 16384;
+					mSpeedX += calc * 0.25f;
 				}
 				idleTime = 0;
-			}
-			else if (check == areaFLOATUP) {
-				//mSpeedY -= 3;
-				//SpeedY = mSpeedY;
-				//AccelerationY -= 16384;
-
+			} else if (eventHere.ID == EventIDs::FLOATUP) {
 				SpeedY -= (8 - abs(SpeedY));
-
-				//SpeedY += (-16-SpeedY)/16;
-				if (characterIndex != char2FROG) AccelerationY = -32768;
+				/*if (characterIndex != char2FROG)*/ AccelerationY = -0.5f; //todo frog?
 				mSpeedY = SpeedY;
 				if (mSpeedY > 4) {
 					mSpeedY = 4;
@@ -825,7 +817,7 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 				idleTime = 0;
 			}
 		}
-	}*/
+	}
 	//end check for wind
 
 
