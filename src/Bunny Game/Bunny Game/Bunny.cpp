@@ -786,7 +786,7 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 	//at all! should speed up a tad
 	bx = int(PositionX / TILEWIDTH);
 	by = int(PositionY / TILEHEIGHT);
-	if (hPole < -5 && vPole < -5) for (int stepY = 0; stepY < 2; stepY++) { //todo wind
+	if (hPole < -5 && vPole < -5) for (int stepY = 0; stepY < 2; stepY++) {
 		for (int stepX = 0; stepX < 2; stepX++) {
 			Event eventHere = gameState.GetEvent(bx + stepX, by + stepY);
 			if (eventHere.ID == EventIDs::WINDLEFT) {
@@ -1040,7 +1040,7 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 			px = int(newPositionX) - 12;
 			py = int(newPositionY) - (gravDir << 2);
 
-			checkY = std::min(28 + int(abs(SpeedX)), 32);
+			checkY = std::max(28 + int(abs(SpeedX)), 32);
 
 			for (ty = 24; ty < checkY; ++ty) {
 				if (gameState.MaskedHLine(px, py + ty*gravDir, 24)) {

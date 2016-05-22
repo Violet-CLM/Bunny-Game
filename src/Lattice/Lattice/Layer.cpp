@@ -176,9 +176,10 @@ unsigned int Layer::MaskedVLine(int x, int y, int length) const //fractionally e
 			return firstTileResult;
 		length -= lengthInTile;
 		lengthElapsed += lengthInTile;
+		++y;
 	}
 	while (length > 0) {
-		if (++y >= Height)
+		if (y >= Height)
 			return 0;
 		const unsigned int lengthInTile = min(length, TILEHEIGHT);
 		const unsigned int laterTileResult = LevelPtr->TilesetPtr->MaskedVLine(GetTile(x, y), xPosInTile, 0, lengthInTile);
@@ -186,6 +187,7 @@ unsigned int Layer::MaskedVLine(int x, int y, int length) const //fractionally e
 			return laterTileResult + lengthElapsed;
 		length -= lengthInTile;
 		lengthElapsed += lengthInTile;
+		++y;
 	}
 	return 0;
 }
