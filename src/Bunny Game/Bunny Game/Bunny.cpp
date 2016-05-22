@@ -1,7 +1,6 @@
 #include "Bunny.h"
 #include "BunnyObjectList.h"
 
-
 Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), platformType(PlatformTypes::None), AccelerationX(0), SpeedY(0), AccelerationY(0), platform_relX(0), platform_relY(0), freeze(0), invincibility(0), airBoard(0), helicopter(0), helicopterTotal(0), specialJump(0), dive(0), lastDive(0), fire(0), lastFire(0), lastDownAttack(0), hit(0), hDir(0), vDir(0), moveSpeedX(0), moveSpeedY(0), fixScrollX(0), quakeX(0), warpCounter(0), frogMorph(0), bossActive(0), vPole(0), swim(0), stop(0), stoned(0), stonedLen(0), spring(0), specialMove(0), slope(0), shiftPositionX(0), runDash(0), run(0), lastRun(0), rolling(0), quake(0), platform(0), ledgeWiggle(0), lastSpring(0), lastJump(0), idleTime(0), hPole(0), hang(0), vine(0), goUp(0), goRight(0), goLeft(0), goDown(0), goFarDown(0), fly(0), fixStartX(0), downAttack(DOWNATTACKLEN), charCurr(0), characterIndex(0), beMoved(0)
 {
 	AnimID = 67;
@@ -486,8 +485,6 @@ void Bunny::ProcessInput()
 	}
 }
 
-#include "Windows.h"
-#include "Misc.h"
 void Bunny::DoLandscapeCollision(GameState& gameState)
 {
 	int px, py;
@@ -1342,8 +1339,418 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 		}
 	}*/
 }
-void Bunny::DoZoneDetection()
+void Bunny::DoZoneDetection(Event curEvent)
 {
+	const int currentTilePosition = (int(PositionX / TILEWIDTH) << 16) | int(PositionY / TILEHEIGHT);
+	switch (curEvent.ID) {
+	/*case aTEXT:
+		if (curEvent.GetParameter(9, 1)) { // AngelScript function!
+			if (lastTilePosition != currentTilePosition) {
+				if (AllowLocallyEnactedAdditions() && ASengine && scriptFileIsProperlyFormatted) {
+					Word8 fID = curEvent.GetParameter(0, 8);
+					if (!getBoolValueAtIndex(ASnumberedfunctionsaredisabled, fID)) {
+						if (ASnumberedfunctionpointers[fID]) {
+							ASctx->Prepare(ASnumberedfunctionpointers[fID]);
+							if (getBoolValueAtIndex(ASnumberedfunctionstakeparameters, fID)) {
+								if (ASnumberedfunctionpointers[fID]->GetParamCount() == 2) {
+									ASctx->SetArgObject(0, play);
+									ASctx->SetArgByte(1, curEvent.GetParameter(10, 8));
+								}
+								else {
+									ASctx->SetArgByte(0, curEvent.GetParameter(10, 8));
+									setASplayer(playerID);
+								}
+							}
+							else if (ASnumberedfunctionpointers[fID]->GetParamCount() == 1)
+								ASctx->SetArgObject(0, play);
+							else setASplayer(playerID);
+							if (ASctx->Execute() == asEXECUTION_EXCEPTION)
+								AngelEcho(sprintf_z("ANGELSCRIPT: An exception '%s' occurred. Please correct the code and try again.", ASctx->GetExceptionString()));
+							ASctx->Unprepare();
+							if (curEvent.GetParameter(8, 1)) //disable
+								setBoolValueAtIndexToTrue(ASnumberedfunctionsaredisabled, fID);
+						}
+						else
+							AngelEcho(sprintf_z("ANGELSCRIPT: The script must have a function 'onFunction%d'. Please add it and try again.", fID));
+					}
+				}
+				else if (NetGlobals->isServer)
+					CommandEcho("|AngelScript will not run if Plus Only and Latest Version Only aren't turned on!");
+			}
+		}
+		else { // display help string, the normal behavior
+			Tdisplay* display = &display[FindEmptyMessage(playerID, 6)];
+			calc = curEvent.GetParameter(0, 8);
+			int bx;
+			if (bx = curEvent.GetParameter(10, 8)) calc |= bx << 8 | localPlayerID << 16;
+			if (display->state == 6 && display->var1 == calc) {
+				break;
+			}
+
+			display->state = 6;
+			display->counter = -6 * AISPEED;
+			display->var1 = calc;
+			display->PositionX = 0; //small
+			if (bx) { // offset
+				strcpy(
+					playerHelpStrings[localPlayerID],
+					GetStringFromSplitAndOffset(
+						'|',
+						LevelGlobals->helpString[calc & 15], bx
+					).c_str()
+				);
+			}
+			if (curEvent.GetParameter(8, 1)) { //vanish
+				MySetEvent(px, py, 0);
+			}
+		}
+
+		break;*/
+
+	/*case aWATERBLOCK:
+		if (lastEvent != aWATERBLOCK) {
+			calc = (PositionY & 0xffe00000) + (curEvent.GetParameter(0, -8) << 16);
+			AddExplosion(PositionX, calc, AnimBase[mCOMMON] + mCOMMON_SPLASH);
+
+			PlaySample(PositionX, calc, sCOMMON_WATER, 0, 0);
+		}
+		break;*/
+
+	/*case aWATERLEVEL:
+		calc = curEvent.GetParameter(0, 8);
+
+		if (calc == 0) {
+			GameGlobals->level.newWaterLevel = py * 32 * 65536 + 15 * 65536;
+			//} else if (calc > GameGlobals->level.blockHeight && curEvent.GetParameter(8, 1)) {
+			//	GameGlobals->level.newWaterLevel = 0x7FFFFFFF;
+		}
+		else {
+			GameGlobals->level.newWaterLevel = calc * 32 * 65536;
+		}
+
+		if (curEvent.GetParameter(8, 1)) {	//INSTANT!
+			GameGlobals->level.waterLevel = GameGlobals->level.newWaterLevel;
+		}
+		// violet
+		waterLightMode = curEvent.GetParameter(9, 2);
+		break;*/
+
+	/*case aMORPHFROG:
+		if (characterIndex != char2FROG) {
+			PlaySample(PositionX, PositionY, sFROG_JAZZ2FROG, 0, 0);
+
+			//added so that the local client tells other clients/server of a change in
+			//characters. ChangeCharacter also always sets .fly to zero when morphing
+			//from a bird.
+			ChangeCharacter(play, char2FROG);
+
+			frogMorph = 2 * AISPEED;
+			fly = 0;
+		}
+		break;*/
+
+	/*case aSUCKERTUBE: {
+		if (curEvent.GetParameter(16, 1) != (platformType == aSUCKERTUBE)) break;
+		warpFall = 0;
+		calc = px + py*((int)GameGlobals->level.blockWidth + 1); //LAYER_WIDTH[SPRITELAYER]
+
+		int waitTime = curEvent.GetParameter(17, 3);
+		int gravDir = ((getPlayerVarSettingLocal(play, pvANTIGRAV)) ? 0xFFFFFFFF : 0x00000000);
+
+		if (waitTime && calc != lastTilePosition) {
+			SpeedX =
+				SpeedY =
+				platform_relX =
+				platform_relY = 0;
+
+			PositionX = (PositionX + (px * 32 + 15) * 65536) / 2;
+			PositionY = (PositionY + (py * 32 + 15) * 65536) / 2;
+			downAttack = DOWNATTACKLEN; //turn it off!
+			specialMove = 0;
+
+			if (-calc == lastTilePosition) {
+				if (sucked <= 0) {
+					if (curEvent.GetParameter(14, 1))
+						PlaySample(PositionX, PositionY, sCOMMON_BURN, 0, 50000);
+
+					SpeedX = curEvent.GetParameter(0, -7) * 65536;
+					SpeedY = (curEvent.GetParameter(7, -7) * 65536) ^ gravDir;
+
+					if (SpeedY < 0) {
+						spring = 1;
+						lastSpring = *gameTicks;
+					}
+					sucked = AISPEED / 4;
+					//rolling = AISPEED/2;
+					lastTilePosition = calc; //don't retrigger
+					if (curEvent.GetParameter(15, 1)) { //violet's noclip mode
+						platformType = aSUCKERTUBE;
+						platform_relX = SpeedX;
+						platform_relY = SpeedY^gravDir;
+						playX->gravity = 0;
+					}
+					else {
+						platformType = 0;
+						playX->gravity = GameGlobals->level.gravity;
+					}
+				}
+			}
+			else {
+				lastTilePosition = -calc;
+				sucked = waitTime*AISPEED / 2;
+			}
+		}
+		else {
+			if (curEvent.GetParameter(14, 1))// TrigSample, written by blur, uncommented by Violet
+				PlaySample(PositionX, PositionY, sCOMMON_BURN, 0, 50000); //perhaps not the ideal sound?
+
+			SpeedX = curEvent.GetParameter(0, -7) * 65536;
+			SpeedY = (curEvent.GetParameter(7, -7) * 65536) ^ gravDir;
+			AccelerationX = 0;
+			AccelerationY = 0;
+
+			if (SpeedY && (!SpeedX || calc != lastTilePosition)) {	//align!
+				PositionX = (px * 32 + 15) * 65536;
+			}
+			if (SpeedX && (!SpeedY || calc != lastTilePosition)) {
+				PositionY = (py * 32 + 15) * 65536;
+			}
+
+			if (SpeedY < 0) {
+				spring = 1;
+				lastSpring = *gameTicks;
+			}
+
+			downAttack = DOWNATTACKLEN; //turn it off!
+			specialMove = 0;
+
+			lastTilePosition = calc; //don't trigger this one again
+
+			beMoved = AISPEED / 4;
+			sucked = AISPEED / 2;
+
+			if (curEvent.GetParameter(15, 1)) { //noclip again
+				platformType = aSUCKERTUBE;
+				platform_relX = SpeedX;
+				platform_relY = SpeedY^gravDir;
+				playX->gravity = 0;
+			}
+			else {
+				platformType = 0;
+				playX->gravity = GameGlobals->level.gravity;
+			}
+		}
+		break; } */
+
+	/*case areaLIMITXSCROLL: //beefed up by violet
+		calc = curEvent.GetParameter(0, 20);
+		if (calc == 0) calc = px; //default behavior
+		if ((fixStartX & 1023) != (calc & 1023)) {
+			//only when not done before (when standing still in
+			//this event, scrolling already occurs)
+			fixStartX = calc; //limit scrolling
+			calc &= 1023;
+			if ((calc != fixStartX) || (abs(calc - (viewStartX >> 21)) * 32 < *screenWidth)) fixScrollX = viewStartX;
+			else fixScrollX = calc << 21;
+		}
+		break;*/
+
+	case EventIDs::HPOLE:
+		if (!fly) {// && IsRabbit(characterIndex)) { //todo frog, bird
+			if (currentTilePosition != lastTilePosition || hPole < -5) {
+				if (SpeedX > 0) {
+					AccelerationX = SpeedX + 8;
+					if (AccelerationX > 20) {
+						AccelerationX = 20;
+					}
+				}
+				else {
+					AccelerationX = SpeedX - 8;
+					if (AccelerationX < -20) {
+						AccelerationX = -20;
+					}
+				}
+
+				PositionX = float(int(PositionX) / TILEWIDTH) * TILEWIDTH + 15;
+				PositionY = float(int(PositionY) / TILEHEIGHT) * TILEHEIGHT + 15;
+				spring = 0;
+				hPole = AISPEED;
+				vPole = 0;
+				downAttack = DOWNATTACKLEN; //turn it off!
+				specialMove = 0;
+			}
+		}
+		break;
+
+
+	case EventIDs::VPOLE:
+		if (!fly) { // && IsRabbit(characterIndex)) {//todo frog, bird
+			if (currentTilePosition != lastTilePosition || vPole < -5) {
+				if (SpeedY > 0)
+					SpeedY = 16;
+				else
+					SpeedY = -16;
+				PositionX = float(int(PositionX) / TILEWIDTH) * TILEWIDTH + 15;
+				PositionY = float(int(PositionY) / TILEHEIGHT) * TILEHEIGHT + 15;
+
+				vPole = AISPEED;
+				hPole = 0;
+				downAttack = DOWNATTACKLEN; //turn it off!
+				specialMove = 0;
+			}
+		}
+		break;
+
+	/*case areaTRIGGERZONE:
+		calc = (px + py*((int)GameGlobals->level.blockWidth + 1)) & 0xffff;
+		{
+			//int duration;
+			int testCalc = lastTilePosition & 0xffff;
+			int testTrig = lastTilePosition >> 16;
+
+			int triggerID = curEvent.GetParameter(0, 5);
+
+			//if (calc != testCalc && triggerID != testTrig) {
+			if (lastEvent != areaTRIGGERZONE || calc != testCalc || triggerID != testTrig) {
+				int doSwitch = curEvent.GetParameter(6, 1);
+
+				if (doSwitch) {
+					triggers[triggerID] = !triggers[triggerID];
+				}
+				else {
+					triggers[triggerID] = curEvent.GetParameter(5, 1);
+				}
+				//lastTilePosition = testCalc+(testTrig<<16);	//holy mother of god!!!
+				lastTilePosition = calc + (triggerID << 16);
+			}
+		}
+		break;*/
+
+	/*case areaNOFIREZONE: // one of violet's pet projects.
+		if (AllowLocallyEnactedAdditions()) {
+			int bitset = 1 << curEvent.GetParameter(2, 18);
+			int oldBit = noGun & bitset;
+
+			switch (curEvent.GetParameter(0, 2)) {
+			case 1: // set off
+				noGun &= ~bitset;
+				break;
+			case 2: // set on
+				noGun |= bitset;
+				break;
+			case 3: // toggle
+				if (lastTilePosition != currentTilePosition)
+					noGun ^= bitset;
+				break;
+			case 0: //local
+				noGun |= bitset << 16;
+				break;
+			}
+			//special treatment cases
+			if ((bitset == 2) && ((noGun & 2) != oldBit)) {// antigrav speed fix
+				SpeedY *= -1;
+				//vDir *= -1;
+				AddUpdatedPlayer_Client(playerID);
+			}
+			else if (bitset == 4 && (noGun & 4) != oldBit)
+				AddUpdatedPlayer_Client(playerID);
+		}
+		else
+			noGun |= 0x10000; //local noFire
+		break;*/
+
+	/*case areaSETLIGHT:
+		if (lastTilePosition != currentTilePosition) {
+			ambientBack = (curEvent.GetParameter(0, 8) * 64) / 100;
+		}
+		break;*/
+
+	/*case areaDIMLIGHT: // dunno. can't find the right function to hack. been using this for debug stuff instead. (violet)
+		break;*/
+
+	/*case areaRESETLIGHT:
+		ambientBack = ambientDefault;
+		break;*/
+
+	/*case areaECHO:
+		GameGlobals->level.echo = curEvent.GetParameter(0, 8);
+		break;*/
+
+	/*case areaFLYOFF:
+		if (fly == -1) {	//airboard floating off
+			calc = AddObject(PositionX, PositionY, aBOUNCEONCE, 0);
+			if (calc > 0) {
+				gameObjects[0][calc].curAnim = AnimBase[mPICKUPS] + mPICKUPS_GETBOARD;
+				gameObjects[0][calc].behavior = cAIRBFALL;
+				((Omonster*)(&gameObjects[0][calc]))->SpeedX = SpeedX;
+			}
+		}
+		fly = 0;
+		if (charCurr == mBIRD) {
+			ChangeCharacter(play, GetIndexFromPlayerCharacter(charOrig));
+		}
+		break;*/
+
+	/*case areaEOL:
+		if (!NetGlobals->isServer || GameGlobals->gameMode == GM_RACE) {
+			GameEvent::EndOfLevel(px, py, playerID);
+		}
+		if (GameGlobals->gameMode == GM_TREASURE)
+			CheckPlayerCoins(playerID, *maxScore, false, 255, false);
+		break;*/
+
+	/*case areaWARPEOL:
+		if (!NetGlobals->isServer || GameGlobals->gameMode == GM_RACE) {
+			GameEvent::WarpEOL(px, py, playerID);
+		}
+		if (GameGlobals->gameMode == GM_TREASURE)
+			CheckPlayerCoins(playerID, *maxScore, false, 255, false);
+		break;*/
+
+	/*case areaWARPSECRET:
+		if (!NetGlobals->isServer || GameGlobals->gameMode == GM_RACE) {
+			GameEvent::WarpSecret(px, py, playerID);
+		}
+		break;*/
+
+	/*case areaENDMORPH:
+		if (charCurr != charOrig) {
+			//added so that the local client tells other clients/server of a change in
+			//characters. ChangeCharacter also always sets .fly to zero when morphing
+			//from a bird.
+			ChangeCharacter(play, GetIndexFromPlayerCharacter(charOrig));
+			morph = -AISPEED / 2;
+		}
+		break;*/
+
+	/*case areaWARP:
+		if (lastTilePosition != currentTilePosition && curEvent.GetParameter(17, 1) == 0) ////don't make poor frog/bird players lose more and more coins every tick... also, if ShowAnim=1, use the object's code instead of this stuff
+			tryToWarpToID(play, curEvent.GetParameter(0, 8), curEvent.GetParameter(8, 8), !!curEvent.GetParameter(16, 1), !!curEvent.GetParameter(18, 1));
+		break;*/
+
+	/*case areaROCKTRIGGER:
+		//if (lastTilePosition != currentTilePosition) {
+		triggerRock(curEvent.GetParameter(0, 8));
+		//}
+		break;*/
+
+	/*case areaBOSSTRIGGER:
+		if (!bossActive) {
+			if (SoundGlobals->soundEnabled) {
+				const string nonBossMusic = musicFilename;
+				if (!LoadNewMusicFile((!curEvent.GetParameter(0, 1)) ? "boss1.j2b" : "boss2.j2b") && sugarRush > 0)
+					MusicPlay();
+				musicFilename = nonBossMusic;
+			}
+
+			bossActive = 1;
+
+			if (sugarRush > 0)
+				sugarRush = 0;	//turn it off... woa
+		}
+		break;*/
+	}
+	lastTilePosition = currentTilePosition;
 }
 void Bunny::ProcessAction()
 {
@@ -1357,7 +1764,7 @@ void Bunny::Behave(GameState& gameState)
 	GetInput(gameState.Keys);
 	ProcessInput();
 	DoLandscapeCollision(gameState);
-	DoZoneDetection();
+	DoZoneDetection(gameState.GetEvent(int(PositionX / TILEWIDTH), int(PositionY / TILEHEIGHT)));
 	ProcessAction();
 	AdjustViewpoint(gameState);
 }

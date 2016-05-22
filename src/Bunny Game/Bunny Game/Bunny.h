@@ -21,7 +21,7 @@ class Bunny : public BunnyObject {
 	};
 	PlatformTypes platformType;
 	float platform_relX, platform_relY, moveSpeedX, moveSpeedY, fixScrollX, quakeX, shiftPositionX;
-	int fire, lastFire, lastDownAttack, freeze, invincibility, airBoard, helicopter, helicopterTotal, specialJump, dive, lastDive, hit, hDir, vDir, warpCounter, frogMorph, bossActive, vPole, swim, stop, stoned, stonedLen, spring, specialMove, slope, runDash, run, lastRun, rolling, quake, platform, ledgeWiggle, lastSpring, lastJump, idleTime, hPole, hang, vine, fly, fixStartX, downAttack, charCurr, characterIndex, beMoved;
+	int fire, lastFire, lastDownAttack, freeze, invincibility, airBoard, helicopter, helicopterTotal, specialJump, dive, lastDive, hit, hDir, vDir, warpCounter, frogMorph, bossActive, vPole, swim, stop, stoned, stonedLen, spring, specialMove, slope, runDash, run, lastRun, rolling, quake, platform, ledgeWiggle, lastSpring, lastJump, idleTime, hPole, hang, vine, fly, fixStartX, downAttack, charCurr, characterIndex, beMoved, lastTilePosition;
 	bool goUp, goRight, goLeft, goDown, goFarDown;
 
 	void GetInput(const KeyStates&);		//461C20
@@ -29,7 +29,7 @@ class Bunny : public BunnyObject {
 		void ProcessInputNoAirboard();
 		void ProcessInputJumpFallStuff();
 	void DoLandscapeCollision(GameState&);	//437D30
-	void DoZoneDetection();
+	void DoZoneDetection(Event);
 	void ProcessAction();					//4348E0
 	void AdjustViewpoint(GameState&) const;	//43E560
 
