@@ -3,7 +3,7 @@
 #include "Drawing.h"
 #include "Misc.h"
 
-std::vector<AnimSet*> AnimSets;
+std::vector<AnimSet*> AnimationSets;
 std::vector<SpriteTreeNode*> SpriteTrees;
 std::vector<sf::Texture*> SpriteTextures;
 
@@ -59,7 +59,7 @@ bool AnimFile::ReadAnims(std::wstring& Filepath, PreloadedAnimationsList& setIDs
 	
 
 	std::vector<AnimFrame*> SpriteTexturesSortedBySize;
-	for (std::vector<AnimSet*>::const_iterator it = AnimSets.begin(); it != AnimSets.end(); ++it) { //find ALL animframes, regardless of their parent animations
+	for (std::vector<AnimSet*>::const_iterator it = AnimationSets.begin(); it != AnimationSets.end(); ++it) { //find ALL animframes, regardless of their parent animations
 		if (*it != nullptr) {
 			std::vector<Animation>& animations = (*it)->Animations;
 			for (std::vector<Animation>::const_iterator jt = animations.begin(); jt != animations.end(); ++jt) {
@@ -117,10 +117,10 @@ bool AnimFile::ReadStream(std::ifstream& file) {
 		file.read((char*)SetAddresses.data(), sizeof(unsigned int) * SetAddresses.size());
 		for (std::set<int>::const_iterator it = AnimSetIDs.begin(); it != AnimSetIDs.end(); ++it) {
 			//OutputDebugStringF(L"%d", *it);
-			if (AnimSets.size() < size_t(1 + *it))
-				AnimSets.resize(1 + *it);
+			if (AnimationSets.size() < size_t(1 + *it))
+				AnimationSets.resize(1 + *it);
 			file.seekg(SetAddresses[*it], std::ios_base::beg);
-			AnimSets[*it] = new AnimSet(file);
+			AnimationSets[*it] = new AnimSet(file);
 		}
 
 		return true;

@@ -170,6 +170,7 @@
   <ItemGroup>
     <ClCompile Include="BunnyObject.cpp" />
     <ClCompile Include="BunnyObjectList.cpp" />
+    <ClCompile Include="BunnyVersionDependentStuff.cpp" />
     <ClCompile Include="Diamondus.cpp" />
     <ClCompile Include="Bunny.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -178,6 +179,7 @@
   <ItemGroup>
     <ClInclude Include="BunnyObject.h" />
     <ClInclude Include="BunnyObjectList.h" />
+    <ClInclude Include="BunnyVersionDependentStuff.h" />
     <ClInclude Include="Diamondus.h" />
     <ClInclude Include="Bunny.h" />
     <ClInclude Include="Pickups.h" />

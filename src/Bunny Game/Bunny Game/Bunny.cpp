@@ -19,7 +19,7 @@ void Bunny::GetInput(const KeyStates& keys) {
 	KeyLeft = !KeyRight && keys.Key(sf::Keyboard::Left);
 	KeyFire = keys.Key(sf::Keyboard::Space);
 	KeySelect = keys.Key(sf::Keyboard::Return);
-	KeyRun = keys.Key(sf::Keyboard::LShift) || keys.Key(sf::Keyboard::RShift);
+	KeyRun = keys.Key(sf::Keyboard::LShift) || keys.Key(sf::Keyboard::RShift); //todo capslock
 	KeyJump = keys.Key(sf::Keyboard::LControl) || keys.Key(sf::Keyboard::RControl);
 }
 

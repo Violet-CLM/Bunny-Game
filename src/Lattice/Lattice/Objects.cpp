@@ -24,7 +24,7 @@ AnimFrame & GameObject::GetFrame() const
 
 void ObjectInitialization::AddObject(Level& level, int x, int y) const
 {
-	level.Objects.push_back(std::unique_ptr<GameObject>(Function(ObjectStartPos(float(x), float(y), AnimSets[AnimSetID]))));
+	level.Objects.push_back(std::unique_ptr<GameObject>(Function(ObjectStartPos(float(x), float(y), AnimationSets[AnimSetID]))));
 }
 
 void GameObject::DetermineFrame(int frameID)

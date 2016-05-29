@@ -113,4 +113,4 @@ struct SpriteTreeNode {
 //AnimFrame SpritePropertyList[MAXFRAMES];
 //std::unordered_map<unsigned int, AnimFrame> LightingProperties;
 
-extern std::vector<AnimSet*> AnimSets;
+extern std::vector<AnimSet*> AnimationSets;

@@ -4,30 +4,7 @@
 #include "Pickups.h"
 #include "Bunny.h"
 #include "Diamondus.h"
-
-
-static int GetVersionSpecificAnimationID(int originalAnimID, bool isTSF) {
-	if (isTSF)
-		return originalAnimID;
-
-	if (originalAnimID == AnimSets::XBilsy)
-		return GetVersionSpecificAnimationID(AnimSets::BilsBoss, false);
-	if (originalAnimID == AnimSets::XLizard)
-		return GetVersionSpecificAnimationID(AnimSets::Lizard, false);
-	if (originalAnimID == AnimSets::XTurtle)
-		return GetVersionSpecificAnimationID(AnimSets::Turtle, false);
-	if (originalAnimID == AnimSets::ZDog)
-		return GetVersionSpecificAnimationID(AnimSets::Dog, false);
-	if (originalAnimID == AnimSets::ZSpark)
-		return GetVersionSpecificAnimationID(AnimSets::Spark, false);
-
-	int animID = originalAnimID;
-	if (originalAnimID >= AnimSets::EndTuneLori)
-		animID -= 1;
-	if (originalAnimID >= AnimSets::Lori)
-		animID -= 3;
-	return animID;
-}
+#include "BunnyVersionDependentStuff.h"
 
 static ObjectList ObjectInitializationList;
 #define Obj(a, b, c, d, ...) {EventIDs::a, {GetVersionSpecificAnimationID(AnimSets::b, isTSF), [](ObjectStartPos& objStart){ return (GameObject*)(new c(__VA_ARGS__)); }, d}}

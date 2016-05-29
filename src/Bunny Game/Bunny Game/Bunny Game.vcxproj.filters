@@ -50,6 +50,9 @@
     <ClCompile Include="Bunny.cpp">
       <Filter>Source Files\Behaviors\Common</Filter>
     </ClCompile>
+    <ClCompile Include="BunnyVersionDependentStuff.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Bunny Game.rc">
@@ -76,6 +79,9 @@
     </ClInclude>
     <ClInclude Include="Bunny.h">
       <Filter>Header Files\Behaviors\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="BunnyVersionDependentStuff.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
