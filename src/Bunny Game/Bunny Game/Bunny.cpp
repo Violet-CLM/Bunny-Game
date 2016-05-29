@@ -23,6 +23,8 @@ void Bunny::GetInput(const KeyStates& keys) {
 	KeySelect = keys.Key(sf::Keyboard::Return);
 	KeyRun = keys.Key(sf::Keyboard::LShift) || keys.Key(sf::Keyboard::RShift); //todo capslock
 	KeyJump = keys.Key(sf::Keyboard::LControl) || keys.Key(sf::Keyboard::RControl);
+	hDir = KeyLeft ? -1 : int(KeyRight);
+	vDir = KeyUp ? -1 : int(KeyDown);
 }
 
 void Bunny::ProcessInputNoAirboard() {
@@ -227,6 +229,131 @@ void Bunny::ProcessInputJumpFallStuff() {
 		}
 	}
 	lastJump = 0;
+}
+void Bunny::ProcessInputStuffWithFlyAndSwim() {
+	if (swim) {
+		if (vDir) {
+			if (run == 0) {
+				AccelerationY = vDir / 8.f;
+				if (SpeedY >= -2) {
+					if (SpeedY > 2)
+						SpeedY = 2;
+				}
+				else {
+					SpeedY = -2;
+				}
+			}
+			else {
+				AccelerationY = vDir / 4.f;
+				if (SpeedY >= -4) {
+					if (SpeedY > 4)
+						SpeedY = 4;
+				}
+				else
+					SpeedY = -4;
+			}
+		}
+		else {
+			AccelerationY = 0;
+			if (SpeedY > 2)
+				SpeedY = 2;
+		}
+	}
+	else if (!fly) {
+		if (helicopter <= 0)// || helicopterTotal >= characterProfile[characterIndex].helicopterDurationMax) //todo? character profiles
+			helicopterTotal = helicopter = AccelerationY = 0;
+		else {
+			--helicopter;
+			++helicopterTotal;
+			//loopSample = PlayLoopSample(xPos, yPos, sCOMMON_HELI1, 25, 32000, loopSample); //todo sample
+			const float maxSpeedY = 1;// characterProfile[characterIndex].helicopterSpeedY; //todo? character profiles
+			if (maxSpeedY >= 0) {
+				if (SpeedY >= 0) {
+					AccelerationY = maxSpeedY / 128;
+					if (SpeedY > maxSpeedY)
+						SpeedY = maxSpeedY;
+				}
+				else
+					AccelerationY = 0.375f;
+			}
+			else {
+				if (SpeedY <= 0) {
+					AccelerationY = maxSpeedY / 128;
+					if (SpeedY < maxSpeedY)
+						SpeedY = maxSpeedY;
+				}
+				else
+					AccelerationY = -0.375f;
+			}
+			/*if (int maxXSpeed = characterProfile[characterIndex].helicopterXSpeed) {
+				if (DirectionX < 0) maxXSpeed = -maxXSpeed;
+				xAcc = maxXSpeed / 32;
+				if (maxXSpeed >= 0) {
+					if (xSpeed > maxXSpeed)
+						xSpeed = maxXSpeed;
+				}
+				else {
+					if (xSpeed < maxXSpeed)
+						xSpeed = maxXSpeed;
+				}
+			}*/ //todo? character profiles
+		}
+	}
+	else { //fly
+		downAttack = DOWNATTACKLEN; //what does LEN stand for, anyhow? Length, as in duration? Maybe...
+		helicopter = 0; //otherwise you get weird AccelerationY interactions
+		if (fly == -1) { //airboard
+			if (vDir) {
+				if (run == 0) {
+					AccelerationY = 0.5f * vDir;
+					if (SpeedY < 0)
+						AccelerationY -= 0.5f;
+					if (SpeedY < -2)
+						SpeedY = -2;
+					else if (SpeedY > 2)
+						SpeedY = 2;
+				}
+				else {
+					AccelerationY = 0.75f * vDir;
+					if (SpeedY < 0)
+						AccelerationY -= 0.5f;
+					if (SpeedY < -4)
+						SpeedY = -4;
+					else if (SpeedY > 4)
+						SpeedY = 4;
+				}
+			}
+			else {
+				AccelerationY = -0.109375f;
+				if (SpeedY > 1) {
+					SpeedY = 1;
+				}
+			}
+		}
+		else { //fly carrot
+			if (fly < 1) //<-1... not sure what this would be?
+				;// loopSample = PlayLoopSample(xPos, yPos, sCOMMON_HELI1, 25, 32000, loopSample); //todo sample
+			if (!(vDir)) {
+				if (SpeedY >= 0)
+					AccelerationY = -0.0625f;
+				else
+					AccelerationY = -0.125f;
+			}
+			if (vDir) {
+				SpeedY = run == 0 ? vDir : vDir * 2;
+				if (SpeedY < 0)
+					AccelerationY -= 0.25f;
+			}
+		}
+	}
+	if (vDir > 0 && hang != 0)
+		SpeedY = 0x40000;
+	if (vDir || hDir || KeyJump || KeySelect || runDash > 0) {
+		fixAnim = 0;
+		idleTime = 0;
+	}
+	else
+		++idleTime;
 }
 void Bunny::ProcessInput()
 {
@@ -481,7 +608,7 @@ void Bunny::ProcessInput()
 			//ProcessSelectInput(move); //todo!
 
 		ProcessInputJumpFallStuff();
-		//ProcessRabbitInputStuffWithFlyAndSwim(move); //todo!
+		ProcessInputStuffWithFlyAndSwim(); //todo!
 	}
 }
 

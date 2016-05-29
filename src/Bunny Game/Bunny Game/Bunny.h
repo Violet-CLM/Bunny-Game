@@ -19,6 +19,7 @@ class Bunny : public BunnyObject {
 	void ProcessInput();					//435AC0
 		void ProcessInputNoAirboard();
 		void ProcessInputJumpFallStuff();
+		void ProcessInputStuffWithFlyAndSwim();
 	void DoLandscapeCollision(GameState&);	//437D30
 	void DoZoneDetection(Event);
 	void AdjustRabbit(unsigned int);		//430ED0
