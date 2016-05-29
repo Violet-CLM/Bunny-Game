@@ -3,7 +3,7 @@
 #include "BunnyObjectList.h"
 #include "BunnyVersionDependentStuff.h"
 
-Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), platformType(PlatformTypes::None), AccelerationX(0), SpeedY(0), AccelerationY(0), platform_relX(0), platform_relY(0), freeze(0), invincibility(0), airBoard(0), helicopter(0), helicopterTotal(0), specialJump(0), dive(0), lastDive(0), fire(0), lastFire(0), lastDownAttack(0), hit(0), hDir(0), vDir(0), moveSpeedX(0), moveSpeedY(0), fixScrollX(0), quakeX(0), warpCounter(0), frogMorph(0), bossActive(0), vPole(0), swim(0), stop(0), stoned(0), stonedLen(0), spring(0), specialMove(0), slope(0), shiftPositionX(0), runDash(0), run(0), lastRun(0), rolling(0), quake(0), platform(0), ledgeWiggle(0), lastSpring(0), lastJump(0), idleTime(0), hPole(0), hang(0), vine(0), goUp(0), goRight(0), goLeft(0), goDown(0), goFarDown(0), fly(0), fixStartX(0), downAttack(DOWNATTACKLEN), charCurr(0), characterIndex(0), beMoved(0), sugarRush(0), sucked(0), shieldType(0), shieldTime(0), morph(0), flicker(0), fixAnim(false), frameCount(0), animSpeed(0), warpFall(0), warpArea(0), viewSkipAverage(0), skid(0), pushObject(0), push(0), poleSpeed(0), lookVP(0), lookVPAmount(0), lift(0), lastPush(0), lastLookVP(0), idleTrail(0), idleExtra(0), idleAnim(0), health(5), fireSpeed(0), fireDirection(0)
+Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), platformType(PlatformTypes::None), AccelerationX(0), SpeedY(0), AccelerationY(0), platform_relX(0), platform_relY(0), freeze(0), invincibility(0), airBoard(0), helicopter(0), helicopterTotal(0), specialJump(0), dive(0), lastDive(0), fire(0), lastFire(0), lastDownAttack(0), hit(0), hDir(0), vDir(0), moveSpeedX(0), moveSpeedY(0), fixScrollX(0), quakeX(0), warpCounter(0), frogMorph(0), bossActive(0), vPole(0), swim(0), stop(0), stoned(0), stonedLen(0), spring(0), specialMove(0), slope(0), shiftPositionX(0), runDash(0), run(0), lastRun(0), rolling(0), quake(0), platform(0), ledgeWiggle(0), lastSpring(0), lastJump(0), idleTime(0), hPole(0), hang(0), vine(0), goUp(0), goRight(0), goLeft(0), goDown(0), goFarDown(0), fly(0), fixStartX(0), downAttack(DOWNATTACKLEN), charCurr(0), characterIndex(RandFac(1)), beMoved(0), sugarRush(0), sucked(0), shieldType(0), shieldTime(0), morph(0), flicker(0), fixAnim(false), frameCount(0), animSpeed(0), warpFall(0), warpArea(0), viewSkipAverage(0), skid(0), pushObject(0), push(0), poleSpeed(0), lookVP(0), lookVPAmount(0), lift(0), lastPush(0), lastLookVP(0), idleTrail(0), idleExtra(0), idleAnim(0), health(5), fireSpeed(0), fireDirection(0)
 {
 	AnimID = 67;
 	DetermineFrame(1);
@@ -260,8 +260,10 @@ void Bunny::ProcessInputStuffWithFlyAndSwim() {
 		}
 	}
 	else if (!fly) {
-		if (helicopter <= 0)// || helicopterTotal >= characterProfile[characterIndex].helicopterDurationMax) //todo? character profiles
-			helicopterTotal = helicopter = AccelerationY = 0;
+		if (helicopter <= 0) {// || helicopterTotal >= characterProfile[characterIndex].helicopterDurationMax) { //todo? character profiles
+			helicopterTotal = helicopter = 0;
+			AccelerationY = 0;
+		}
 		else {
 			--helicopter;
 			++helicopterTotal;
@@ -340,7 +342,7 @@ void Bunny::ProcessInputStuffWithFlyAndSwim() {
 					AccelerationY = -0.125f;
 			}
 			if (vDir) {
-				SpeedY = run == 0 ? vDir : vDir * 2;
+				SpeedY = float(run == 0 ? vDir : vDir * 2);
 				if (SpeedY < 0)
 					AccelerationY -= 0.25f;
 			}
@@ -2372,7 +2374,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 				AssignAnimation(RabbitAnims::STATIONARYJUMP, 4);
 		}
 		else if (characterIndex == char2LORI) {
-			const int specificFrameIDInLorisAttack = 4 * 10/*anims[AnimBase[AnimSets::Lori] + RabbitAnimIDs[RabbitAnims::STATIONARYJUMPSTART]].numFrames*/ - 4; //todo lori kick
+			const int specificFrameIDInLorisAttack = 4 * GetFrameCount() - 4;
 			if (specialMove >= specificFrameIDInLorisAttack) {
 				beMoved = 0;
 				specialMove = 0;
@@ -2945,6 +2947,40 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 }
 void Bunny::ProcessActionFire() {
 }
+bool Bunny::ProcessActionSpecialMove() {
+	if (characterIndex == char2JAZZ) {
+		if (goUp) {
+			if (specialMove < 16)
+				SpeedX = SpeedY = 0;
+			else if (specialMove <= 45)
+				SpeedY = (specialMove - 256) / 32.f;
+			else
+				return false;
+		} else
+			return false;
+	} else if (characterIndex == char2SPAZ) {
+		if (DirectionX >= 0) {
+			if (!goRight) { SpeedX = SpeedY = 0; return false; }
+		} else if (!goLeft) { SpeedX = SpeedY = 0; return false; }
+		if (specialMove >= 16) {
+			if (specialMove <= 70) {
+				SpeedY = (specialMove < 32) ? ((specialMove - 32) / 8.f) : 0;
+				SpeedX = float(DirectionX << 4);
+			} else return false;
+		} else {
+			if (specialMove == 2)
+				;// PlaySample(xPos, yPos, sSPAZSOUNDS_KARATE7 + RandFac(1), 0, 0);
+			SpeedX = 0;
+			SpeedY = 0;
+		}
+	} else { //Lori
+		if (specialMove < 16)
+			SpeedX = SpeedY = 0;
+		else if (specialMove > 45)
+			return false;
+	}
+	return true;
+}
 void Bunny::ProcessAction(unsigned int gameTicks)
 {
 	/*if (!!GameGlobals->level.finish && GameGlobals->level.finishCounter > 32768 + 22 * 6) {	//hackish, but I didn't want to rewrite all of AdjustFrogPlayer just for this. ensures that levels always end, no matter your charCurr or curAnim
@@ -2972,17 +3008,16 @@ void Bunny::ProcessAction(unsigned int gameTicks)
 			}
 			else if (!goLeft) runDash = 0;
 		}
-		{
-			if (specialMove > 0) {
-				downAttack = DOWNATTACKLEN;
-				if (
-					hPole > 0
-					|| vPole > 0
-					|| sucked
-					//|| !DoPlayerSpecialMove(++specialMove) //todo special moves
-					)
-					specialMove = 0;
-			}
+		if (specialMove > 0) {
+			++specialMove;
+			downAttack = DOWNATTACKLEN;
+			if (
+				hPole > 0
+				|| vPole > 0
+				|| sucked
+				|| !ProcessActionSpecialMove()
+				)
+				specialMove = 0;
 		}
 #ifdef LEDGE_CLIMBING
 		oldXPos = xPos;	//outside of ledge climbing, JJ2 never seems to use these properties for local players, so setting them would be harmless but also pointless

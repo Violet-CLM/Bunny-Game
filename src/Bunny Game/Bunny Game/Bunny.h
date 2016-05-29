@@ -30,6 +30,7 @@ class Bunny : public BunnyObject {
 	void PoleSamples();
 	void ProcessAction(unsigned int);		//4348E0
 		void ProcessActionFire();
+		bool ProcessActionSpecialMove();
 	void AdjustViewpoint(GameState&) const;	//43E560
 
 	void Behave(GameState&) override;
