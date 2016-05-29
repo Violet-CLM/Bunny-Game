@@ -5,7 +5,7 @@
 
 enum char2Indices { char2JAZZ, char2SPAZ, char2LORI }; //todo better solution elsewhere
 
-Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), platformType(PlatformTypes::None), AccelerationX(0), SpeedY(0), AccelerationY(0), platform_relX(0), platform_relY(0), freeze(0), invincibility(0), airBoard(0), helicopter(0), helicopterTotal(0), specialJump(0), dive(0), lastDive(0), fire(0), lastFire(0), lastDownAttack(0), hit(0), hDir(0), vDir(0), moveSpeedX(0), moveSpeedY(0), fixScrollX(0), quakeX(0), warpCounter(0), frogMorph(0), bossActive(0), vPole(0), swim(0), stop(0), stoned(0), stonedLen(0), spring(0), specialMove(0), slope(0), shiftPositionX(0), runDash(0), run(0), lastRun(0), rolling(0), quake(0), platform(0), ledgeWiggle(0), lastSpring(0), lastJump(0), idleTime(0), hPole(0), hang(0), vine(0), goUp(0), goRight(0), goLeft(0), goDown(0), goFarDown(0), fly(0), fixStartX(0), downAttack(DOWNATTACKLEN), charCurr(0), characterIndex(RandFac(1)), beMoved(0), sugarRush(0), sucked(0), shieldType(0), shieldTime(0), morph(0), flicker(0), fixAnim(false), frameCount(0), animSpeed(0), warpFall(0), warpArea(0), viewSkipAverage(0), skid(0), pushObject(0), push(0), poleSpeed(0), lookVP(0), lookVPAmount(0), lift(0), lastPush(0), lastLookVP(0), idleTrail(0), idleExtra(0), idleAnim(0), health(5), fireSpeed(0), fireDirection(0)
+Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), platformType(PlatformTypes::None), AccelerationX(0), SpeedY(0), AccelerationY(0), platform_relX(0), platform_relY(0), freeze(0), invincibility(0), airBoard(0), helicopter(0), helicopterTotal(0), specialJump(0), dive(0), lastDive(0), fire(0), lastFire(0), lastDownAttack(0), hit(0), DirectionKeyX(0), DirectionKeyY(0), moveSpeedX(0), moveSpeedY(0), fixScrollX(0), quakeX(0), warpCounter(0), frogMorph(0), bossActive(0), vPole(0), swim(0), stop(0), stoned(0), stonedLen(0), spring(0), specialMove(0), slope(0), shiftPositionX(0), runDash(0), run(0), lastRun(0), rolling(0), quake(0), platform(0), ledgeWiggle(0), lastSpring(0), lastJump(0), idleTime(0), hPole(0), hang(0), vine(0), goUp(0), goRight(0), goLeft(0), goDown(0), goFarDown(0), fly(0), fixStartX(0), downAttack(DOWNATTACKLEN), charCurr(0), characterIndex(RandFac(1)), beMoved(0), sugarRush(0), sucked(0), shieldType(0), shieldTime(0), morph(0), flicker(0), fixAnim(false), frameCount(0), animSpeed(0), warpFall(0), warpArea(0), viewSkipAverage(0), skid(0), pushObject(0), push(0), poleSpeed(0), lookVP(0), lookVPAmount(0), lift(0), lastPush(0), lastLookVP(0), idleTrail(0), idleExtra(0), idleAnim(0), health(5), fireSpeed(0), fireDirection(0)
 {
 	AnimID = 67;
 	DetermineFrame(1);
@@ -25,8 +25,8 @@ void Bunny::GetInput(const KeyStates& keys) {
 	KeySelect = keys.Key(sf::Keyboard::Return);
 	KeyRun = keys.Key(sf::Keyboard::LShift) || keys.Key(sf::Keyboard::RShift); //todo capslock
 	KeyJump = keys.Key(sf::Keyboard::LControl) || keys.Key(sf::Keyboard::RControl);
-	hDir = KeyLeft ? -1 : int(KeyRight);
-	vDir = KeyUp ? -1 : int(KeyDown);
+	DirectionKeyX = KeyLeft ? -1 : int(KeyRight);
+	DirectionKeyY = KeyUp ? -1 : int(KeyDown);
 }
 
 void Bunny::ProcessInputNoAirboard() {
@@ -34,9 +34,9 @@ void Bunny::ProcessInputNoAirboard() {
 		/*if (swim) { //todo swimming
 			downAttack = DOWNATTACKLEN;
 			runDash = lastRun = idleTime = 0;
-			if (move->hDir) {
+			if (move->DirectionKeyX) {
 				int xSpeed = xSpeed;
-				if (move->hDir & 0x8) { //left
+				if (move->DirectionKeyX & 0x8) { //left
 					xAcc = -4096;
 					if (run) {
 						if (xSpeed < -4 * FIXMUL)
@@ -62,16 +62,16 @@ void Bunny::ProcessInputNoAirboard() {
 		}
 		else*/ /*if (!(helicopter && characterProfile[characterIndex].helicopterXSpeed))*/ { //not swimming, not controlled by helicopter xSpeed //todo? character profiles
 			if (runDash >= 0 && !beMoved) {
-				if (hDir) {
+				if (DirectionKeyX) {
 					runDash = 0;
 					if (hit) {
 						//do nothing
 					} else if (run) {
-						if (KeyRight)
+						if (DirectionKeyX > 0)
 								AccelerationX = 0.366210938f;
 						else
 							AccelerationX = -0.366210938f;
-					} else if (KeyRight)
+					} else if (DirectionKeyX > 0)
 							AccelerationX = 0.183105469f;
 					else
 						AccelerationX = -0.183105469f;
@@ -231,9 +231,9 @@ void Bunny::ProcessInputJumpFallStuff() {
 }
 void Bunny::ProcessInputStuffWithFlyAndSwim() {
 	if (swim) {
-		if (vDir) {
+		if (DirectionKeyY) {
 			if (run == 0) {
-				AccelerationY = vDir / 8.f;
+				AccelerationY = DirectionKeyY / 8.f;
 				if (SpeedY >= -2) {
 					if (SpeedY > 2)
 						SpeedY = 2;
@@ -243,7 +243,7 @@ void Bunny::ProcessInputStuffWithFlyAndSwim() {
 				}
 			}
 			else {
-				AccelerationY = vDir / 4.f;
+				AccelerationY = DirectionKeyY / 4.f;
 				if (SpeedY >= -4) {
 					if (SpeedY > 4)
 						SpeedY = 4;
@@ -304,9 +304,9 @@ void Bunny::ProcessInputStuffWithFlyAndSwim() {
 		downAttack = DOWNATTACKLEN; //what does LEN stand for, anyhow? Length, as in duration? Maybe...
 		helicopter = 0; //otherwise you get weird AccelerationY interactions
 		if (fly == -1) { //airboard
-			if (vDir) {
+			if (DirectionKeyY) {
 				if (run == 0) {
-					AccelerationY = 0.5f * vDir;
+					AccelerationY = 0.5f * DirectionKeyY;
 					if (SpeedY < 0)
 						AccelerationY -= 0.5f;
 					if (SpeedY < -2)
@@ -315,7 +315,7 @@ void Bunny::ProcessInputStuffWithFlyAndSwim() {
 						SpeedY = 2;
 				}
 				else {
-					AccelerationY = 0.75f * vDir;
+					AccelerationY = 0.75f * DirectionKeyY;
 					if (SpeedY < 0)
 						AccelerationY -= 0.5f;
 					if (SpeedY < -4)
@@ -334,22 +334,22 @@ void Bunny::ProcessInputStuffWithFlyAndSwim() {
 		else { //fly carrot
 			if (fly < 1) //<-1... not sure what this would be?
 				;// loopSample = PlayLoopSample(xPos, yPos, sCOMMON_HELI1, 25, 32000, loopSample); //todo sample
-			if (!(vDir)) {
+			if (!(DirectionKeyY)) {
 				if (SpeedY >= 0)
 					AccelerationY = -0.0625f;
 				else
 					AccelerationY = -0.125f;
 			}
-			if (vDir) {
-				SpeedY = float(run == 0 ? vDir : vDir * 2);
+			if (DirectionKeyY) {
+				SpeedY = float(run == 0 ? DirectionKeyY : DirectionKeyY * 2);
 				if (SpeedY < 0)
 					AccelerationY -= 0.25f;
 			}
 		}
 	}
-	if (vDir > 0 && hang != 0)
+	if (DirectionKeyY > 0 && hang != 0)
 		SpeedY = 0x40000;
-	if (vDir || hDir || KeyJump || KeySelect || runDash > 0) {
+	if (DirectionKeyY || DirectionKeyX || KeyJump || KeySelect || runDash > 0) {
 		fixAnim = 0;
 		idleTime = 0;
 	}
@@ -404,25 +404,15 @@ void Bunny::ProcessInput()
 		}*/
 		immobilized |= (specialMove > 10);
 		if (immobilized) {
-			//*(short *)(move) &= 0xE500; //todo!
+			DirectionKeyX = DirectionKeyY = 0;
+			KeyFire = KeyJump = KeyRun = false;
 			lastFire = 800;
 		}
 		/*else if (fly > 1 && gameObjects[0][fly - 1].load == aCHESHIRE2)//todo cheshire cats
 			*(BYTE *)move = 0;*/ 
 }
 	if (stonedLen > 0) {
-		if (KeyLeft) {
-			KeyRight = true; KeyLeft = false;
-		}
-		else if (KeyRight) {
-			KeyLeft = true; KeyRight = false;
-		}
-		if (KeyUp) {
-			KeyDown = true; KeyUp = false;
-		}
-		else if (KeyDown) {
-			KeyUp = true; KeyDown = false;
-		}
+		DirectionKeyX = !DirectionKeyX; DirectionKeyY = !DirectionKeyY;
 		KeyRun = false;
 		if (++stoned == stonedLen) {
 			stoned = 0;
@@ -462,11 +452,11 @@ void Bunny::ProcessInput()
 	if (hang == 2) { //hook, not vine
 		AccelerationX = 0;
 		SpeedX = 0;
-		if (KeyLeft)
+		if (DirectionKeyX < 0)
 			DirectionX = -1;
-		else if (KeyRight)
+		else
 			DirectionX = 1;
-		KeyLeft = KeyRight = false;
+		DirectionKeyX = 0;
 	}
 	if (fly != -1 || beMoved || vPole >= 0 || hPole >= 0) {
 		ProcessInputNoAirboard();
@@ -481,7 +471,7 @@ void Bunny::ProcessInput()
 			;//PlaySample(PositionX, PositionY, sCOMMON_AIRBTURN2, 100, 16537);
 		else if (airBoard == 12)
 			;//PlaySample(PositionX, PositionY, sCOMMON_AIRBTURN, min(48, abs(SpeedX) / 65536 + 32), 16537);*/
-		if (!(hDir)) {
+		if (!(DirectionKeyX)) {
 			AccelerationX = 0;
 			SpeedX = 31 * SpeedX / 32;
 			if (airBoard < 14) {
@@ -491,7 +481,7 @@ void Bunny::ProcessInput()
 				}
 			}
 		}
-		else if (hDir & 0x8) { //left
+		else if (DirectionKeyX < 0) { //left
 			AccelerationX = -0.125f;
 			if (airBoard < 14) {
 				if (--airBoard <= 0) {
@@ -514,10 +504,10 @@ void Bunny::ProcessInput()
 				airBoard = 13;
 		}
 	} //had airboard
-	if (!airBoard) {
-		if (KeyLeft)
+	if (!airBoard && DirectionKeyX) {
+		if (DirectionKeyX < 0)
 			DirectionX = -1;
-		else if (KeyRight)
+		else
 			DirectionX = 1;
 	}
 	++lastDownAttack;
@@ -535,8 +525,8 @@ void Bunny::ProcessInput()
 		spring = 0;
 		runDash = 0;
 		idleTime = 0;
-		hDir = 0;
-		vDir = 0;
+		DirectionKeyX = 0;
+		DirectionKeyY = 0;
 		if (run > 0)
 			if ((run -= 4) < 0)
 				run = 0;
@@ -544,13 +534,13 @@ void Bunny::ProcessInput()
 	else {
 		{
 			if (hang || vine) {
-				if (!KeyDown && goDown)
+				if (DirectionKeyY <= 0 && goDown)
 					downAttack = (DOWNATTACKLEN + AISPEED);
 				else
 					downAttack = DOWNATTACKLEN; //to prevent the player from buttstomping next tick if keyDown is still pressed
 			}
 			else if (goDown) {
-				if (KeyDown) {
+				if (DirectionKeyY > 0) {
 					if (downAttack >= (DOWNATTACKLEN + AISPEED))
 						helicopter = downAttack = 0; //start a buttstomp
 				}
@@ -1778,7 +1768,7 @@ void Bunny::DoZoneDetection(Event curEvent)
 			//special treatment cases
 			if ((bitset == 2) && ((noGun & 2) != oldBit)) {// antigrav speed fix
 				SpeedY *= -1;
-				//vDir *= -1;
+				//DirectionKeyY *= -1;
 				AddUpdatedPlayer_Client(playerID);
 			}
 			else if (bitset == 4 && (noGun & 4) != oldBit)
@@ -2493,7 +2483,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 						}
 					}
 				}
-				if (pushObject || (hDir > 0 && !goRight) || (hDir < 0 && !goLeft)) {
+				if (pushObject || (DirectionKeyX > 0 && !goRight) || (DirectionKeyX < 0 && !goLeft)) {
 					if (++push >= 16 && !fixAnim) // __OFSUB__
 						AssignAnimation(RabbitAnims::PUSH, 8);
 				}
@@ -2520,7 +2510,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 					++skid;
 				}
 			}
-			if (vDir <= 0 || AccelerationX) {
+			if (DirectionKeyY <= 0 || AccelerationX) {
 				dive = 0;
 			}
 			if (lastDive = gameTicks, ++dive > 4 && downAttack > 85) { //looking down
@@ -2784,14 +2774,14 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 					frameCount = 0;
 					fixAnim = 1;
 				}
-				else if (pushObject || (hDir > 0 && !goRight) || (hDir < 0 && !goLeft)) {
+				else if (pushObject || (DirectionKeyX > 0 && !goRight) || (DirectionKeyX < 0 && !goLeft)) {
 					lastPush = gameTicks;
 					++push;
 					if (!fixAnim)
 						AssignAnimation((push > 16) ? RabbitAnims::PUSH : RabbitAnims::STAND, 8);
 				}
 				else {
-					if (vDir < 0) {
+					if (DirectionKeyY < 0) {
 						lastLookVP = gameTicks;
 						AssignAnimation(RabbitAnims::LOOKUP, ANIM_SPEED_MAX, false, (++lookVP >= 8) ? 1 : 0);
 						if (lookVP > 30) {
