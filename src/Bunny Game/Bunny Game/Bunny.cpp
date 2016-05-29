@@ -3,6 +3,8 @@
 #include "BunnyObjectList.h"
 #include "BunnyVersionDependentStuff.h"
 
+enum char2Indices { char2JAZZ, char2SPAZ, char2LORI }; //todo better solution elsewhere
+
 Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), platformType(PlatformTypes::None), AccelerationX(0), SpeedY(0), AccelerationY(0), platform_relX(0), platform_relY(0), freeze(0), invincibility(0), airBoard(0), helicopter(0), helicopterTotal(0), specialJump(0), dive(0), lastDive(0), fire(0), lastFire(0), lastDownAttack(0), hit(0), hDir(0), vDir(0), moveSpeedX(0), moveSpeedY(0), fixScrollX(0), quakeX(0), warpCounter(0), frogMorph(0), bossActive(0), vPole(0), swim(0), stop(0), stoned(0), stonedLen(0), spring(0), specialMove(0), slope(0), shiftPositionX(0), runDash(0), run(0), lastRun(0), rolling(0), quake(0), platform(0), ledgeWiggle(0), lastSpring(0), lastJump(0), idleTime(0), hPole(0), hang(0), vine(0), goUp(0), goRight(0), goLeft(0), goDown(0), goFarDown(0), fly(0), fixStartX(0), downAttack(DOWNATTACKLEN), charCurr(0), characterIndex(RandFac(1)), beMoved(0), sugarRush(0), sucked(0), shieldType(0), shieldTime(0), morph(0), flicker(0), fixAnim(false), frameCount(0), animSpeed(0), warpFall(0), warpArea(0), viewSkipAverage(0), skid(0), pushObject(0), push(0), poleSpeed(0), lookVP(0), lookVPAmount(0), lift(0), lastPush(0), lastLookVP(0), idleTrail(0), idleExtra(0), idleAnim(0), health(5), fireSpeed(0), fireDirection(0)
 {
 	AnimID = 67;
@@ -58,9 +60,9 @@ void Bunny::ProcessInputNoAirboard() {
 				xSpeed = 31 * xSpeed / 32;
 			}
 		}
-		else*/ if (!(helicopter /*&& characterProfile[characterIndex].helicopterXSpeed*/)) { //not swimming, not controlled by helicopter xSpeed //todo? character profiles
+		else*/ /*if (!(helicopter && characterProfile[characterIndex].helicopterXSpeed))*/ { //not swimming, not controlled by helicopter xSpeed //todo? character profiles
 			if (runDash >= 0 && !beMoved) {
-				if (KeyLeft || KeyRight) {
+				if (hDir) {
 					runDash = 0;
 					if (hit) {
 						//do nothing
@@ -159,28 +161,25 @@ void Bunny::ProcessInputJumpFallStuff() {
 	}
 	if (SpeedY > 0 || (SpeedY < 0 && helicopter)) { //helicopter check is new
 		if (lastJump >= 5 && lastJump < 30) { //press jump in midair
-			/* //todo double jumping stuff
-			tCharacterProfile* profile = &characterProfile[characterIndex];
-			if (profile->airJump == airjumpSPAZ) { //change, -ish
-				if (specialJump < profile->doubleJumpCountMax) {
+			//tCharacterProfile* profile = &characterProfile[characterIndex]; //todo? character indices
+			if (characterIndex == char2SPAZ) {// profile->airJump == airjumpSPAZ) { //change, -ish
+				if (specialJump < 1) { //profile->doubleJumpCountMax) {
 					++specialJump;
-					if (onWallClimb()) //this part can (and nearly must) be done even if you're buttstomping
-						PositionY -= 4 * FIXMUL;
+					//if (onWallClimb()) //this part can (and nearly must) be done even if you're buttstomping
+					//	PositionY -= 4;
 					if (downAttack >= DOWNATTACKLEN) { //changed
-						SpeedX = (DirectionX >= 0) ? profile->doubleJumpSpeedX : -profile->doubleJumpSpeedX;
-						SpeedY = profile->doubleJumpSpeedY;
+						SpeedX = 0;// (DirectionX >= 0) ? profile->doubleJumpSpeedX : -profile->doubleJumpSpeedX;
+						SpeedY = -8;// profile->doubleJumpSpeedY;
 						spring = 0;
 						;//PlaySample(PositionX, PositionY, sCOMMON_UP, 0, 0);
 					}
 				}
-			}
-			else if (profile->airJump == airjumpHELICOPTER) { //Jazz or Lori
-				if (helicopterTotal < profile->helicopterDurationMax) {
+			} else { //if (profile->airJump == airjumpHELICOPTER) { //Jazz or Lori
+				{//if (helicopterTotal < profile->helicopterDurationMax) {
 					helicopter = AISPEED;
 					lastJump = 15; //was: 30
 				}
 			}
-			*/
 			return;
 		}
 	}
@@ -1055,7 +1054,7 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 				}
 			}
 		}	//for ty
-	} //else helicopter = 0;	//if not a bird/flier: falling
+	} //if not a bird/flier: falling
 
 	  //start checking 24x24 block
 	firstPixelY = 0;
@@ -1883,7 +1882,7 @@ void Bunny::DoZoneDetection(Event curEvent)
 	lastTilePosition = currentTilePosition;
 }
 
-void Bunny::PoleSamples() {
+void Bunny::PoleSamples() const {
 	/*if (!SoundGlobals->soundEnabled)
 		return;
 	if (play.characterIndex != char2SPAZ) {
@@ -1917,7 +1916,6 @@ inline void Bunny::AssignAnimation(int anim, int as, bool fa, int fi) {
 	FrameID = (fi >= 0) ? fi : GetFrameCount() + fi;
 	fixAnim = fa;
 }
-enum char2Indices { char2JAZZ, char2SPAZ, char2LORI }; //todo better solution elsewhere
 void Bunny::AdjustRabbit(unsigned int gameTicks) {
 	float absoluteSpeed;
 

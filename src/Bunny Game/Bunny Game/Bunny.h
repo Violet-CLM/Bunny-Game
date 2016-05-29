@@ -27,7 +27,7 @@ class Bunny : public BunnyObject {
 		inline void Bunny::AssignAnimation(int);
 		inline void Bunny::AssignAnimation(int, int);
 		inline void Bunny::AssignAnimation(int, int, bool, int = 0);
-	void PoleSamples();
+	void PoleSamples() const;
 	void ProcessAction(unsigned int);		//4348E0
 		void ProcessActionFire();
 		bool ProcessActionSpecialMove();
