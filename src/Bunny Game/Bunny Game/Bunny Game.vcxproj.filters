@@ -83,5 +83,8 @@
     <ClInclude Include="BunnyVersionDependentStuff.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BunnyMisc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

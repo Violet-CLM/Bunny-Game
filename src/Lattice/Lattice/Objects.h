@@ -41,7 +41,8 @@ public:
 	virtual void Behave(GameState&) = 0;
 	virtual void Draw(Layer*) const = 0;
 protected:
-	void DetermineFrame(int);
+	unsigned int GetFrameCount() const;
+	void DetermineFrame(unsigned int);
 };
 
 typedef GameObject* (*ObjectInitializationFunc)(ObjectStartPos&);

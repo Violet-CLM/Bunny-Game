@@ -1,7 +1,8 @@
 #include "Bunny.h"
+#include "BunnyMisc.h"
 #include "BunnyObjectList.h"
 
-Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), platformType(PlatformTypes::None), AccelerationX(0), SpeedY(0), AccelerationY(0), platform_relX(0), platform_relY(0), freeze(0), invincibility(0), airBoard(0), helicopter(0), helicopterTotal(0), specialJump(0), dive(0), lastDive(0), fire(0), lastFire(0), lastDownAttack(0), hit(0), hDir(0), vDir(0), moveSpeedX(0), moveSpeedY(0), fixScrollX(0), quakeX(0), warpCounter(0), frogMorph(0), bossActive(0), vPole(0), swim(0), stop(0), stoned(0), stonedLen(0), spring(0), specialMove(0), slope(0), shiftPositionX(0), runDash(0), run(0), lastRun(0), rolling(0), quake(0), platform(0), ledgeWiggle(0), lastSpring(0), lastJump(0), idleTime(0), hPole(0), hang(0), vine(0), goUp(0), goRight(0), goLeft(0), goDown(0), goFarDown(0), fly(0), fixStartX(0), downAttack(DOWNATTACKLEN), charCurr(0), characterIndex(0), beMoved(0)
+Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), platformType(PlatformTypes::None), AccelerationX(0), SpeedY(0), AccelerationY(0), platform_relX(0), platform_relY(0), freeze(0), invincibility(0), airBoard(0), helicopter(0), helicopterTotal(0), specialJump(0), dive(0), lastDive(0), fire(0), lastFire(0), lastDownAttack(0), hit(0), hDir(0), vDir(0), moveSpeedX(0), moveSpeedY(0), fixScrollX(0), quakeX(0), warpCounter(0), frogMorph(0), bossActive(0), vPole(0), swim(0), stop(0), stoned(0), stonedLen(0), spring(0), specialMove(0), slope(0), shiftPositionX(0), runDash(0), run(0), lastRun(0), rolling(0), quake(0), platform(0), ledgeWiggle(0), lastSpring(0), lastJump(0), idleTime(0), hPole(0), hang(0), vine(0), goUp(0), goRight(0), goLeft(0), goDown(0), goFarDown(0), fly(0), fixStartX(0), downAttack(DOWNATTACKLEN), charCurr(0), characterIndex(0), beMoved(0), sugarRush(0), sucked(0), shieldType(0), shieldTime(0), morph(0), flicker(0), fixAnim(false), frameID(0), frameCount(0), animSpeed(0)
 {
 	AnimID = 67;
 	DetermineFrame(1);
@@ -325,10 +326,8 @@ void Bunny::ProcessInput()
 		invincibility = -AISPEED;
 	//if (charCurr == mBIRD)
 		//return ProcessBirdInput(play, move);
-	if (frogMorph)
-		--frogMorph;
-	if (beMoved > 0)
-		--beMoved;
+	LowerToZero(frogMorph);
+	LowerToZero(beMoved);
 	//if (characterIndex == char2FROG)
 		//return ProcessFrogInput(play, move);
 	if (hang == 2) { //hook, not vine
@@ -1752,8 +1751,141 @@ void Bunny::DoZoneDetection(Event curEvent)
 	}
 	lastTilePosition = currentTilePosition;
 }
+void Bunny::AdjustRabbit() {
+}
+void Bunny::ProcessActionFire() {
+}
 void Bunny::ProcessAction()
 {
+	/*if (!!GameGlobals->level.finish && GameGlobals->level.finishCounter > 32768 + 22 * 6) {	//hackish, but I didn't want to rewrite all of AdjustFrogPlayer just for this. ensures that levels always end, no matter your charCurr or curAnim
+																							//(22*6 is how long it takes to play a rabbit's end-of-level animation)
+		if (NetGlobals->partyMode || *numPlayers != 1 && !IsSinglePlayerBasedGame()) {
+			if (!MenuGlobals->menuCode) MenuGlobals->menuCode = quitWAIT;
+		}
+		else MenuGlobals->menuCode = quitLEVEL;
+	}*///todo level ending
+
+	if (freeze) {
+		--freeze;
+		return;
+	}
+
+	/*if (charCurr == mBIRD) //todo non-rabbits
+		AdjustBirdPlayer(playerID);
+	else if (characterIndex == char2FROG)
+		AdjustFrogPlayer(playerID);
+	else*/ {
+		if (runDash < 0) {
+			++runDash;
+			if (DirectionX >= 0) {
+				if (!goRight) runDash = 0;
+			}
+			else if (!goLeft) runDash = 0;
+		}
+		{
+			if (specialMove > 0) {
+				downAttack = DOWNATTACKLEN;
+				if (
+					hPole > 0
+					|| vPole > 0
+					|| sucked
+					//|| !DoPlayerSpecialMove(++specialMove) //todo special moves
+					)
+					specialMove = 0;
+			}
+		}
+#ifdef LEDGE_CLIMBING
+		oldXPos = xPos;	//outside of ledge climbing, JJ2 never seems to use these properties for local players, so setting them would be harmless but also pointless
+		oldYPos = yPos;
+#endif
+		AdjustRabbit();
+		if (fly) { //moved in here to prevent silly farting frog stuff
+			if (fly == -1) {
+				/*int offset = (versionTSF ? 0 : 1); //todo airboard stuff
+				if (airboard <= 0 || airboard >= 14) {
+					if (!fixAnim) {
+						curAnim = AnimBase[charCurr] + offset;
+						animSpeed = 6;
+					}
+				}
+				else {
+					curAnim = AnimBase[charCurr] + offset + 1;
+					animSpeed = 256;
+					frameID = airboard >> 1;
+					frameCount =
+						fixAnim =
+						fire = 0;
+					lastFire = AISPEED;
+				}
+				if ((*gameTicks & 7) == 0)
+					AddExplosion(
+						xPos - (direction << 20),
+						yPos + 8 * sinTable(12 * *gameTicks) + (12 * FIXMUL),
+						AnimBase[mPICKUPS] + 4
+					);*/
+			}
+			/*else if (fly > 1) { //todo copters, etc.
+				jjBEHAVIOR& flyingObject = gameObjects[0][fly - 1].behavior;
+				if (!(flyingObject == copter) && flyingObject != loadObjects[aCHESHIRE2].behavior) //TODO expand this to AngelScript somehow--metadata?
+					fly = 0;
+			}*/
+		}
+		else
+			airBoard = 0;
+	}
+
+	if (++frameCount <= animSpeed) {
+		if (FrameID >= GetFrameCount()) //this should never be true, I think
+			FrameID = 0;
+	} else {
+		const auto numFrames = GetFrameCount();
+		frameCount = 0;
+		if (++FrameID >= numFrames) {
+			FrameID = (fixAnim) ? numFrames - 1 : 0;
+			fixAnim = false;
+		}
+	}
+
+	//if (characterIndex != char2FROG && characterIndex != char2BIRDBLUE) //todo non-rabbits
+		ProcessActionFire();
+	/*if (charCurr != mFROG)*/ { //todo non-rabbits
+		ApproachZero(morph);
+	}
+	ApproachZero(flicker);
+	/*if (isStarted || isOvertime || NetGlobals->partyMode == gameLOCAL)*/ { //todo? game stopping
+		if (sugarRush) {
+			--sugarRush;
+			/*if (--sugarRush <= 0 && SoundGlobals->soundEnabled) //todo music
+				ModMusicResume();*/
+		}
+
+		if (shieldTime <= -128)
+			shieldType = 0;
+		else if (--shieldTime > -128)
+			{}// ShieldSamples(); //todo samples
+
+		ApproachZero(invincibility);
+
+		/*if (playerTimer[localPlayerID].state == timerSTARTED) { //todo? player timers
+			duration = playerTimer[localPlayerID].endTime - *gameTicks;
+			if (duration <= 0) {
+				playerTimer[localPlayerID].state = timerSTOPPED;
+				playerTimer[localPlayerID].endTime = playerTimer[localPlayerID].startTime = 0;
+				executeASFunction(playerTimer[localPlayerID].endFunction);
+			}
+			// basically copied from the shield expiring code, though the intervals might be off a bit
+			else if (!playerTimer[localPlayerID].soundsDisabled) {
+				if (duration < (AISPEED * 3) && !(*gameTicks & 15))
+					PlaySample(xPos, yPos, sCOMMON_BELL_FIRE, 0, 0);
+				if (duration < (AISPEED * 5) && !(*gameTicks & 7))
+					PlaySample(xPos, yPos, sCOMMON_BELL_FIRE2, 0, 0);
+			}
+		}*/
+	}
+	/*else if (shieldType == 4 && shieldTime >= 40 * AISPEED - 32) //do the laser shield initializing animation thing //todo? shields, game stopping
+		--shieldTime;*/
+	LowerToZero(stop); //is this ever used?
+	//playerTraces[0][(*gameTicks & 0x3F) + (playerID << 6)] = (xPos >> 16) + (yPos & 0xFFFF0000); //todo traces
 }
 void Bunny::AdjustViewpoint(GameState& gameState) const
 {

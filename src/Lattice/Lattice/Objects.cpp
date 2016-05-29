@@ -27,8 +27,11 @@ void ObjectInitialization::AddObject(Level& level, int x, int y) const
 	level.Objects.push_back(std::unique_ptr<GameObject>(Function(ObjectStartPos(float(x), float(y), AnimationSets[AnimSetID]))));
 }
 
-void GameObject::DetermineFrame(int frameID)
+unsigned int GameObject::GetFrameCount() const {
+	return Set->Animations[AnimID].AnimFrames->size();
+}
+void GameObject::DetermineFrame(unsigned int frameID)
 {
-	const int frameCount = Set->Animations[AnimID].AnimFrames->size();
+	const unsigned int frameCount = GetFrameCount();
 	FrameID = (!!frameCount) ? (frameID % frameCount) : 0;
 }

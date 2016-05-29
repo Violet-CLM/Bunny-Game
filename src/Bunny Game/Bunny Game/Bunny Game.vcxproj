@@ -177,6 +177,7 @@
     <ClCompile Include="Pickups.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BunnyMisc.h" />
     <ClInclude Include="BunnyObject.h" />
     <ClInclude Include="BunnyObjectList.h" />
     <ClInclude Include="BunnyVersionDependentStuff.h" />

@@ -1,15 +1,6 @@
 #pragma once
 #include "BunnyObject.h"
-
-//todo move these somewhere better
-//internal gametick speed is set at 70Hz
-#define AISPEED			70
-
-//no idea where the following are defined, but it's correct as far as I can tell
-#define HITTIME			AISPEED
-#define DOWNATTACKLEN	50
-#define DOWNATTACKWAIT	40
-#define FLASHTIME		5
+#include "BunnyMisc.h"
 
 class Bunny : public BunnyObject {
 	bool KeyUp, KeyRight, KeyDown, KeyLeft, KeyFire, KeySelect, KeyRun, KeyJump;
@@ -21,8 +12,8 @@ class Bunny : public BunnyObject {
 	};
 	PlatformTypes platformType;
 	float platform_relX, platform_relY, moveSpeedX, moveSpeedY, fixScrollX, quakeX, shiftPositionX;
-	int fire, lastFire, lastDownAttack, freeze, invincibility, airBoard, helicopter, helicopterTotal, specialJump, dive, lastDive, hit, hDir, vDir, warpCounter, frogMorph, bossActive, vPole, swim, stop, stoned, stonedLen, spring, specialMove, slope, runDash, run, lastRun, rolling, quake, platform, ledgeWiggle, lastSpring, lastJump, idleTime, hPole, hang, vine, fly, fixStartX, downAttack, charCurr, characterIndex, beMoved, lastTilePosition;
-	bool goUp, goRight, goLeft, goDown, goFarDown;
+	int fire, lastFire, lastDownAttack, freeze, invincibility, airBoard, helicopter, helicopterTotal, specialJump, dive, lastDive, hit, hDir, vDir, warpCounter, frogMorph, bossActive, vPole, swim, stop, stoned, stonedLen, spring, specialMove, slope, runDash, run, lastRun, rolling, quake, platform, ledgeWiggle, lastSpring, lastJump, idleTime, hPole, hang, vine, fly, fixStartX, downAttack, charCurr, characterIndex, beMoved, lastTilePosition, sugarRush, sucked, shieldType, shieldTime, morph, flicker, frameID, frameCount, animSpeed;
+	bool goUp, goRight, goLeft, goDown, goFarDown, fixAnim;
 
 	void GetInput(const KeyStates&);		//461C20
 	void ProcessInput();					//435AC0
@@ -30,6 +21,8 @@ class Bunny : public BunnyObject {
 		void ProcessInputJumpFallStuff();
 	void DoLandscapeCollision(GameState&);	//437D30
 	void DoZoneDetection(Event);
+	void AdjustRabbit();					//430ED0
+		void ProcessActionFire();
 	void ProcessAction();					//4348E0
 	void AdjustViewpoint(GameState&) const;	//43E560
 
