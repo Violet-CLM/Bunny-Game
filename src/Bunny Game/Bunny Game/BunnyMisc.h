@@ -9,3 +9,5 @@
 
 #define ApproachZero(a) if (a > 0) --a; else if (a < 0) ++a
 #define LowerToZero(a) if (a) --a
+
+unsigned int RandFac(unsigned int andValue);

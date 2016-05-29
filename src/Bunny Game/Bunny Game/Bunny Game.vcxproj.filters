@@ -53,6 +53,9 @@
     <ClCompile Include="BunnyVersionDependentStuff.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BunnyMisc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Bunny Game.rc">

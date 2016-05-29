@@ -168,6 +168,7 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BunnyMisc.cpp" />
     <ClCompile Include="BunnyObject.cpp" />
     <ClCompile Include="BunnyObjectList.cpp" />
     <ClCompile Include="BunnyVersionDependentStuff.cpp" />
