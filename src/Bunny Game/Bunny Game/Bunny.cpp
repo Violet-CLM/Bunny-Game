@@ -1457,7 +1457,7 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 		}
 	}*/
 }
-void Bunny::DoZoneDetection(Event curEvent)
+void Bunny::DoZoneDetection(Event& curEvent, unsigned int gameTicks)
 {
 	const int currentTilePosition = (int(PositionX / TILEWIDTH) << 16) | int(PositionY / TILEHEIGHT);
 	switch (curEvent.ID) {
@@ -1567,98 +1567,52 @@ void Bunny::DoZoneDetection(Event curEvent)
 		}
 		break;*/
 
-	/*case aSUCKERTUBE: {
-		if (curEvent.GetParameter(16, 1) != (platformType == aSUCKERTUBE)) break;
+	case EventIDs::SUCKERTUBE: {
+		if (curEvent.GetParameter(16, 1) != (platformType == PlatformTypes::SuckerTube))
+			break;
+
 		warpFall = 0;
-		calc = px + py*((int)GameGlobals->level.blockWidth + 1); //LAYER_WIDTH[SPRITELAYER]
-
-		int waitTime = curEvent.GetParameter(17, 3);
-		int gravDir = ((getPlayerVarSettingLocal(pvANTIGRAV)) ? 0xFFFFFFFF : 0x00000000);
-
-		if (waitTime && calc != lastTilePosition) {
-			SpeedX =
-				SpeedY =
-				platform_relX =
-				platform_relY = 0;
-
-			PositionX = (PositionX + (px * 32 + 15) * 65536) / 2;
-			PositionY = (PositionY + (py * 32 + 15) * 65536) / 2;
-			downAttack = DOWNATTACKLEN; //turn it off!
-			specialMove = 0;
-
-			if (-calc == lastTilePosition) {
-				if (sucked <= 0) {
-					if (curEvent.GetParameter(14, 1))
-						;//PlaySample(PositionX, PositionY, sCOMMON_BURN, 0, 50000);
-
-					SpeedX = curEvent.GetParameter(0, -7) * 65536;
-					SpeedY = (curEvent.GetParameter(7, -7) * 65536) ^ gravDir;
-
-					if (SpeedY < 0) {
-						spring = 1;
-						lastSpring = gameTicks;
-					}
-					sucked = AISPEED / 4;
-					//rolling = AISPEED/2;
-					lastTilePosition = calc; //don't retrigger
-					if (curEvent.GetParameter(15, 1)) { //violet's noclip mode
-						platformType = aSUCKERTUBE;
-						platform_relX = SpeedX;
-						platform_relY = SpeedY^gravDir;
-						playX->gravity = 0;
-					}
-					else {
-						platformType = 0;
-						playX->gravity = GameGlobals->level.gravity;
-					}
-				}
-			}
-			else {
-				lastTilePosition = -calc;
-				sucked = waitTime*AISPEED / 2;
-			}
-		}
-		else {
+		downAttack = DOWNATTACKLEN; //turn it off!
+		specialMove = 0;
+		const int waitTime = (LastSuckerTube != &curEvent) ? curEvent.GetParameter(17, 3) : 0;
+		LastSuckerTube = &curEvent;
+		if (sucked >= 0 && waitTime) {
+			sucked = -waitTime*AISPEED / 2; //negative sucked means time to wait
+			SpeedX = SpeedY = platform_relX = platform_relY = 0;
+			CenterInTile();
+		} else { //go!
 			if (curEvent.GetParameter(14, 1))// TrigSample, written by blur, uncommented by Violet
 				;//PlaySample(PositionX, PositionY, sCOMMON_BURN, 0, 50000); //perhaps not the ideal sound?
 
-			SpeedX = curEvent.GetParameter(0, -7) * 65536;
-			SpeedY = (curEvent.GetParameter(7, -7) * 65536) ^ gravDir;
+			SpeedX = curEvent.GetParameter(0, -7);
+			SpeedY = (curEvent.GetParameter(7, -7)) * DirectionY;
 			AccelerationX = 0;
 			AccelerationY = 0;
 
-			if (SpeedY && (!SpeedX || calc != lastTilePosition)) {	//align!
-				PositionX = (px * 32 + 15) * 65536;
-			}
-			if (SpeedX && (!SpeedY || calc != lastTilePosition)) {
-				PositionY = (py * 32 + 15) * 65536;
-			}
+			if (SpeedY && (!SpeedX || currentTilePosition != lastTilePosition))	//align!
+				CenterInTile(true, false);
+			if (SpeedX && (!SpeedY || currentTilePosition != lastTilePosition))
+				CenterInTile(false, true);
 
 			if (SpeedY < 0) {
 				spring = 1;
 				lastSpring = gameTicks;
 			}
 
-			downAttack = DOWNATTACKLEN; //turn it off!
-			specialMove = 0;
-
-			lastTilePosition = calc; //don't trigger this one again
-
 			beMoved = AISPEED / 4;
 			sucked = AISPEED / 2;
 
 			if (curEvent.GetParameter(15, 1)) { //noclip again
-				platformType = aSUCKERTUBE;
+				platformType = PlatformTypes::SuckerTube;
 				platform_relX = SpeedX;
-				platform_relY = SpeedY^gravDir;
-				playX->gravity = 0;
-			}
-			else {
-				platformType = 0;
-				playX->gravity = GameGlobals->level.gravity;
+				platform_relY = SpeedY*DirectionY;
+				//playX->gravity = 0;
+			} else {
+				platformType = PlatformTypes::None;
+				//playX->gravity = GameGlobals->level.gravity;
 			}
 		}
-		break; } */
+		break; }
 
 	/*case areaLIMITXSCROLL: //beefed up by violet
 		calc = curEvent.GetParameter(0, 20);
@@ -1689,8 +1643,7 @@ void Bunny::DoZoneDetection(Event curEvent)
 					}
 				}
 				poleSpeed = AccelerationX;
-				PositionX = float(int(PositionX) / TILEWIDTH) * TILEWIDTH + 15;
-				PositionY = float(int(PositionY) / TILEHEIGHT) * TILEHEIGHT + 15;
+				CenterInTile();
 				spring = 0;
 				hPole = AISPEED;
 				vPole = 0;
@@ -1709,8 +1662,7 @@ void Bunny::DoZoneDetection(Event curEvent)
 				else
 					SpeedY = -16;
 				poleSpeed = SpeedY;
-				PositionX = float(int(PositionX) / TILEWIDTH) * TILEWIDTH + 15;
-				PositionY = float(int(PositionY) / TILEHEIGHT) * TILEHEIGHT + 15;
+				CenterInTile();
 
 				vPole = AISPEED;
 				hPole = 0;
@@ -1870,6 +1822,14 @@ void Bunny::DoZoneDetection(Event curEvent)
 		break;*/
 	}
 	lastTilePosition = currentTilePosition;
+}
+
+inline void Bunny::CenterInTile(bool x, bool y)
+{
+	if (x)
+		PositionX = float(int(PositionX) / TILEWIDTH) * TILEWIDTH + 15;
+	if (y)
+		PositionY = float(int(PositionY) / TILEHEIGHT) * TILEHEIGHT + 15;
 }
 
 void Bunny::PoleSamples() const {
@@ -2259,10 +2219,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 			;//PlaySample(PositionX, PositionY, sCOMMON_BIRDFLY, 0, 44000 - (vPole << 8));
 	}
 	else if (sucked) {
-		if (sucked < 0)
-			++sucked;
-		else
-			--sucked;
+		ApproachZero(sucked);
 		idleTime = 0;
 		if (!fixAnim)
 			AssignAnimation(RabbitAnims::ROLLING, 4);
@@ -3109,7 +3066,7 @@ void Bunny::Behave(GameState& gameState)
 	GetInput(gameState.Keys);
 	ProcessInput();
 	DoLandscapeCollision(gameState);
-	DoZoneDetection(gameState.GetEvent(int(PositionX / TILEWIDTH), int(PositionY / TILEHEIGHT)));
+	DoZoneDetection(gameState.GetEvent(int(PositionX / TILEWIDTH), int(PositionY / TILEHEIGHT)), gameState.GameTicks);
 	ProcessAction(gameState.GameTicks);
 	AdjustViewpoint(gameState);
 }

@@ -253,7 +253,7 @@ unsigned int GameState::MaskedVLine(int x, int y, int length, Event& outEvent) c
 	return 0;
 }
 
-Event GameState::GetEvent(unsigned int x, unsigned int y) const
+Event& GameState::GetEvent(unsigned int x, unsigned int y) const
 {
 	return Lev.GetEvent(x, y);
 }

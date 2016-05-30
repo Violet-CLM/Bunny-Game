@@ -224,6 +224,7 @@ namespace EventIDs {
 		CARROTUSPOLE = 203,
 		PSYCHPOLE = 204,
 		DIAMONDUSPOLE = 205,
+								SUCKERTUBE = 206,
 								TEXT = 207,
 								WATERLEVEL = 208,
 		FRUITPLATFORM = 209,

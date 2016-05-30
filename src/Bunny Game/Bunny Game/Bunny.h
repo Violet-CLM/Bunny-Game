@@ -14,6 +14,7 @@ class Bunny : public BunnyObject {
 	float platform_relX, platform_relY, moveSpeedX, moveSpeedY, fixScrollX, quakeX, shiftPositionX, poleSpeed;
 	int fire, lastFire, lastDownAttack, freeze, invincibility, airBoard, helicopter, helicopterTotal, specialJump, dive, lastDive, hit, DirectionKeyX, DirectionKeyY, warpCounter, frogMorph, bossActive, vPole, swim, stop, stoned, stonedLen, spring, specialMove, slope, runDash, run, lastRun, rolling, quake, platform, ledgeWiggle, lastSpring, lastJump, idleTime, hPole, hang, vine, fly, fixStartX, downAttack, charCurr, characterIndex, beMoved, lastTilePosition, sugarRush, sucked, shieldType, shieldTime, morph, flicker, frameCount, animSpeed, warpFall, warpArea, viewSkipAverage, skid, pushObject, push, lookVP, lookVPAmount, lift, lastPush, lastLookVP, idleTrail, idleExtra, idleAnim, health, fireSpeed, fireDirection;
 	bool goUp, goRight, goLeft, goDown, goFarDown, fixAnim;
+	Event* LastSuckerTube;
 
 	void GetInput(const KeyStates&);		//461C20
 	void ProcessInput();					//435AC0
@@ -21,7 +22,8 @@ class Bunny : public BunnyObject {
 		void ProcessInputJumpFallStuff();
 		void ProcessInputStuffWithFlyAndSwim();
 	void DoLandscapeCollision(GameState&);	//437D30
-	void DoZoneDetection(Event);
+	void DoZoneDetection(Event&, unsigned int);
+		inline void CenterInTile(bool=true,bool=true);
 	void AdjustRabbit(unsigned int);		//430ED0
 		inline bool UsesAnimation(int) const;
 		inline void Bunny::AssignAnimation(int);

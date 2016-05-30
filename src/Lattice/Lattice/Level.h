@@ -95,5 +95,5 @@ public:
 	unsigned int MaskedHLine(int, int, int, Event&) const;	//
 	unsigned int MaskedVLine(int, int, int, Event&) const;	//
 
-	Event GetEvent(unsigned int, unsigned int) const;
+	Event& GetEvent(unsigned int, unsigned int) const;
 };
