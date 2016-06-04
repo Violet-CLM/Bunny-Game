@@ -44,7 +44,7 @@ void Lattice::Update()
 void Lattice::Render(double leftoverTimeElapsed)
 {
 	Window->clear();
-	Window->draw(*Level, sf::RenderStates(shaders[shader_NORMAL]));
+	Window->draw(*Level, SpriteMode::Paletted.GetShader());
 	Window->display();
 }
 
@@ -55,7 +55,7 @@ int Lattice::StartGame(int argc, char *argv[])
 
 	InitPopulateTextureArrays();
 	InitCreateShaders();
-	std::wstring filename = L"Diam3.j2l";// L"C:\\Games\\Jazz2\\Diam3.j2l";
+	std::wstring filename = L"Treasur1.j2l";// L"C:\\Games\\Jazz2\\Diam3.j2l";
 	if (argc == 2) {
 		std::wstring proposedFilename = WStringFromCharArray(argv[1]);
 		if (!(proposedFilename.length() > 4 && proposedFilename.substr(filename.length() - 5, 4) == L".j2l"))

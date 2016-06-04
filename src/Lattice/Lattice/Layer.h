@@ -61,5 +61,5 @@ public:
 
 	void Update(unsigned int, unsigned int, sf::Vector2f);
 	void ClearSpriteQueue();
-	void DrawQuad(quad&, sf::Texture*);
+	void DrawQuad(quad&, sf::Texture*, const SpriteMode&);
 };

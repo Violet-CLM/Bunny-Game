@@ -175,16 +175,34 @@ struct quad {
 	}
 };
 
+struct SpriteMode {
+private:
+	sf::Shader* Shader;
+	float ParamAsFloat;
+	sf::Uint8 Param;
+public:
+	SpriteMode() : Shader(nullptr), ParamAsFloat(0), Param(0) {}
+	SpriteMode(sf::Shader* s, sf::Uint8 p) : Shader(s), Param(p) {
+		ParamAsFloat = p / 256.0f;
+	}
+	bool operator==(const SpriteMode& other) const {
+		return other.Shader == Shader && other.Param == Param;
+	}
+	virtual sf::Shader* GetShader() const;
+
+	static SpriteMode Normal, Paletted;
+};
 class VertexCollection : public sf::Drawable, public sf::Transformable {
 private:
 	sf::Texture* Texture;
+	SpriteMode Mode;
 	VertexVector Vertices;
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 public:
 	VertexCollection() {}
-	VertexCollection(sf::Texture* t) : Texture(t) {}
+	VertexCollection(sf::Texture* t, const SpriteMode& m) : Texture(t), Mode(m) {}
 	void AppendQuad(quad&);
-	bool Matches(sf::Texture*) const; //todo more options
+	bool Matches(const sf::Texture* const, const SpriteMode&) const; //todo more options
 };
 
 void GeneratePaletteTexture(sf::Texture&, const sf::Uint8*);

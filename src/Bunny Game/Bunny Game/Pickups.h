@@ -4,10 +4,10 @@
 class Pickup : public BunnyObject {
 	using BunnyObject::BunnyObject;
 
+protected:
 	float BounceYOffset;
 
 	void Draw(Layer*) const override;
-protected:
 	void Behave(GameState&) override;
 public:
 	Pickup(ObjectStartPos& objStart, int ai);
@@ -34,9 +34,10 @@ public:
 	Carrot(ObjectStartPos& objStart) : Pickup(objStart, 21) {}
 };
 class Gem : public Pickup {
-	int color;
+	SpriteMode mode;
+	void Draw(Layer*) const override;
 public:
-	Gem(ObjectStartPos& objStart, int c) : Pickup(objStart, 22), color(c) {}
+	Gem(ObjectStartPos& objStart, int c) : Pickup(objStart, 22), mode(SpriteMode(shaders[shader_NORMAL], c)) {} //todo gem shader instead
 };
 class FastFire : public Pickup {
 public:

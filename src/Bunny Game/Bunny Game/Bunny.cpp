@@ -1730,7 +1730,7 @@ void Bunny::DoZoneDetection(Event& curEvent, unsigned int gameTicks)
 			noGun |= 0x10000; //local noFire
 		break;*/
 
-	/*case areaSETLIGHT:
+	/*case EventIDs::SETLIGHT:
 		if (lastTilePosition != currentTilePosition) {
 			ambientBack = (curEvent.GetParameter(0, 8) * 64) / 100;
 		}
@@ -1739,7 +1739,7 @@ void Bunny::DoZoneDetection(Event& curEvent, unsigned int gameTicks)
 	/*case areaDIMLIGHT: // dunno. can't find the right function to hack. been using this for debug stuff instead. (violet)
 		break;*/
 
-	/*case areaRESETLIGHT:
+	/*case EventIDs::RESETLIGHT:
 		ambientBack = ambientDefault;
 		break;*/
 

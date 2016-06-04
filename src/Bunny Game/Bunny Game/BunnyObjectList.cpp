@@ -62,14 +62,13 @@ ObjectList* GetObjectList(bool isTSF) {
 
 		ObjT(EXTRALIFE, Pickups, ExtraLife),
 		ObjT(ENERGYUP, Pickups, Carrot),
-		/*ObjTC(REDGEM, Pickups, Gem, 0),
+		ObjTC(REDGEM, Pickups, Gem, 0),
 		ObjTC(GREENGEM, Pickups, Gem, 1),
 		ObjTC(BLUEGEM, Pickups, Gem, 2),
 		ObjTC(PURPLEGEM, Pickups, Gem, 3),
 		ObjTC(RECTREDGEM, Pickups, Gem, 0),
 		ObjTC(RECTGREENGEM, Pickups, Gem, 1),
 		ObjTC(RECTBLUEGEM, Pickups, Gem, 2),
-		ObjTC(RECTPURPLEGEM, Pickups, Gem, 3),*/
 		ObjT(GUNFASTFIRE, Pickups, FastFire),
 		ObjTC(FASTFEET, Pickups, Pickup, 33),
 		ObjT(GOLDCOIN, Pickups, GoldCoin),

@@ -228,7 +228,7 @@ bool AnimFrame::SmallerThan(unsigned int hardwareMaximumTextureSize) const
 {
 	return !(Width == 0 || Height == 0 || Width > hardwareMaximumTextureSize || Height > hardwareMaximumTextureSize);
 }
-void AnimFrame::Draw(Layer& layer, int x, int y, bool flipX, bool flipY) const
+void AnimFrame::Draw(Layer& layer, const SpriteMode& mode, int x, int y, bool flipX, bool flipY) const
 {
 	quad repositionedQuad(Quad);
 	if (flipX)
@@ -236,20 +236,20 @@ void AnimFrame::Draw(Layer& layer, int x, int y, bool flipX, bool flipY) const
 	if (flipY)
 		repositionedQuad.flipVertically();
 	repositionedQuad.positionPositionAt(x + (!flipX ? HotspotX : -(Width+HotspotX)), y + (!flipY ? HotspotY : -(Height + HotspotY)));
-	layer.DrawQuad(repositionedQuad, Texture);
+	layer.DrawQuad(repositionedQuad, Texture, mode);
 }
-void AnimFrame::DrawRectangle(Layer& layer, int x, int y, int width, int height, sf::Uint8 color)
+void AnimFrame::DrawRectangle(Layer& layer, const SpriteMode& mode, int x, int y, int width, int height, sf::Uint8 color)
 {
 	quad rectangleQuad(static_cast<float>(width), static_cast<float>(height));
 	const sf::Vector2f texCoords(static_cast<float>(color), static_cast<float>(pallineXPOSTOINDEX));
 	rectangleQuad.positionPositionAt(x, y);
 	for (int i = 0; i < 4; ++i)
 		rectangleQuad.vertices[i].texCoords = texCoords;
-	layer.DrawQuad(rectangleQuad, PaletteTexture);
+	layer.DrawQuad(rectangleQuad, PaletteTexture, mode);
 }
-void AnimFrame::DrawPixel(Layer& layer, int x, int y, sf::Uint8 color)
+void AnimFrame::DrawPixel(Layer& layer, const SpriteMode& mode, int x, int y, sf::Uint8 color)
 {
-	return DrawRectangle(layer, x, y, 1, 1, color);
+	return DrawRectangle(layer, mode, x, y, 1, 1, color);
 }
 Animation::Animation(const sf::Uint8*& animInfoData, const sf::Uint8*& frameInfoData, const sf::Uint8* const imageData)
 {

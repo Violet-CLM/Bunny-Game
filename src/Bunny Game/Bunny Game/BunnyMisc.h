@@ -11,3 +11,8 @@
 #define LowerToZero(a) if (a) --a
 
 unsigned int RandFac(unsigned int andValue);
+
+float sintable(int);
+float costable(int);
+#define sinTable sintable
+#define cosTable costable

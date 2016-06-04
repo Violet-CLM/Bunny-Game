@@ -1,4 +1,5 @@
 #include "Diamondus.h"
+#include "BunnyMisc.h"
 
 void Bee::Behave(GameState& gameState)
 {

@@ -31,6 +31,7 @@ enum paletteLineNames {
 };
 enum shaderTypes { //or do I move this into the game-specific code?
 	shader_NORMAL,
+	shader_PALETTED,
 	shader_LAST
 };
 #define PALLINEHEIGHT (1.f/float(pallineNUMBEROFPALLINES)) //texture positions in GLSL are not 0-255 (or 0-63 or whatever) but 0.0 to 1.0. This is therefore the height of a single line in the "tables" texture, and e.g. (float(pallineBRIGHTNESS) * PALLINEHEIGHT) points to line pallineBRIGHTNESS in GLSL coordinates

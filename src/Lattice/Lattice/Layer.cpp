@@ -256,10 +256,10 @@ void Layer::ClearSpriteQueue()
 	SpriteQueue.resize(0);
 }
 
-void Layer::DrawQuad(quad& q, sf::Texture* texture)
+void Layer::DrawQuad(quad& q, sf::Texture* texture, const SpriteMode& spriteMode)
 {
-	if (SpriteQueue.empty() || !SpriteQueue.back().Matches(texture))
-		SpriteQueue.push_back(VertexCollection(texture));
+	if (SpriteQueue.empty() || !SpriteQueue.back().Matches(texture, spriteMode))
+		SpriteQueue.push_back(VertexCollection(texture, spriteMode));
 	SpriteQueue.back().AppendQuad(q);
 }
 

@@ -66,6 +66,7 @@ void InitPopulateTextureArrays() {
 	*/
 }
 
+SpriteMode SpriteMode::Normal, SpriteMode::Paletted;
 void InitCreateShaders()
 {
 	for (int i = 0; i < shader_LAST; ++i) {
@@ -76,11 +77,14 @@ void InitCreateShaders()
 		if (shader->loadFromMemory(shaderSource, sf::Shader::Fragment))
 			shader->setParameter("texture", sf::Shader::CurrentTexture);
 	}
+	SpriteMode::Normal = SpriteMode(shaders[shader_NORMAL], 0);
+	SpriteMode::Paletted = SpriteMode(shaders[shader_PALETTED], 0);
 }
 
 void VertexCollection::draw(sf::RenderTarget & target, sf::RenderStates states) const
 {
 	states.texture = Texture;
+	states.shader = Mode.GetShader();
 	target.draw(Vertices.data(), Vertices.size(), sf::Quads, states);
 }
 
@@ -89,7 +93,13 @@ void VertexCollection::AppendQuad(quad& q)
 	q.appendTo(Vertices);
 }
 
-bool VertexCollection::Matches(sf::Texture* otherTexture) const
+bool VertexCollection::Matches(const sf::Texture* const otherTexture, const SpriteMode& otherMode) const
 {
-	return Texture == otherTexture;
+	return Texture == otherTexture && Mode == otherMode;
+}
+
+sf::Shader* SpriteMode::GetShader() const
+{
+	Shader->setParameter("param", ParamAsFloat);
+	return Shader;
 }
