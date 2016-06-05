@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 
+std::string sprintf_z(const char *format, ...);
 std::wstring wsprintf_z(const wchar_t *format, ...);
 std::wstring WStringFromCharArray(const char * charArray, unsigned int length = 0);
 double getCurrentTime();

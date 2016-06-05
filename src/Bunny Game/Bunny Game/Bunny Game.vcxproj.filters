@@ -56,6 +56,9 @@
     <ClCompile Include="BunnyMisc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BunnyShaders.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Bunny Game.rc">
@@ -87,6 +90,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BunnyMisc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BunnyShaders.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,3 +1,4 @@
+#include <array>
 #include "stdafx.h"
 #include "Game.h"
 #include "Drawing.h"
@@ -54,7 +55,10 @@ int Lattice::StartGame(int argc, char *argv[])
 	window.setFramerateLimit(60); //solves all problems now and forever
 
 	InitPopulateTextureArrays();
-	InitCreateShaders();
+	InitCreateShaders(Shaders, ShaderSources);
+	SpriteMode::Normal = SpriteMode(Shaders[DefaultShaders::Normal], 0);
+	SpriteMode::Paletted = SpriteMode(Shaders[DefaultShaders::Paletted], 0);
+
 	std::wstring filename = L"Treasur1.j2l";// L"C:\\Games\\Jazz2\\Diam3.j2l";
 	if (argc == 2) {
 		std::wstring proposedFilename = WStringFromCharArray(argv[1]);

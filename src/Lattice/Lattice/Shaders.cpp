@@ -1,14 +1,14 @@
 #include "Shaders.h"
 
-std::string shaderSources[shader_LAST] = {
-		//shader_NORMAL
+std::vector<std::string> ShaderSources = {
+		//Shaders::Normal
 	"uniform sampler2D texture;\
 	\
 	void main(void)\
 	{\
 		gl_FragColor = texture2D(texture, gl_TexCoord[0].xy);\
 	}",
-		//shader_PALETTED
+		//Shaders::Paletted
 	"uniform sampler2D texture;\
 	uniform sampler2D tables;\
 	\
@@ -19,4 +19,4 @@ std::string shaderSources[shader_LAST] = {
 		gl_FragColor = vec4(pixel.r, pixel.g, pixel.b, index.a);\
 	}"
 };
-sf::Shader* shaders[shader_LAST];
+std::vector<sf::Shader*> Shaders;

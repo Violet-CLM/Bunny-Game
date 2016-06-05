@@ -1,5 +1,6 @@
 #pragma once
 #include "BunnyObject.h"
+#include "BunnyShaders.h"
 
 class Pickup : public BunnyObject {
 	using BunnyObject::BunnyObject;
@@ -37,7 +38,7 @@ class Gem : public Pickup {
 	SpriteMode mode;
 	void Draw(Layer*) const override;
 public:
-	Gem(ObjectStartPos& objStart, int c) : Pickup(objStart, 22), mode(SpriteMode(shaders[shader_NORMAL], c)) {} //todo gem shader instead
+	Gem(ObjectStartPos& objStart, int c) : Pickup(objStart, 22), mode(SpriteModeGem(c)) {}
 };
 class FastFire : public Pickup {
 public:

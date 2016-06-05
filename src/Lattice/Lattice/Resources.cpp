@@ -241,7 +241,7 @@ void AnimFrame::Draw(Layer& layer, const SpriteMode& mode, int x, int y, bool fl
 void AnimFrame::DrawRectangle(Layer& layer, const SpriteMode& mode, int x, int y, int width, int height, sf::Uint8 color)
 {
 	quad rectangleQuad(static_cast<float>(width), static_cast<float>(height));
-	const sf::Vector2f texCoords(static_cast<float>(color), static_cast<float>(pallineXPOSTOINDEX));
+	const sf::Vector2f texCoords(static_cast<float>(color), static_cast<float>(DefaultPaletteLineNames::XPosToIndex));
 	rectangleQuad.positionPositionAt(x, y);
 	for (int i = 0; i < 4; ++i)
 		rectangleQuad.vertices[i].texCoords = texCoords;

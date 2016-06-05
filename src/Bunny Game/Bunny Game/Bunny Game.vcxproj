@@ -169,6 +169,7 @@
     <ClCompile Include="BunnyMisc.cpp" />
     <ClCompile Include="BunnyObject.cpp" />
     <ClCompile Include="BunnyObjectList.cpp" />
+    <ClCompile Include="BunnyShaders.cpp" />
     <ClCompile Include="BunnyVersionDependentStuff.cpp" />
     <ClCompile Include="Diamondus.cpp" />
     <ClCompile Include="Bunny.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="BunnyMisc.h" />
     <ClInclude Include="BunnyObject.h" />
     <ClInclude Include="BunnyObjectList.h" />
+    <ClInclude Include="BunnyShaders.h" />
     <ClInclude Include="BunnyVersionDependentStuff.h" />
     <ClInclude Include="Diamondus.h" />
     <ClInclude Include="Bunny.h" />

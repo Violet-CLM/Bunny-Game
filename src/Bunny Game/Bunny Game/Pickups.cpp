@@ -26,5 +26,5 @@ void AmmoPickup::Behave(GameState& gameState)
 
 void Gem::Draw(Layer* layers) const
 {
-	GetFrame().Draw(layers[SPRITELAYER], mode, int(PositionX), int(PositionY + BounceYOffset), DirectionX < 0); //todo
+	GetFrame().Draw(layers[SPRITELAYER], mode, int(PositionX), int(PositionY + BounceYOffset), DirectionX < 0);
 }

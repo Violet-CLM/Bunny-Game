@@ -23,6 +23,27 @@ std::wstring wsprintf_z(const wchar_t *format, ...) {
 	va_end(args);
 	return buffer;
 }
+std::string sprintf_z(const char *format, ...) {
+	std::string buffer;
+	va_list args;
+	int length;
+
+	va_start(args, format);
+	length = _vscprintf(format, args);// + 1; // _vscprintf doesn't count terminating '\0'
+
+	if (length > 0) {
+		char *tempBuf = NULL;
+		tempBuf = new char[length + 1];
+
+		//vsprintf_s(tempBuf, len, format, args);
+		_vsnprintf_s(tempBuf, length + 1, _TRUNCATE, format, args);
+		buffer = tempBuf;
+		delete[] tempBuf;
+	}
+
+	va_end(args);
+	return buffer;
+}
 
 std::wstring WStringFromCharArray(const char * charArray, unsigned int length)
 {

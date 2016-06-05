@@ -176,7 +176,7 @@ struct quad {
 };
 
 struct SpriteMode {
-private:
+protected:
 	sf::Shader* Shader;
 	float ParamAsFloat;
 	sf::Uint8 Param;
@@ -209,6 +209,6 @@ void GeneratePaletteTexture(sf::Texture&, const sf::Uint8*);
 void GenerateTilesetTextures(sf::Texture**, const char*, const sf::Uint32*, const sf::Uint8*, unsigned int);
 
 void InitPopulateTextureArrays();
-void InitCreateShaders();
+void InitCreateShaders(std::vector<sf::Shader*>&, const std::vector<std::string>&);
 
 extern sf::Texture* PaletteTexture;
