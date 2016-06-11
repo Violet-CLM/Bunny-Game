@@ -1,3 +1,4 @@
+#include <array>
 #include "Drawing.h"
 #include "Misc.h"
 #include "Windows.h"
@@ -9,56 +10,26 @@ quad FullScreenQuad;
 
 //#define PALLINEHEIGHT (1.f/float(pallineNUMBEROFPALLINES)) //texture positions in GLSL are not 0-255 (or 0-63 or whatever) but 0.0 to 1.0. This is therefore the height of a single line in the "tables" texture, and e.g. (float(pallineBRIGHTNESS) * PALLINEHEIGHT) points to line pallineBRIGHTNESS in GLSL coordinates
 //#define TOPALLINE(A) (float(A) * PALLINEHEIGHT) //a macro for the above location purpose, to be used while writing shaders
-void GeneratePaletteTexture(sf::Texture& tex, const sf::Uint8* palette)
+void GeneratePaletteTexture(sf::Texture& tex, const sf::Uint8* palette, PaletteTableSetupFunction SetupPaletteTables, unsigned int PaletteLineCount)
 {
 	const sf::Color* const paletteColors = (sf::Color*)palette;
 	
 	PaletteTexture = &tex;
 
-	unsigned int paletteHeight = 8;// 1; //todo
-	//while (paletteHeight < Shaders.size())
-		//paletteHeight <<= 1;
-	sf::Color buffer[COLORSPERPALETTE];
+	unsigned int paletteHeight = 1;
+	while (paletteHeight < PaletteLineCount)	//smallest power of 2 containing the number of palette lines
+		paletteHeight <<= 1;					//there are cleverer, faster, harder-to-read ways to do this, but it's a onetime startup operation so I don't really care
+	std::array<sf::Color, COLORSPERPALETTE> buffer;
 	tex.create(COLORSPERPALETTE, paletteHeight);
 	tex.update(palette, COLORSPERPALETTE, 1, 0, DefaultPaletteLineNames::Palette);
 	for (int i = 0; i < COLORSPERPALETTE; ++i)
 		buffer[i].r = i;
-	tex.update((sf::Uint8*)buffer, COLORSPERPALETTE, 1, 0, DefaultPaletteLineNames::XPosToIndex);
+	tex.update((sf::Uint8*)buffer.data(), COLORSPERPALETTE, 1, 0, DefaultPaletteLineNames::XPosToIndex);
 
-	//Based on the code for generating 16-bit gem color LUTs, which reads indices 0,4,8,12,16 (and ONLY those indices) from the 8-bit LUTs and creates 128-color-long LUTs consisting of four smooth gradients among those five endpoints.
-	const static int gemPaletteStopColors[5*4] = {
-		55, 52, 48, 15, 15,
-		87, 84, 80, 15, 15,
-		39, 36, 32, 15, 15,
-		95, 92, 88, 15, 15
-	};
-	const int* gemPaletteIndexPointer = gemPaletteStopColors;
-	for (unsigned int gemColorIndex = 0; gemColorIndex < 4; ++gemColorIndex, ++gemPaletteIndexPointer) {
-		sf::Color* DestLUTEntry = buffer;
-		for (unsigned int gemGradientPosition = 0; gemGradientPosition < 4; ++gemGradientPosition) {
-			sf::Color firstColor = paletteColors[*gemPaletteIndexPointer];
-			sf::Color secondColor = paletteColors[*++gemPaletteIndexPointer];
+	SetupPaletteTables(tex, paletteColors, buffer);
 
-			unsigned int red = firstColor.r << 3, deltaRed = (secondColor.r << 3) - red; //the JJ2 code multiplies by 6 instead of by 8, but that's because gems are drawn with only 75% opacity. In 32-bit that's done in the shader with a 0.75 alpha, so the values here can be speedily multiplied by the full 8.
-			unsigned int green = firstColor.g << 3, deltaGreen = (secondColor.g << 3) - green;
-			unsigned int blue = firstColor.b << 3, deltaBlue = (secondColor.b << 3) - blue;
-			red <<= 5;
-			green <<= 5;
-			blue <<= 5;
-
-			for (unsigned int gradientSubPosition = 0; gradientSubPosition < 32; ++gradientSubPosition) {
-				DestLUTEntry->r = red >> 8;		red += deltaRed;
-				DestLUTEntry->g = green >> 8;	green += deltaGreen;
-				DestLUTEntry->b = blue >> 8;	blue += deltaBlue;
-				++DestLUTEntry;
-			}
-		}
-		tex.update((sf::Uint8*)buffer, COLORSPERPALETTE, 1, 0, DefaultPaletteLineNames::Gem + gemColorIndex);
-	}
-
-	for (int i = 0; i < DefaultShaders::LAST; ++i) {
-		Shaders[i]->setParameter("tables", tex); //cannot be used more than once...
-	}
+	for (auto& shader : Shaders)
+		shader->setParameter("tables", tex); //cannot be used more than once...
 }
 
 void GenerateTilesetTextures(sf::Texture** TileImages, const char* TileTypes, const sf::Uint32* ImageAddresses, const sf::Uint8* Images, unsigned int TileCount)
@@ -115,7 +86,7 @@ void InitCreateShaders(std::vector<sf::Shader*>& shaders, const std::vector<std:
 			if (shader->loadFromMemory(shaderSource, sf::Shader::Fragment))
 				shader->setParameter("texture", sf::Shader::CurrentTexture);
 			else
-				ShowErrorMessage((L"Error compiling shader:" + std::wstring(shaderSource.begin(), shaderSource.end())).c_str());
+				ShowErrorMessage((L"Error compiling shader: " + std::wstring(shaderSource.begin(), shaderSource.end())).c_str());
 			shaders.push_back(shader);
 		}
 	}

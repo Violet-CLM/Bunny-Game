@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 
 	Lattice game;
 	InitializeRabbitAnimIDs(isTSF);
-	AppendBunnyShaders(ShaderSources);
+	game.DefineShaders(BunnyShaderSources, GeneratePaletteTextureBunnyEdition, BunnyPaletteLineNames::LAST);
 	game.SetDefaultAnimList(GetDefaultAnimList(isTSF));
 	game.SetObjectActivityFunction(ShouldObjectsBeActive);
 	game.SetObjectList(GetObjectList(isTSF));

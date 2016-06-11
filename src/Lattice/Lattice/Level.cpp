@@ -70,10 +70,10 @@ void Level::ForEachEvent(std::function<void(Event&, int, int)> func)
 			func(ev, i % WidthTiles, i / WidthTiles);
 	}
 }
-Level* Level::LoadLevel(std::wstring& Filepath, PreloadedAnimationsList& anims, ObjectList& objs)
+Level* Level::LoadLevel(std::wstring& Filepath, PreloadedAnimationsList& anims, ObjectList& objs, PaletteTableSetupFunction SetupPaletteTables, unsigned int PaletteLineCount)
 {
 	Level* newLevel = new Level(Filepath);
-	if (newLevel->Open() && newLevel->ProcessLevelData(anims, objs)) {
+	if (newLevel->Open() && newLevel->ProcessLevelData(anims, objs, SetupPaletteTables, PaletteLineCount)) {
 		return newLevel;
 	} else {
 		ShowErrorMessage((Filepath + L" encountered an error").c_str());
@@ -82,7 +82,7 @@ Level* Level::LoadLevel(std::wstring& Filepath, PreloadedAnimationsList& anims, 
 	}
 }
 
-bool Level::ProcessLevelData(PreloadedAnimationsList defaultAnimList, ObjectList& objectInitializationList) //called after Open()
+bool Level::ProcessLevelData(PreloadedAnimationsList defaultAnimList, ObjectList& objectInitializationList, PaletteTableSetupFunction SetupPaletteTables, unsigned int PaletteLineCount) //called after Open()
 {
 	const char* data1Ptr = (const char*)&UncompressedData[0][11]; //skip over a bunch of useless values
 	Word* data3Ptr = (Word*)UncompressedData[2].data();
@@ -129,7 +129,7 @@ bool Level::ProcessLevelData(PreloadedAnimationsList defaultAnimList, ObjectList
 	const size_t folderCutoffPoint = Filepath.find_last_of(L"\\");
 	if (folderCutoffPoint < Filepath.length())
 		tilesetFilename = Filepath.substr(0, folderCutoffPoint) + L"\\" + tilesetFilename;
-	TilesetPtr = Tileset::LoadTileset(tilesetFilename, TileTypes);
+	TilesetPtr = Tileset::LoadTileset(tilesetFilename, TileTypes, SetupPaletteTables, PaletteLineCount);
 	if (TilesetPtr == nullptr)
 		return false;
 

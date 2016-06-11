@@ -36,12 +36,16 @@ private:
 	Level* Level;
 	PreloadedAnimationsList DefaultAnimList;
 	ObjectActivityFunction* ActivateObjects;
+	PaletteTableSetupFunction* SetupPaletteTables;
 	ObjectList* ObjectInitializationList;
 	KeyStates Keys;
+
+	unsigned int PaletteLineCount;
 public:
 
 	Lattice();
 	int StartGame(int argc, char *argv[]);
+	void DefineShaders(std::vector<std::string>&, PaletteTableSetupFunction*, unsigned int);
 	void SetDefaultAnimList(PreloadedAnimationsList&);
 	void SetObjectActivityFunction(ObjectActivityFunction&);
 	void SetObjectList(ObjectList*);

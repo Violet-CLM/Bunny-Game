@@ -56,3 +56,4 @@ class ObjectInitialization;
 typedef std::set<int> PreloadedAnimationsList;
 typedef void ObjectActivityFunction(Level&);
 typedef std::map<EventID, ObjectInitialization> ObjectList;
+typedef void PaletteTableSetupFunction(sf::Texture&, const sf::Color* const, std::array<sf::Color, COLORSPERPALETTE>&);

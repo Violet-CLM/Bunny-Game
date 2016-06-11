@@ -100,6 +100,7 @@
       <PerUserRedirection>true</PerUserRedirection>
       <AdditionalLibraryDirectories>C:\Program Files (x86)\SFML-2.3.2\lib;..\..\Lattice\Lattice</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-main-d.lib;sfml-graphics-s-d.lib;sfml-window-s-d.lib;sfml-system-s-d.lib;opengl32.lib;freetype.lib;jpeg.lib;winmm.lib;gdi32.lib;lib/zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>notelemetry.obj %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -136,6 +137,7 @@
       <PerUserRedirection>true</PerUserRedirection>
       <AdditionalLibraryDirectories>C:\Program Files (x86)\SFML-Source\SFML-2.3.2\lib\Release;C:\Program Files (x86)\SFML-Source\SFML-2.3.2\extlibs\libs-msvc\x86;..\..\Lattice\Lattice</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-main.lib;sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;opengl32.lib;freetype.lib;jpeg.lib;winmm.lib;gdi32.lib;lib/zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>notelemetry.obj %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

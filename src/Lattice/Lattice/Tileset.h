@@ -35,8 +35,8 @@ private:
 public:
 	sf::Texture* TileImages[NUMBEROFTILESETTEXTURES];
 
-	static Tileset* LoadTileset(std::wstring& Filepath, const char*);
-	bool ProcessTilesetData(const char*);
+	static Tileset* LoadTileset(std::wstring& Filepath, const char*, PaletteTableSetupFunction, unsigned int);
+	bool ProcessTilesetData(const char*, PaletteTableSetupFunction, unsigned int);
 
 	const sf::Uint8* GetTileMask(Tile) const;
 	void CopyMask(int, int);

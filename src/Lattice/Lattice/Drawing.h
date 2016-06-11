@@ -205,7 +205,7 @@ public:
 	bool Matches(const sf::Texture* const, const SpriteMode&) const; //todo more options
 };
 
-void GeneratePaletteTexture(sf::Texture&, const sf::Uint8*);
+void GeneratePaletteTexture(sf::Texture&, const sf::Uint8*, PaletteTableSetupFunction, unsigned int);
 void GenerateTilesetTextures(sf::Texture**, const char*, const sf::Uint32*, const sf::Uint8*, unsigned int);
 
 void InitPopulateTextureArrays();

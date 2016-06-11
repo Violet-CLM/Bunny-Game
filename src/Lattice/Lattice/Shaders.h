@@ -8,15 +8,12 @@
 namespace DefaultPaletteLineNames {
 	enum {
 		Palette, XPosToIndex,
-		Gem, __lastgem = Gem+3, //todo move into bunny space
-		//pallineBRIGHTNESS, pallineBRIGHTNESSTOFREEZECOLORS, pallineMENUPLAYERSPRITEMAPPING, pallineTBGFADEINTENSITY, pallineHEATEFFECTOFFSETS, pallinePLAYERS, pallineGEMS = pallinePLAYERS + 32,
 		LAST
 	};
 }
 namespace DefaultShaders {
 	enum {
 		Normal, Paletted,
-		Gem, //todo move into bunny space
 		LAST
 	};
 }

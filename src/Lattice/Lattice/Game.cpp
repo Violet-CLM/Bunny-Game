@@ -8,7 +8,7 @@
 
 void Lattice::LoadLevel(std::wstring& Filepath, PreloadedAnimationsList& anims, ObjectList& objs)
 {
-	Level = Level::LoadLevel(Filepath, anims, objs);
+	Level = Level::LoadLevel(Filepath, anims, objs, SetupPaletteTables, PaletteLineCount);
 	if (Level != nullptr)
 		Window->setTitle(Level->Name);
 }
@@ -90,6 +90,13 @@ int Lattice::StartGame(int argc, char *argv[])
 
 	//_CrtDumpMemoryLeaks();
 	return 0;
+}
+
+void Lattice::DefineShaders(std::vector<std::string>& otherShaders, PaletteTableSetupFunction* palFunc, unsigned int lastPalLineID)
+{
+	ShaderSources.insert(ShaderSources.end(), otherShaders.begin(), otherShaders.end());
+	PaletteLineCount = lastPalLineID;
+	SetupPaletteTables = palFunc;
 }
 
 void Lattice::SetDefaultAnimList(PreloadedAnimationsList& d)

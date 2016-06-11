@@ -67,8 +67,8 @@ public:
 	std::deque<std::unique_ptr<GameObject>> Objects;
 	unsigned int GameTicks;
 
-	static Level* LoadLevel(std::wstring&, PreloadedAnimationsList&, ObjectList&);
-	bool ProcessLevelData(PreloadedAnimationsList, ObjectList&);
+	static Level* LoadLevel(std::wstring&, PreloadedAnimationsList&, ObjectList&, PaletteTableSetupFunction, unsigned int);
+	bool ProcessLevelData(PreloadedAnimationsList, ObjectList&, PaletteTableSetupFunction, unsigned int);
 
 	Event& GetEvent(unsigned int, unsigned int);
 	void ForEachEvent(std::function<void(Event&, int, int)>);
