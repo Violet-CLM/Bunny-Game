@@ -22,9 +22,9 @@ AnimFrame & GameObject::GetFrame() const
 	return (*Set->Animations[AnimID].AnimFrames)[FrameID];
 }
 
-void ObjectInitialization::AddObject(Level& level, int x, int y) const
+void ObjectInitialization::AddObject(Level& level, Event& ev, int x, int y) const
 {
-	level.Objects.push_back(std::unique_ptr<GameObject>(Function(ObjectStartPos(float(x), float(y), AnimationSets[AnimSetID]))));
+	level.Objects.emplace_front(Function(ObjectStartPos(level, ev, float(x), float(y), AnimationSets[AnimSetID])));
 }
 
 unsigned int GameObject::GetFrameCount() const {
@@ -34,4 +34,15 @@ void GameObject::DetermineFrame(unsigned int frameID)
 {
 	const unsigned int frameCount = GetFrameCount();
 	FrameID = (!!frameCount) ? (frameID % frameCount) : 0;
+}
+
+void GameObject::Delete()
+{
+	Active = false;
+}
+
+void GameObject::Deactivate()
+{
+	Delete();
+	HostEvent.Active = false;
 }

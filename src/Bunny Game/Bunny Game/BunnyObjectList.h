@@ -274,5 +274,5 @@ namespace EventIDs {
 
 ObjectList* GetObjectList(bool);
 PreloadedAnimationsList GetDefaultAnimList(bool);
-bool ObjectsShouldCollide(const GameObject&, const GameObject&);
+ObjectCollisionTestFunction ObjectsShouldCollide;
 void ShouldObjectsBeActive(Level&);

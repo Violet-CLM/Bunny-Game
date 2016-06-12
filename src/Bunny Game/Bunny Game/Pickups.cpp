@@ -6,11 +6,19 @@ Pickup::Pickup(ObjectStartPos & objStart, int ai) : BunnyObject(objStart) {
 	AnimID = ai;
 	if (((int(OriginX) >> 5) & 1) != ((int(OriginY) >> 5) & 1)) //checkerboard
 		DirectionX = -1;
+	ObjectType = BunnyObjectType::Pickup;
+	RadiusX = RadiusY = 8;
+	RoundedCorners = false;//true;
 }
 void Pickup::Behave(GameState& gameState)
 {
 	DetermineFrame(gameState.GameTicks >> 2);
 	BounceYOffset = float(4 * sintable(int((gameState.GameTicks + /*obj.objectID * 8*/ + OriginX + PositionY * 256) * 16)));
+}
+void Pickup::HitBy(GameObject& other)
+{
+	if (other.ObjectType == BunnyObjectType::Player)
+		Delete();
 }
 void Pickup::Draw(Layer* layers) const
 {

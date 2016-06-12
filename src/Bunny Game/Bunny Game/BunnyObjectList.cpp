@@ -111,13 +111,16 @@ PreloadedAnimationsList GetDefaultAnimList(bool isTSF) {
 }
 
 bool ObjectsShouldCollide(const GameObject& a, const GameObject& b) {
-	return false; //todo
+	if (a.ObjectType == BunnyObjectType::Player && b.ObjectType == BunnyObjectType::Pickup)
+		return true;
+	//todo
+	return false;
 }
 
 void ShouldObjectsBeActive(Level& level) {
 	level.ForEachEvent([&level](Event& ev, int xTile, int yTile) {
 		if (!ev.Active && !ev.Difficulty && ObjectInitializationList.count(ev.ID) && ObjectInitializationList[ev.ID].CreateObjectFromEventMap) { //todo better difficulty check
-			ObjectInitializationList[ev.ID].AddObject(level, xTile * TILEWIDTH + (TILEWIDTH/2), yTile * TILEHEIGHT + (TILEHEIGHT/2));
+			ObjectInitializationList[ev.ID].AddObject(level, ev, xTile * TILEWIDTH + (TILEWIDTH/2), yTile * TILEHEIGHT + (TILEHEIGHT/2));
 			ev.Active = true;
 		}
 	});

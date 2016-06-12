@@ -16,6 +16,6 @@ int main(int argc, char *argv[]) {
 	game.SetDefaultAnimList(GetDefaultAnimList(isTSF));
 	game.SetObjectActivityFunction(ShouldObjectsBeActive);
 	game.SetObjectList(GetObjectList(isTSF));
-	//game.SetObjectCollisionCallback(ObjectsShouldCollide);
+	game.SetObjectCollisionTestFunction(ObjectsShouldCollide);
 	return game.StartGame(argc, argv);
 }

@@ -10,6 +10,7 @@ protected:
 
 	void Draw(Layer*) const override;
 	void Behave(GameState&) override;
+	void HitBy(GameObject&) override;
 public:
 	Pickup(ObjectStartPos& objStart, int ai);
 };

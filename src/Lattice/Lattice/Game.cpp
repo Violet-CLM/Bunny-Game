@@ -38,7 +38,7 @@ void Lattice::ProcessInput()
 
 void Lattice::Update()
 {
-	Level->Update(*ActivateObjects, Keys);
+	Level->Update(*ActivateObjects, *CollideObjects, Keys);
 	Keys.Update();
 }
 
@@ -107,6 +107,11 @@ void Lattice::SetDefaultAnimList(PreloadedAnimationsList& d)
 void Lattice::SetObjectActivityFunction(ObjectActivityFunction& a)
 {
 	ActivateObjects = &a;
+}
+
+void Lattice::SetObjectCollisionTestFunction(ObjectCollisionTestFunction& a)
+{
+	CollideObjects = &a;
 }
 
 void Lattice::SetObjectList(ObjectList* ol)

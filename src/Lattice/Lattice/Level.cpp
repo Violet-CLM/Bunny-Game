@@ -189,7 +189,7 @@ void Level::UpdateAnimatedTiles() {
 		}
 	}
 }
-void Level::Update(ObjectActivityFunction& updateActiveObjects, KeyStates& keys)
+void Level::Update(ObjectActivityFunction& updateActiveObjects, ObjectCollisionTestFunction& collideObjects, KeyStates& keys)
 {
 	++GameTicks;
 
@@ -200,11 +200,16 @@ void Level::Update(ObjectActivityFunction& updateActiveObjects, KeyStates& keys)
 
 	updateActiveObjects(*this);
 	GameState gameState(*this, keys);
-	for (std::deque<std::unique_ptr<GameObject>>::iterator it = Objects.begin(); it != Objects.end(); ++it) {
-		(**it).Behave(gameState);
-		//if ((**it).IsActive)
-			(**it).Draw(Layers);
+	Objects.remove_if([](auto& p) { return p->Active == false; });
+	for (auto& it: Objects) {
+		it->Behave(gameState);
+		it->Draw(Layers);
 	}
+	for (auto& it : Objects)
+		for (auto& it2 : Objects)
+			if (collideObjects(*it, *it2) && it->CollidesWith(*it2)) {
+				it2->HitBy(*it);
+			}
 
 	//Camera.x = mousePosition.x / float(WINDOW_WIDTH_PIXELS) * (WidthPixelsF - WINDOW_WIDTH_PIXELS);
 	//Camera.y = mousePosition.y / float(WINDOW_HEIGHT_PIXELS) * (HeightPixelsF - WINDOW_HEIGHT_PIXELS);

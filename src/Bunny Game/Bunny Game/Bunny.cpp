@@ -9,7 +9,10 @@ Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), plat
 {
 	AnimID = 67;
 	DetermineFrame(1);
-	DirectionX = DirectionY = 1;	 
+	DirectionX = DirectionY = 1;
+	ObjectType = BunnyObjectType::Player;
+	RadiusX = RadiusY = 12; //24x24 square
+	RoundedCorners = false;
 }
 //void Bunny::Draw(Layer *) const
 //{

@@ -36,6 +36,7 @@ private:
 	Level* Level;
 	PreloadedAnimationsList DefaultAnimList;
 	ObjectActivityFunction* ActivateObjects;
+	ObjectCollisionTestFunction* CollideObjects;
 	PaletteTableSetupFunction* SetupPaletteTables;
 	ObjectList* ObjectInitializationList;
 	KeyStates Keys;
@@ -48,6 +49,7 @@ public:
 	void DefineShaders(std::vector<std::string>&, PaletteTableSetupFunction*, unsigned int);
 	void SetDefaultAnimList(PreloadedAnimationsList&);
 	void SetObjectActivityFunction(ObjectActivityFunction&);
+	void SetObjectCollisionTestFunction(ObjectCollisionTestFunction&);
 	void SetObjectList(ObjectList*);
 
 	void ProcessInput();

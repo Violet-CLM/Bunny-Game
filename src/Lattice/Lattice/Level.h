@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <functional>
-#include <deque>
+#include <forward_list>
 #include <memory>
 #include "SFML/Config.hpp"
 #include "Files.h"
@@ -15,6 +15,7 @@ class GameObject;
 class KeyStates;
 class Level : public LevelTileset, public sf::Drawable {
 	friend class GameState;
+	friend class GameObject;
 private:
 	struct LevelHeader {
 	private:
@@ -64,7 +65,7 @@ public:
 	quad QuadsPerTile[MAX_TILES]; //todo wrap this more
 
 
-	std::deque<std::unique_ptr<GameObject>> Objects;
+	std::forward_list<std::unique_ptr<GameObject>> Objects;
 	unsigned int GameTicks;
 
 	static Level* LoadLevel(std::wstring&, PreloadedAnimationsList&, ObjectList&, PaletteTableSetupFunction, unsigned int);
@@ -74,7 +75,7 @@ public:
 	void ForEachEvent(std::function<void(Event&, int, int)>);
 	Tile GetRealTile(Tile) const;
 
-	void Update(ObjectActivityFunction&, KeyStates&);
+	void Update(ObjectActivityFunction&, ObjectCollisionTestFunction&, KeyStates&);
 };
 
 class GameState {
