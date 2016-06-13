@@ -29,7 +29,9 @@ class Food : public Pickup {
 
 class ExtraLife : public Pickup {
 public:
-	ExtraLife(ObjectStartPos& objStart) : Pickup(objStart, 0) {}
+	ExtraLife(ObjectStartPos& objStart) : Pickup(objStart, 0) {
+		DirectionX = 1;
+	}
 };
 class Carrot : public Pickup {
 public:

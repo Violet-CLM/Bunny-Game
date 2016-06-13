@@ -7,8 +7,7 @@ Pickup::Pickup(ObjectStartPos & objStart, int ai) : BunnyObject(objStart) {
 	if (((int(OriginX) >> 5) & 1) != ((int(OriginY) >> 5) & 1)) //checkerboard
 		DirectionX = -1;
 	ObjectType = BunnyObjectType::Pickup;
-	RadiusX = RadiusY = 8;
-	RoundedCorners = false;//true;
+	CollisionShapes.emplace_back(10);
 }
 void Pickup::Behave(GameState& gameState)
 {

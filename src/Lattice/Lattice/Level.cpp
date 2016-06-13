@@ -201,7 +201,7 @@ void Level::Update(ObjectActivityFunction& updateActiveObjects, ObjectCollisionT
 	updateActiveObjects(*this);
 	GameState gameState(*this, keys);
 	Objects.remove_if([](auto& p) { return p->Active == false; });
-	for (auto& it: Objects) {
+	for (auto& it : Objects) {
 		it->Behave(gameState);
 		it->Draw(Layers);
 	}

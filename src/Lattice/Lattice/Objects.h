@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <functional>
+#include <vector>
 #include "Resources.h"
 #include "Layer.h"
 #include "Event.h"
@@ -14,6 +15,24 @@ private:
 	Event& HostEvent;
 public:
 	ObjectStartPos(const Level& L, Event& E, float X, float Y, const AnimSet* S) : HostLevel(L), HostEvent(E), OriginX(X), OriginY(Y), Set(S) {}
+};
+
+struct ObjectCollisionShape {
+	float OffsetX, OffsetY;
+	union {
+		unsigned int Width;
+		unsigned int Radius;
+	};
+	union {
+		unsigned int Height;
+		bool IsRectangle;
+	};
+	ObjectCollisionShape(unsigned int R, float X, float Y) : Radius(R), Height(0), OffsetX(X), OffsetY(Y) {} //circle
+	ObjectCollisionShape(unsigned int R) : ObjectCollisionShape(R, 0, 0) {} //local circle
+	ObjectCollisionShape(unsigned int W, unsigned int H, float X, float Y) : Width(W), Height(H), OffsetX(X), OffsetY(Y) {} //rectangle
+	ObjectCollisionShape(unsigned int W, unsigned int H) : ObjectCollisionShape(W, H, W/-2.f, H/-2.f) {} //local rectangle
+
+	bool CollidesWith(float, float, const ObjectCollisionShape&, float, float) const;
 };
 
 class GameState;
@@ -46,8 +65,7 @@ public:
 	virtual void HitBy(GameObject&) {}
 protected:
 	Event& HostEvent;
-	unsigned int RadiusX, RadiusY;
-	bool RoundedCorners;
+	std::vector<ObjectCollisionShape> CollisionShapes;
 
 	unsigned int GetFrameCount() const;
 	void DetermineFrame(unsigned int);

@@ -11,8 +11,7 @@ Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), plat
 	DetermineFrame(1);
 	DirectionX = DirectionY = 1;
 	ObjectType = BunnyObjectType::Player;
-	RadiusX = RadiusY = 12; //24x24 square
-	RoundedCorners = false;
+	CollisionShapes.emplace_back(18,32);
 }
 //void Bunny::Draw(Layer *) const
 //{
