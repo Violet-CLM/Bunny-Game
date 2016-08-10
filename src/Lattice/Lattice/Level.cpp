@@ -156,6 +156,7 @@ bool Level::ProcessLevelData(PreloadedAnimationsList defaultAnimList, ObjectList
 
 	UncompressedData[0].resize(0); UncompressedData[0].shrink_to_fit(); //this section is no longer needed
 
+	ObjectInitializationListPtr = &objectInitializationList;
 	ForEachEvent([&defaultAnimList, &objectInitializationList](Event& ev, int, int) { //find additional animations to load depending on which objects (enemies, etc.) are in the level
 		if (objectInitializationList.count(ev.ID))
 			defaultAnimList.insert(objectInitializationList[ev.ID].AnimSetID);

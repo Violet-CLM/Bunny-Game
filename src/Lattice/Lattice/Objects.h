@@ -11,10 +11,10 @@ class ObjectStartPos {
 private:
 	float OriginX, OriginY;
 	const AnimSet* Set;
-	const Level& HostLevel;
+	Level& HostLevel;
 	Event& HostEvent;
 public:
-	ObjectStartPos(const Level& L, Event& E, float X, float Y, const AnimSet* S) : HostLevel(L), HostEvent(E), OriginX(X), OriginY(Y), Set(S) {}
+	ObjectStartPos(Level& L, Event& E, float X, float Y, const AnimSet* S) : HostLevel(L), HostEvent(E), OriginX(X), OriginY(Y), Set(S) {}
 };
 
 struct ObjectCollisionShape {
@@ -45,7 +45,7 @@ public:
 	bool CollidesWith(const GameObject&) const;
 	AnimFrame& GetFrame() const;
 
-	GameObject( ObjectStartPos& objStart) : HostLevel(objStart.HostLevel), HostEvent(objStart.HostEvent), Active(true), ObjectType(0) {
+	GameObject( ObjectStartPos& objStart) : HostLevel(objStart.HostLevel), HostEvent(objStart.HostEvent), Active(true), ObjectType(0), Parent(nullptr) {
 		PositionX = OriginX = objStart.OriginX;
 		PositionY = OriginY = objStart.OriginY;
 		Set = objStart.Set;
@@ -54,7 +54,7 @@ public:
 	float OriginX, OriginY;
 private:
 	const AnimSet* Set;
-	const Level& HostLevel;
+	Level& HostLevel;
 public:
 	unsigned int AnimID, FrameID;
 	bool Active;
@@ -67,10 +67,17 @@ protected:
 	Event& HostEvent;
 	std::vector<ObjectCollisionShape> CollisionShapes;
 
+	GameObject* Parent;
+	std::list<GameObject*> Children;
+	virtual void LostParent();
+	virtual void LostChild(GameObject&);
+
 	unsigned int GetFrameCount() const;
 	void DetermineFrame(unsigned int);
 	void Delete();
 	void Deactivate();
+
+	GameObject& AddObject(EventID, int, int);
 };
 
 typedef GameObject* (*ObjectInitializationFunc)(ObjectStartPos&);
@@ -84,5 +91,5 @@ public:
 	ObjectInitialization() {}
 	ObjectInitialization(int a, ObjectInitializationFunc f, bool c) : AnimSetID(a), Function(f), CreateObjectFromEventMap(c) {}
 
-	void AddObject(Level&, Event& ev, int, int) const;
+	GameObject& AddObject(Level&, Event& ev, int, int) const;
 };

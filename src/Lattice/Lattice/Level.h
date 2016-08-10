@@ -59,6 +59,7 @@ private:
 
 public:
 	Tileset* TilesetPtr;
+	const ObjectList* ObjectInitializationListPtr;
 	std::wstring NextLevel;
 	std::wstring Music;
 

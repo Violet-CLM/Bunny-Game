@@ -86,10 +86,13 @@ AnimFrame & GameObject::GetFrame() const
 	return (*Set->Animations[AnimID].AnimFrames)[FrameID];
 }
 
-void ObjectInitialization::AddObject(Level& level, Event& ev, int x, int y) const
+GameObject& ObjectInitialization::AddObject(Level& level, Event& ev, int x, int y) const
 {
-	level.Objects.emplace_front(Function(ObjectStartPos(level, ev, float(x), float(y), AnimationSets[AnimSetID])));
+	GameObject* newObject = Function(ObjectStartPos(level, ev, float(x), float(y), AnimationSets[AnimSetID]));
+	level.Objects.emplace_front(newObject);
+	return *newObject;
 }
+
 
 unsigned int GameObject::GetFrameCount() const {
 	return Set->Animations[AnimID].AnimFrames->size();
@@ -100,13 +103,32 @@ void GameObject::DetermineFrame(unsigned int frameID)
 	FrameID = (!!frameCount) ? (frameID % frameCount) : 0;
 }
 
-void GameObject::Delete()
-{
-	Active = false;
-}
-
 void GameObject::Deactivate()
 {
 	Delete();
 	HostEvent.Active = false;
+}
+void GameObject::Delete()
+{
+	Active = false;
+	if (Parent != nullptr)
+		Parent->LostChild(*this);
+	for (auto& child : Children)
+		child->LostParent();
+}
+void GameObject::LostParent()
+{
+	Parent = nullptr;
+}
+void GameObject::LostChild(GameObject& child)
+{
+	Children.remove(&child);
+}
+
+GameObject& GameObject::AddObject(EventID eventID, int x, int y)
+{
+	GameObject& newObject = HostLevel.ObjectInitializationListPtr->at(eventID).AddObject(HostLevel, HostLevel.GetEvent(x / TILEWIDTH, y / TILEHEIGHT), x, y);
+	newObject.Parent = this;
+	Children.push_back(&newObject);
+	return newObject;
 }
