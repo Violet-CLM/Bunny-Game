@@ -6,7 +6,7 @@
 #include "Constants.h"
 
 class Level;
-struct Layer : public sf::Drawable, public sf::Transformable { //order of properties is arbitrary, not connected to any native JJ2 code
+struct Layer : public VertexCollectionQueue, public sf::Transformable { //order of properties is arbitrary, not connected to any native JJ2 code
 private:
 	//sf::Uint32 LayerID;
 	float SpeedX; float SpeedY;
@@ -58,7 +58,5 @@ public:
 	unsigned int MaskedHLine(int, int, int) const;
 	unsigned int MaskedVLine(int, int, int) const;
 
-	VertexCollectionQueue Sprites;
 	void Update(unsigned int, unsigned int, sf::Vector2f);
-	void ClearSpriteQueue();
 };

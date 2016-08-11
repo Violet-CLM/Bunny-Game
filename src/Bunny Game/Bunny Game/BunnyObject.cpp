@@ -2,5 +2,5 @@
 
 void BunnyObject::Draw(Layer* layers) const
 {
-	GetFrame().Draw(layers[SPRITELAYER].Sprites, SpriteMode::Paletted, int(PositionX), int(PositionY), DirectionX < 0, DirectionY < 0);
+	layers[SPRITELAYER].DrawSprite(SpriteMode::Paletted, int(PositionX), int(PositionY), GetFrame(), DirectionX < 0, DirectionY < 0);
 }

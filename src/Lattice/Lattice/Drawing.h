@@ -192,6 +192,7 @@ public:
 
 	static SpriteMode Normal, Paletted;
 };
+class AnimFrame;
 class VertexCollection : public sf::Drawable, public sf::Transformable {
 private:
 	sf::Texture* Texture;
@@ -204,12 +205,16 @@ public:
 	void AppendQuad(quad&);
 	bool Matches(const sf::Texture* const, const SpriteMode&) const; //todo more options
 };
-class VertexCollectionQueue : public sf::Drawable, public sf::Transformable {
-private:
+class VertexCollectionQueue : public sf::Drawable {
+protected:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 public:
 	std::vector<VertexCollection> Collections;
+
 	void DrawQuad(quad&, sf::Texture*, const SpriteMode&);
+	void DrawSprite(const SpriteMode&, int, int, const AnimFrame&, bool = false, bool = false);
+	void DrawRectangle(const SpriteMode&, int, int, int, int, sf::Uint8);
+	void DrawPixel(const SpriteMode&, int, int, sf::Uint8);
 };
 
 void GeneratePaletteTexture(sf::Texture&, const sf::Uint8*, PaletteTableSetupFunction, unsigned int);

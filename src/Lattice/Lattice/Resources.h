@@ -41,7 +41,10 @@ public:
 	static bool ReadAnims(std::wstring& Filepath, PreloadedAnimationsList&);
 };
 
+class VertexCollectionQueue;
 class AnimFrame {
+friend class VertexCollectionQueue;
+
 public:
 	sf::Uint16 Width;
 	sf::Uint16 Height;
@@ -68,9 +71,7 @@ public:
 	static bool SortBySize(const AnimFrame* a, const AnimFrame* b) { return a->Area > b->Area; }
 	bool SmallerThan(unsigned int) const;
 
-	void Draw(VertexCollectionQueue&, const SpriteMode&, int, int, bool=false, bool=false) const;
-	static void DrawRectangle(VertexCollectionQueue&, const SpriteMode&, int, int, int, int, sf::Uint8);
-	static void DrawPixel(VertexCollectionQueue&, const SpriteMode&, int, int, sf::Uint8);
+	static AnimFrame& Get(int, int, int);
 };
 class Animation {
 private:

@@ -198,7 +198,7 @@ void Level::Update(ObjectActivityFunction& updateActiveObjects, ObjectCollisionT
 	UpdateAnimatedTiles(); //or do I want this in draw instead?
 
 	for (int layerID = LEVEL_LAYERCOUNT - 1; layerID >= 0; --layerID)
-		Layers[layerID].ClearSpriteQueue();
+		Layers[layerID].Collections.resize(0);
 
 	updateActiveObjects(*this);
 	GameState gameState(*this, keys);

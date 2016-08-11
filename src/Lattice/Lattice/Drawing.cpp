@@ -2,6 +2,7 @@
 #include "Drawing.h"
 #include "Misc.h"
 #include "Windows.h"
+#include "Resources.h"
 
 sf::Texture* PaletteTexture;
 
@@ -103,12 +104,6 @@ void VertexCollectionQueue::draw(sf::RenderTarget & target, sf::RenderStates sta
 	for (auto& it : Collections)
 		target.draw(it, states);
 }
-void VertexCollectionQueue::DrawQuad(quad& q, sf::Texture* texture, const SpriteMode& spriteMode)
-{
-	if (Collections.empty() || !Collections.back().Matches(texture, spriteMode))
-		Collections.push_back(VertexCollection(texture, spriteMode));
-	Collections.back().AppendQuad(q);
-}
 
 
 void VertexCollection::AppendQuad(quad& q)
@@ -125,4 +120,34 @@ sf::Shader* SpriteMode::GetShader() const
 {
 	Shader->setParameter("param", ParamAsFloat);
 	return Shader;
+}
+
+void VertexCollectionQueue::DrawQuad(quad& q, sf::Texture* texture, const SpriteMode& spriteMode)
+{
+	if (Collections.empty() || !Collections.back().Matches(texture, spriteMode))
+		Collections.push_back(VertexCollection(texture, spriteMode));
+	Collections.back().AppendQuad(q);
+}
+void VertexCollectionQueue::DrawSprite(const SpriteMode& mode, int x, int y, const AnimFrame& sprite, bool flipX, bool flipY)
+{
+	quad repositionedQuad(sprite.Quad);
+	if (flipX)
+		repositionedQuad.flipHorizontally();
+	if (flipY)
+		repositionedQuad.flipVertically();
+	repositionedQuad.positionPositionAt(x + (!flipX ? sprite.HotspotX : -(sprite.Width + sprite.HotspotX)), y + (!flipY ? sprite.HotspotY : -(sprite.Height + sprite.HotspotY)));
+	DrawQuad(repositionedQuad, sprite.Texture, mode);
+}
+void VertexCollectionQueue::DrawRectangle(const SpriteMode& mode, int x, int y, int width, int height, sf::Uint8 color)
+{
+	quad rectangleQuad((float)width, (float)height);
+	const sf::Vector2f texCoords(static_cast<float>(color), static_cast<float>(DefaultPaletteLineNames::XPosToIndex));
+	rectangleQuad.positionPositionAt(x, y);
+	for (int i = 0; i < 4; ++i)
+		rectangleQuad.vertices[i].texCoords = texCoords;
+	DrawQuad(rectangleQuad, PaletteTexture, mode);
+}
+void VertexCollectionQueue::DrawPixel(const SpriteMode& mode, int x, int y, sf::Uint8 color)
+{
+	return DrawRectangle(mode, x, y, 1, 1, color);
 }

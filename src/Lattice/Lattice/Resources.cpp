@@ -228,28 +228,9 @@ bool AnimFrame::SmallerThan(unsigned int hardwareMaximumTextureSize) const
 {
 	return !(Width == 0 || Height == 0 || Width > hardwareMaximumTextureSize || Height > hardwareMaximumTextureSize);
 }
-void AnimFrame::Draw(VertexCollectionQueue& queue, const SpriteMode& mode, int x, int y, bool flipX, bool flipY) const
+AnimFrame& AnimFrame::Get(int setID, int animID, int frameID)
 {
-	quad repositionedQuad(Quad);
-	if (flipX)
-		repositionedQuad.flipHorizontally();
-	if (flipY)
-		repositionedQuad.flipVertically();
-	repositionedQuad.positionPositionAt(x + (!flipX ? HotspotX : -(Width+HotspotX)), y + (!flipY ? HotspotY : -(Height + HotspotY)));
-	queue.DrawQuad(repositionedQuad, Texture, mode);
-}
-void AnimFrame::DrawRectangle(VertexCollectionQueue& queue, const SpriteMode& mode, int x, int y, int width, int height, sf::Uint8 color)
-{
-	quad rectangleQuad(static_cast<float>(width), static_cast<float>(height));
-	const sf::Vector2f texCoords(static_cast<float>(color), static_cast<float>(DefaultPaletteLineNames::XPosToIndex));
-	rectangleQuad.positionPositionAt(x, y);
-	for (int i = 0; i < 4; ++i)
-		rectangleQuad.vertices[i].texCoords = texCoords;
-	queue.DrawQuad(rectangleQuad, PaletteTexture, mode);
-}
-void AnimFrame::DrawPixel(VertexCollectionQueue& queue, const SpriteMode& mode, int x, int y, sf::Uint8 color)
-{
-	return DrawRectangle(queue, mode, x, y, 1, 1, color);
+	return (*AnimationSets[setID]->Animations[animID].AnimFrames)[frameID];
 }
 Animation::Animation(const sf::Uint8*& animInfoData, const sf::Uint8*& frameInfoData, const sf::Uint8* const imageData)
 {

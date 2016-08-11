@@ -251,11 +251,6 @@ void Layer::Update(unsigned int gameTicks, unsigned int animOffset, sf::Vector2f
 	}
 }
 
-void Layer::ClearSpriteQueue()
-{
-	Sprites.Collections.resize(0);
-}
-
 void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	if (!IsUsed)
@@ -265,5 +260,5 @@ void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const
 		states.texture = LevelPtr->TilesetPtr->TileImages[i];
 		target.draw(Vertices[i].data(), Vertices[i].size(), sf::Quads, states);
 	}
-	target.draw(Sprites, states);
+	VertexCollectionQueue::draw(target, states);
 }
