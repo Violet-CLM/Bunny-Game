@@ -121,12 +121,10 @@ bool ObjectsShouldCollide(const GameObject& a, const GameObject& b) {
 	return false;
 }
 
-#include "Misc.h"
-#include "Windows.h"
 void ShouldObjectsBeActive(Level& level) {
 	level.ForEachEvent([&level](Event& ev, int xTile, int yTile) {
 		if (!ev.Active && !ev.Difficulty && ObjectInitializationList.count(ev.ID) && ObjectInitializationList[ev.ID].CreateObjectFromEventMap) { //todo better difficulty check
-			ObjectInitializationList[ev.ID].AddObject(level, ev, xTile * TILEWIDTH + (TILEWIDTH/2), yTile * TILEHEIGHT + (TILEHEIGHT/2));
+			ObjectInitializationList[ev.ID].AddObject(level, ev, float(xTile * TILEWIDTH + (TILEWIDTH/2)), float(yTile * TILEHEIGHT + (TILEHEIGHT/2)));
 			ev.Active = true;
 		}
 	});

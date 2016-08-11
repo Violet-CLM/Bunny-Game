@@ -64,7 +64,7 @@ public:
 	virtual void Draw(Layer*) const = 0;
 	virtual void HitBy(GameObject&) {}
 
-	GameObject& AddObject(EventID, int, int);
+	GameObject& AddObject(EventID, float, float);
 protected:
 	Event& HostEvent;
 	std::vector<ObjectCollisionShape> CollisionShapes;
@@ -92,5 +92,5 @@ public:
 	ObjectInitialization() {}
 	ObjectInitialization(int a, ObjectInitializationFunc f, bool c) : AnimSetID(a), Function(f), CreateObjectFromEventMap(c) {}
 
-	GameObject& AddObject(Level&, Event& ev, int, int) const;
+	GameObject& AddObject(Level&, Event& ev, float, float) const;
 };

@@ -10,7 +10,7 @@ void Explosion::Behave(GameState& gameState)
 
 Explosion& Explosion::AddExplosion(GameObject& parent, int setID, int animID)
 {
-	Explosion& newExplosion = static_cast<Explosion&>(parent.AddObject(EventIDs::EXPLOSION, int(parent.PositionX), int(parent.PositionY)));
+	Explosion& newExplosion = static_cast<Explosion&>(parent.AddObject(EventIDs::EXPLOSION, parent.PositionX, parent.PositionY));
 	newExplosion.Set = AnimationSets[setID];
 	newExplosion.AnimID = animID;
 	return newExplosion;
