@@ -68,9 +68,9 @@ public:
 	static bool SortBySize(const AnimFrame* a, const AnimFrame* b) { return a->Area > b->Area; }
 	bool SmallerThan(unsigned int) const;
 
-	void Draw(Layer&, const SpriteMode&, int, int, bool=false, bool=false) const;
-	static void DrawRectangle(Layer&, const SpriteMode&, int, int, int, int, sf::Uint8);
-	static void DrawPixel(Layer&, const SpriteMode&, int, int, sf::Uint8);
+	void Draw(VertexCollectionQueue&, const SpriteMode&, int, int, bool=false, bool=false) const;
+	static void DrawRectangle(VertexCollectionQueue&, const SpriteMode&, int, int, int, int, sf::Uint8);
+	static void DrawPixel(VertexCollectionQueue&, const SpriteMode&, int, int, sf::Uint8);
 };
 class Animation {
 private:

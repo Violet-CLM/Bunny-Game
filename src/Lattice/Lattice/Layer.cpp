@@ -253,14 +253,7 @@ void Layer::Update(unsigned int gameTicks, unsigned int animOffset, sf::Vector2f
 
 void Layer::ClearSpriteQueue()
 {
-	SpriteQueue.resize(0);
-}
-
-void Layer::DrawQuad(quad& q, sf::Texture* texture, const SpriteMode& spriteMode)
-{
-	if (SpriteQueue.empty() || !SpriteQueue.back().Matches(texture, spriteMode))
-		SpriteQueue.push_back(VertexCollection(texture, spriteMode));
-	SpriteQueue.back().AppendQuad(q);
+	Sprites.Collections.resize(0);
 }
 
 void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -272,6 +265,5 @@ void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const
 		states.texture = LevelPtr->TilesetPtr->TileImages[i];
 		target.draw(Vertices[i].data(), Vertices[i].size(), sf::Quads, states);
 	}
-	for (std::vector<VertexCollection>::const_iterator it = SpriteQueue.begin(); it != SpriteQueue.end(); ++it)
-		target.draw(*it, states);
+	target.draw(Sprites, states);
 }

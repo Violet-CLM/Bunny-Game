@@ -40,7 +40,6 @@ private:
 	//sf::Usf::Uint3232* VisibleTileVisibilityMasks;//[1024];
 
 	VertexVector Vertices[NUMBEROFTILESETTEXTURES];
-	std::vector<VertexCollection> SpriteQueue;
 
 	bool ForceUpdate;
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
@@ -59,7 +58,7 @@ public:
 	unsigned int MaskedHLine(int, int, int) const;
 	unsigned int MaskedVLine(int, int, int) const;
 
+	VertexCollectionQueue Sprites;
 	void Update(unsigned int, unsigned int, sf::Vector2f);
 	void ClearSpriteQueue();
-	void DrawQuad(quad&, sf::Texture*, const SpriteMode&);
 };

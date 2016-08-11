@@ -55,6 +55,7 @@ void Level::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	for (int layerID = LEVEL_LAYERCOUNT - 1; layerID >= 0; --layerID)
 		target.draw(Layers[layerID], states);
+	target.draw(HUD, states);
 }
 Event& Level::GetEvent(unsigned int x, unsigned int y)
 {
@@ -190,7 +191,7 @@ void Level::UpdateAnimatedTiles() {
 		}
 	}
 }
-void Level::Update(ObjectActivityFunction& updateActiveObjects, ObjectCollisionTestFunction& collideObjects, KeyStates& keys)
+void Level::Update(ObjectActivityFunction& updateActiveObjects, ObjectCollisionTestFunction& collideObjects, HUDUpdateFunction& updateHUD, KeyStates& keys)
 {
 	++GameTicks;
 
@@ -218,6 +219,9 @@ void Level::Update(ObjectActivityFunction& updateActiveObjects, ObjectCollisionT
 
 	for (int layerID = LEVEL_LAYERCOUNT - 1; layerID >= 0; --layerID)
 		Layers[layerID].Update(GameTicks, AnimOffset, Camera);
+
+	HUD.Collections.resize(0);
+	updateHUD(HUD);
 }
 
 bool GameState::MaskedPixel(int x, int y) const {

@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "BunnyHUD.h"
 #include "BunnyObjectList.h"
 #include "BunnyVersionDependentStuff.h"
 #include "BunnyShaders.h"
@@ -17,5 +18,6 @@ int main(int argc, char *argv[]) {
 	game.SetObjectActivityFunction(ShouldObjectsBeActive);
 	game.SetObjectList(GetObjectList(isTSF));
 	game.SetObjectCollisionTestFunction(ObjectsShouldCollide);
+	game.SetHUDUpdateFunction(DrawPlayerHUD);
 	return game.StartGame(argc, argv);
 }

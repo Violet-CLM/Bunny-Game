@@ -28,7 +28,7 @@ void Pickup::HitBy(GameObject& other)
 }
 void Pickup::Draw(Layer* layers) const
 {
-	GetFrame().Draw(layers[SPRITELAYER], SpriteMode::Paletted, int(PositionX), int(PositionY + BounceYOffset), DirectionX < 0);
+	GetFrame().Draw(layers[SPRITELAYER].Sprites, SpriteMode::Paletted, int(PositionX), int(PositionY + BounceYOffset), DirectionX < 0);
 }
 
 AmmoPickup::AmmoPickup(ObjectStartPos & objStart, int ai, int an, int anp) : Pickup(objStart, ai), AmmoID(ai), AnimIDNormal(an), AnimIDPoweredUp(anp) {}
@@ -40,5 +40,5 @@ void AmmoPickup::Behave(GameState& gameState)
 
 void Gem::Draw(Layer* layers) const
 {
-	GetFrame().Draw(layers[SPRITELAYER], mode, int(PositionX), int(PositionY + BounceYOffset), DirectionX < 0);
+	GetFrame().Draw(layers[SPRITELAYER].Sprites, mode, int(PositionX), int(PositionY + BounceYOffset), DirectionX < 0);
 }

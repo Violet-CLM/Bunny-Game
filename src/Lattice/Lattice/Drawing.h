@@ -204,6 +204,13 @@ public:
 	void AppendQuad(quad&);
 	bool Matches(const sf::Texture* const, const SpriteMode&) const; //todo more options
 };
+class VertexCollectionQueue : public sf::Drawable, public sf::Transformable {
+private:
+	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+public:
+	std::vector<VertexCollection> Collections;
+	void DrawQuad(quad&, sf::Texture*, const SpriteMode&);
+};
 
 void GeneratePaletteTexture(sf::Texture&, const sf::Uint8*, PaletteTableSetupFunction, unsigned int);
 void GenerateTilesetTextures(sf::Texture**, const char*, const sf::Uint32*, const sf::Uint8*, unsigned int);

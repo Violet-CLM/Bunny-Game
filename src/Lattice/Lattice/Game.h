@@ -37,6 +37,7 @@ private:
 	PreloadedAnimationsList DefaultAnimList;
 	ObjectActivityFunction* ActivateObjects;
 	ObjectCollisionTestFunction* CollideObjects;
+	HUDUpdateFunction* UpdateHUD;
 	PaletteTableSetupFunction* SetupPaletteTables;
 	ObjectList* ObjectInitializationList;
 	KeyStates Keys;
@@ -50,6 +51,7 @@ public:
 	void SetDefaultAnimList(PreloadedAnimationsList&);
 	void SetObjectActivityFunction(ObjectActivityFunction&);
 	void SetObjectCollisionTestFunction(ObjectCollisionTestFunction&);
+	void SetHUDUpdateFunction(HUDUpdateFunction&);
 	void SetObjectList(ObjectList*);
 
 	void ProcessInput();

@@ -38,7 +38,7 @@ void Lattice::ProcessInput()
 
 void Lattice::Update()
 {
-	Level->Update(*ActivateObjects, *CollideObjects, Keys);
+	Level->Update(*ActivateObjects, *CollideObjects, *UpdateHUD, Keys);
 	Keys.Update();
 }
 
@@ -59,7 +59,7 @@ int Lattice::StartGame(int argc, char *argv[])
 	SpriteMode::Normal = SpriteMode(Shaders[DefaultShaders::Normal], 0);
 	SpriteMode::Paletted = SpriteMode(Shaders[DefaultShaders::Paletted], 0);
 
-	std::wstring filename = L"Treasur1.j2l";// L"C:\\Games\\Jazz2\\Diam3.j2l";
+	std::wstring filename = L"C:\\Games\\Jazz2\\Diam3.j2l";
 	if (argc == 2) {
 		std::wstring proposedFilename = WStringFromCharArray(argv[1]);
 		if (!(proposedFilename.length() > 4 && proposedFilename.substr(filename.length() - 5, 4) == L".j2l"))
@@ -112,6 +112,10 @@ void Lattice::SetObjectActivityFunction(ObjectActivityFunction& a)
 void Lattice::SetObjectCollisionTestFunction(ObjectCollisionTestFunction& a)
 {
 	CollideObjects = &a;
+}
+void Lattice::SetHUDUpdateFunction(HUDUpdateFunction& a)
+{
+	UpdateHUD = &a;
 }
 
 void Lattice::SetObjectList(ObjectList* ol)

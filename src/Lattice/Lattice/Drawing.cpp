@@ -98,6 +98,18 @@ void VertexCollection::draw(sf::RenderTarget & target, sf::RenderStates states) 
 	states.shader = Mode.GetShader();
 	target.draw(Vertices.data(), Vertices.size(), sf::Quads, states);
 }
+void VertexCollectionQueue::draw(sf::RenderTarget & target, sf::RenderStates states) const
+{
+	for (auto& it : Collections)
+		target.draw(it, states);
+}
+void VertexCollectionQueue::DrawQuad(quad& q, sf::Texture* texture, const SpriteMode& spriteMode)
+{
+	if (Collections.empty() || !Collections.back().Matches(texture, spriteMode))
+		Collections.push_back(VertexCollection(texture, spriteMode));
+	Collections.back().AppendQuad(q);
+}
+
 
 void VertexCollection::AppendQuad(quad& q)
 {

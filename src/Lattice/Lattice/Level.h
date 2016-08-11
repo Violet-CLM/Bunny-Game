@@ -55,6 +55,7 @@ private:
 	Level(std::wstring&);
 
 	sf::Vector2f Camera;
+	VertexCollectionQueue HUD;
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 public:
@@ -76,7 +77,7 @@ public:
 	void ForEachEvent(std::function<void(Event&, int, int)>);
 	Tile GetRealTile(Tile) const;
 
-	void Update(ObjectActivityFunction&, ObjectCollisionTestFunction&, KeyStates&);
+	void Update(ObjectActivityFunction&, ObjectCollisionTestFunction&, HUDUpdateFunction&, KeyStates&);
 };
 
 class GameState {
