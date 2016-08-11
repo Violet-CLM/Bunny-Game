@@ -1,6 +1,11 @@
 #include "Pickups.h"
 #include "Game.h"
 #include "BunnyMisc.h"
+#include "BunnyEffects.h"
+#include "BunnyObjectList.h"
+#include "BunnyVersionDependentStuff.h"
+
+int Pickup::ExplosionSetID = 0;
 
 Pickup::Pickup(ObjectStartPos & objStart, int ai) : BunnyObject(objStart) {
 	AnimID = ai;
@@ -16,8 +21,10 @@ void Pickup::Behave(GameState& gameState)
 }
 void Pickup::HitBy(GameObject& other)
 {
-	if (other.ObjectType == BunnyObjectType::Player)
+	if (other.ObjectType == BunnyObjectType::Player) {
+		Explosion::AddExplosion(*this, ExplosionSetID, 86);
 		Delete();
+	}
 }
 void Pickup::Draw(Layer* layers) const
 {

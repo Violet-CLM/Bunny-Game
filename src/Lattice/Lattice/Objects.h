@@ -53,9 +53,9 @@ public:
 
 	float OriginX, OriginY;
 private:
-	const AnimSet* Set;
 	Level& HostLevel;
 public:
+	const AnimSet* Set;
 	unsigned int AnimID, FrameID;
 	bool Active;
 	unsigned int ObjectType; //no inherent use
@@ -63,6 +63,8 @@ public:
 	virtual void Behave(GameState&) = 0;
 	virtual void Draw(Layer*) const = 0;
 	virtual void HitBy(GameObject&) {}
+
+	GameObject& AddObject(EventID, int, int);
 protected:
 	Event& HostEvent;
 	std::vector<ObjectCollisionShape> CollisionShapes;
@@ -77,7 +79,6 @@ protected:
 	void Delete();
 	void Deactivate();
 
-	GameObject& AddObject(EventID, int, int);
 };
 
 typedef GameObject* (*ObjectInitializationFunc)(ObjectStartPos&);

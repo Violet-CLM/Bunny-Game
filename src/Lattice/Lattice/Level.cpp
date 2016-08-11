@@ -201,7 +201,11 @@ void Level::Update(ObjectActivityFunction& updateActiveObjects, ObjectCollisionT
 
 	updateActiveObjects(*this);
 	GameState gameState(*this, keys);
+
 	Objects.remove_if([](auto& p) { return p->Active == false; });
+	//for (auto& it : ObjectsToAdd)
+	//	Objects.emplace_back(it);
+	//ObjectsToAdd.clear();
 	for (auto& it : Objects) {
 		it->Behave(gameState);
 		it->Draw(Layers);
@@ -212,8 +216,6 @@ void Level::Update(ObjectActivityFunction& updateActiveObjects, ObjectCollisionT
 				it2->HitBy(*it);
 			}
 
-	//Camera.x = mousePosition.x / float(WINDOW_WIDTH_PIXELS) * (WidthPixelsF - WINDOW_WIDTH_PIXELS);
-	//Camera.y = mousePosition.y / float(WINDOW_HEIGHT_PIXELS) * (HeightPixelsF - WINDOW_HEIGHT_PIXELS);
 	for (int layerID = LEVEL_LAYERCOUNT - 1; layerID >= 0; --layerID)
 		Layers[layerID].Update(GameTicks, AnimOffset, Camera);
 }

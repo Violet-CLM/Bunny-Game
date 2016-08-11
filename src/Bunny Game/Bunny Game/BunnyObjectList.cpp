@@ -2,6 +2,7 @@
 #include "Level.h"
 #include "BunnyObjectList.h"
 #include "Pickups.h"
+#include "BunnyEffects.h"
 #include "Bunny.h"
 #include "Diamondus.h"
 #include "BunnyVersionDependentStuff.h"
@@ -11,8 +12,11 @@ static ObjectList ObjectInitializationList;
 #define ObjT(a, b, c) Obj(a, b, c, true, objStart)
 #define ObjTC(a, b, c, ...) Obj(a, b, c, true, objStart, __VA_ARGS__)
 ObjectList* GetObjectList(bool isTSF) {
+	Pickup::ExplosionSetID = GetVersionSpecificAnimationID(AnimSets::Pickups, isTSF);
 	return &(ObjectInitializationList = {
 		ObjT(JAZZSTART, Jazz, Bunny),//todo
+
+		ObjT(EXPLOSION, Ammo, Explosion),
 
 		ObjTC(GUN2AMMO3, Ammo, AmmoPickup, 1, 25, 24),
 		ObjTC(GUN3AMMO3, Ammo, AmmoPickup, 2, 29, 28),
@@ -117,6 +121,8 @@ bool ObjectsShouldCollide(const GameObject& a, const GameObject& b) {
 	return false;
 }
 
+#include "Misc.h"
+#include "Windows.h"
 void ShouldObjectsBeActive(Level& level) {
 	level.ForEachEvent([&level](Event& ev, int xTile, int yTile) {
 		if (!ev.Active && !ev.Difficulty && ObjectInitializationList.count(ev.ID) && ObjectInitializationList[ev.ID].CreateObjectFromEventMap) { //todo better difficulty check

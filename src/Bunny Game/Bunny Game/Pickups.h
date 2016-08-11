@@ -13,6 +13,7 @@ protected:
 	void HitBy(GameObject&) override;
 public:
 	Pickup(ObjectStartPos& objStart, int ai);
+	static int ExplosionSetID;
 };
 class AmmoPickup : public Pickup {
 	int AmmoID;
