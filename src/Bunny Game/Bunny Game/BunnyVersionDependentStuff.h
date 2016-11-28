@@ -1,5 +1,7 @@
 #pragma once
 
+extern bool VersionTSF; //this has to be checked in too many random places for it not to be global, unfortunately
+
 //character animations, using their TSF values--should be used as indices
 namespace RabbitAnims {
 	enum {
@@ -87,6 +89,7 @@ namespace RabbitAnims {
 }
 extern int RabbitAnimIDs[RabbitAnims::LAST];
 
-int GetVersionSpecificAnimationID(int originalAnimID, bool isTSF);
-void InitializeRabbitAnimIDs(bool isTSF);
+typedef int GetAnimationIDFunc(int);
+extern GetAnimationIDFunc* GetVersionSpecificAnimationID;
+void InitializeRabbitAnimIDs();
 bool IsTSF(bool & isTSF);

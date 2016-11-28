@@ -8,11 +8,11 @@
 #include "BunnyVersionDependentStuff.h"
 
 static ObjectList ObjectInitializationList;
-#define Obj(a, b, c, d, ...) {EventIDs::a, {GetVersionSpecificAnimationID(AnimSets::b, isTSF), [](ObjectStartPos& objStart){ return (GameObject*)(new c(__VA_ARGS__)); }, d}}
+#define Obj(a, b, c, d, ...) {EventIDs::a, {GetVersionSpecificAnimationID(AnimSets::b), [](ObjectStartPos& objStart){ return (GameObject*)(new c(__VA_ARGS__)); }, d}}
 #define ObjT(a, b, c) Obj(a, b, c, true, objStart)
 #define ObjTC(a, b, c, ...) Obj(a, b, c, true, objStart, __VA_ARGS__)
-ObjectList* GetObjectList(bool isTSF) {
-	Pickup::ExplosionSetID = GetVersionSpecificAnimationID(AnimSets::Pickups, isTSF);
+ObjectList* GetObjectList() {
+	Pickup::ExplosionSetID = GetVersionSpecificAnimationID(AnimSets::Pickups);
 	return &(ObjectInitializationList = {
 		ObjT(JAZZSTART, Jazz, Bunny),//todo
 
@@ -88,30 +88,14 @@ ObjectList* GetObjectList(bool isTSF) {
 	});
 }
 
-PreloadedAnimationsList GetDefaultAnimList(bool isTSF) {
-	PreloadedAnimationsList retval = {
-		GetVersionSpecificAnimationID(AnimSets::Ammo, isTSF),
-		GetVersionSpecificAnimationID(AnimSets::Bird, isTSF),
-		GetVersionSpecificAnimationID(AnimSets::Common, isTSF),
-		GetVersionSpecificAnimationID(AnimSets::Faces, isTSF),
-		GetVersionSpecificAnimationID(AnimSets::Font, isTSF),
-		GetVersionSpecificAnimationID(AnimSets::Jazz, isTSF),
-		GetVersionSpecificAnimationID(AnimSets::JazzSounds, isTSF),
-		GetVersionSpecificAnimationID(AnimSets::MenuSounds, isTSF),
-		GetVersionSpecificAnimationID(AnimSets::Pickups, isTSF),
-		GetVersionSpecificAnimationID(AnimSets::Rush, isTSF),
-		GetVersionSpecificAnimationID(AnimSets::Spaz, isTSF),
-		GetVersionSpecificAnimationID(AnimSets::Spaz2, isTSF),
-		GetVersionSpecificAnimationID(AnimSets::SpazSounds, isTSF),
-		GetVersionSpecificAnimationID(AnimSets::Spring, isTSF)
-	};
-	if (isTSF)
-		retval.insert({
-			GetVersionSpecificAnimationID(AnimSets::Lori, isTSF),
-			GetVersionSpecificAnimationID(AnimSets::Lori2, isTSF),
-			GetVersionSpecificAnimationID(AnimSets::LoriSounds, isTSF)
-		});
-	return retval;
+PreloadedAnimationsList GetDefaultAnimList() {
+	std::vector<int> retval = {AnimSets::Ammo, AnimSets::Bird, AnimSets::Common, AnimSets::Faces, AnimSets::Font, AnimSets::Jazz, AnimSets::JazzSounds, AnimSets::MenuSounds, AnimSets::Pickups, AnimSets::Rush, AnimSets::Spaz, AnimSets::Spaz2, AnimSets::SpazSounds, AnimSets::Spring};
+	if (VersionTSF) {
+		const static std::array<int, 3> TSFAnimSetIDs = {AnimSets::Lori, AnimSets::Lori2, AnimSets::LoriSounds};
+		retval.insert(retval.end(), TSFAnimSetIDs.begin(), TSFAnimSetIDs.end());
+	}
+	std::transform(retval.begin(), retval.end(), retval.begin(),  [](int a) { return GetVersionSpecificAnimationID(a); });
+	return PreloadedAnimationsList(retval.begin(), retval.end());
 }
 
 bool ObjectsShouldCollide(const GameObject& a, const GameObject& b) {

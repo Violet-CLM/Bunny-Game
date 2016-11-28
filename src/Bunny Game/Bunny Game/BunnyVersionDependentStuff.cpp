@@ -3,20 +3,22 @@
 #include "Windows.h"
 #include "Misc.h"
 
-int GetVersionSpecificAnimationID(int originalAnimID, bool isTSF) {
-	if (isTSF)
-		return originalAnimID;
+bool VersionTSF = true;
 
+int GetVersionSpecificAnimationID_124(int originalAnimID) {
+	return originalAnimID;
+}
+int GetVersionSpecificAnimationID_123(int originalAnimID) {
 	if (originalAnimID == AnimSets::XBilsy)
-		return GetVersionSpecificAnimationID(AnimSets::BilsBoss, false);
+		return GetVersionSpecificAnimationID_123(AnimSets::BilsBoss);
 	if (originalAnimID == AnimSets::XLizard)
-		return GetVersionSpecificAnimationID(AnimSets::Lizard, false);
+		return GetVersionSpecificAnimationID_123(AnimSets::Lizard);
 	if (originalAnimID == AnimSets::XTurtle)
-		return GetVersionSpecificAnimationID(AnimSets::Turtle, false);
+		return GetVersionSpecificAnimationID_123(AnimSets::Turtle);
 	if (originalAnimID == AnimSets::ZDog)
-		return GetVersionSpecificAnimationID(AnimSets::Dog, false);
+		return GetVersionSpecificAnimationID_123(AnimSets::Dog);
 	if (originalAnimID == AnimSets::ZSpark)
-		return GetVersionSpecificAnimationID(AnimSets::Spark, false);
+		return GetVersionSpecificAnimationID_123(AnimSets::Spark);
 
 	int animID = originalAnimID;
 	if (originalAnimID >= AnimSets::EndTuneLori)
@@ -25,7 +27,7 @@ int GetVersionSpecificAnimationID(int originalAnimID, bool isTSF) {
 		animID -= 3;
 	return animID;
 }
-
+GetAnimationIDFunc* GetVersionSpecificAnimationID = GetVersionSpecificAnimationID_124;
 
 static int ConvertRabbitAnimNumToTSF(int base) { //from JJ2+, written by blur
 	if (base <= 8) {
@@ -64,9 +66,8 @@ static int ConvertRabbitAnimNumToTSF(int base) { //from JJ2+, written by blur
 }
 
 int RabbitAnimIDs[RabbitAnims::LAST];
-void InitializeRabbitAnimIDs(bool isTSF) {
-	OutputDebugStringF(L"%d", isTSF);
-	if (isTSF)
+void InitializeRabbitAnimIDs() {
+	if (VersionTSF)
 		for (int i = 0; i < RabbitAnims::LAST; ++i)
 			RabbitAnimIDs[i] = i;
 	else
@@ -87,5 +88,7 @@ bool IsTSF(bool& isTSF) {
 		ShowErrorMessage(L"Invalid Anims.j2a file");
 		return false;
 	}
+
+	GetVersionSpecificAnimationID = isTSF ? GetVersionSpecificAnimationID_124 : GetVersionSpecificAnimationID_123;
 	return true;
 }
