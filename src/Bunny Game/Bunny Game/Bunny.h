@@ -10,15 +10,16 @@ class Bunny;
 struct Player {
 	Bunny* Object;
 
-	int Score, Lives, Coins, CharacterIndex;
+	int Score, Lives, Coins, FireSpeed, CharacterIndex;
 	int Food; //Food needs special treatment because it doesn't reset upon death
-	std::array<bool, WEAPON_COUNT> Powerups;
-	std::array<int, WEAPON_COUNT> Ammo;
+	std::array<bool, Weapon::LAST> Powerups;
+	std::array<int, Weapon::LAST> Ammo;
 	std::array<int, GEM_COLOR_COUNT> Gems;
 	
 	Player() {
 		memset(this, 0, sizeof(*this));
 		Lives = START_LIVES;
+		FireSpeed = AISPEED / 2;
 	}
 	Player& operator=(const Player& other) {
 		memcpy(this, &other, sizeof(*this));
@@ -39,11 +40,13 @@ class Bunny : public BunnyObject {
 	PlatformTypes platformType;
 	float platform_relX, platform_relY, moveSpeedX, moveSpeedY, fixScrollX, quakeX, shiftPositionX, poleSpeed;
 	int playerID, fire, lastFire, lastDownAttack, airBoard, helicopter, helicopterTotal, specialJump, dive, lastDive, hit, DirectionKeyX, DirectionKeyY, warpCounter, frogMorph, bossActive, vPole, swim, stop, stoned, stonedLen, spring, specialMove, slope, runDash, run, lastRun, rolling, quake, platform, ledgeWiggle, lastSpring, lastJump, idleTime, hPole, hang, vine, fixStartX, downAttack, charCurr, beMoved, lastTilePosition, sugarRush, sucked, shieldType, shieldTime, morph, flicker, frameCount, animSpeed, warpFall, warpArea, viewSkipAverage, skid, pushObject, push, lookVP, lookVPAmount, lift, lastPush, lastLookVP, idleTrail, idleExtra, idleAnim, health, fireSpeed, fireDirection;
-	bool goUp, goRight, goLeft, goDown, goFarDown, fixAnim;
+	bool goUp, goRight, goLeft, goDown, goFarDown, fixAnim, fireHold;
 	Event* LastSuckerTube;
 
 	void GetInput(const KeyStates&);		//461C20
 	void ProcessInput();					//435AC0
+		void DepleteAmmo();
+		void ProcessFireInput();
 		void ProcessSelectInput();
 		void ProcessInputNoAirboard();
 		void ProcessInputJumpFallStuff();
@@ -58,7 +61,8 @@ class Bunny : public BunnyObject {
 		inline void Bunny::AssignAnimation(int, int, bool, int = 0);
 	void PoleSamples() const;
 	void ProcessAction(unsigned int);		//4348E0
-		void ProcessActionFire();
+		void AddBullet();
+		bool ProcessActionFire();
 		bool ProcessActionSpecialMove();
 	void AdjustViewpoint(GameState&) const;	//43E560
 

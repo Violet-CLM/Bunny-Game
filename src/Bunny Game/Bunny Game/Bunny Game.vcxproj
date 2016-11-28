@@ -175,6 +175,7 @@
     <ClCompile Include="BunnyObjectList.cpp" />
     <ClCompile Include="BunnyShaders.cpp" />
     <ClCompile Include="BunnyVersionDependentStuff.cpp" />
+    <ClCompile Include="BunnyWeapons.cpp" />
     <ClCompile Include="Diamondus.cpp" />
     <ClCompile Include="Bunny.cpp" />
     <ClCompile Include="Main.cpp" />

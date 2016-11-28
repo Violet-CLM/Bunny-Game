@@ -5,7 +5,7 @@
 
 enum char2Indices { char2JAZZ, char2SPAZ, char2LORI }; //todo better solution elsewhere
 
-Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), platformType(PlatformTypes::None), AccelerationX(0), SpeedY(0), AccelerationY(0), playerID(0), platform_relX(0), platform_relY(0), freeze(0), invincibility(0), airBoard(0), helicopter(0), helicopterTotal(0), specialJump(0), dive(0), lastDive(0), fire(0), lastFire(0), lastDownAttack(0), hit(0), DirectionKeyX(0), DirectionKeyY(0), moveSpeedX(0), moveSpeedY(0), fixScrollX(0), quakeX(0), warpCounter(0), frogMorph(0), bossActive(0), vPole(0), swim(0), stop(0), stoned(0), stonedLen(0), spring(0), specialMove(0), slope(0), shiftPositionX(0), runDash(0), run(0), lastRun(0), rolling(0), quake(0), platform(0), ledgeWiggle(0), lastSpring(0), lastJump(0), idleTime(0), hPole(0), hang(0), vine(0), goUp(0), goRight(0), goLeft(0), goDown(0), goFarDown(0), fly(0), fixStartX(0), downAttack(DOWNATTACKLEN), charCurr(0), beMoved(0), sugarRush(0), sucked(0), shieldType(0), shieldTime(0), morph(0), flicker(0), fixAnim(false), frameCount(0), animSpeed(0), warpFall(0), warpArea(0), viewSkipAverage(0), skid(0), pushObject(0), push(0), poleSpeed(0), lookVP(0), lookVPAmount(0), lift(0), lastPush(0), lastLookVP(0), idleTrail(0), idleExtra(0), idleAnim(0), fireSpeed(0), fireDirection(0)
+Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), platformType(PlatformTypes::None), AccelerationX(0), SpeedY(0), AccelerationY(0), playerID(0), platform_relX(0), platform_relY(0), freeze(0), invincibility(0), airBoard(0), helicopter(0), helicopterTotal(0), specialJump(0), dive(0), lastDive(0), fire(0), lastFire(0), lastDownAttack(0), hit(0), DirectionKeyX(0), DirectionKeyY(0), moveSpeedX(0), moveSpeedY(0), fixScrollX(0), quakeX(0), warpCounter(0), frogMorph(0), bossActive(0), vPole(0), swim(0), stop(0), stoned(0), stonedLen(0), spring(0), specialMove(0), slope(0), shiftPositionX(0), runDash(0), run(0), lastRun(0), rolling(0), quake(0), platform(0), ledgeWiggle(0), lastSpring(0), lastJump(0), idleTime(0), hPole(0), hang(0), vine(0), goUp(0), goRight(0), goLeft(0), goDown(0), goFarDown(0), fly(0), fixStartX(0), downAttack(DOWNATTACKLEN), charCurr(0), beMoved(0), sugarRush(0), sucked(0), shieldType(0), shieldTime(0), morph(0), flicker(0), fixAnim(false), frameCount(0), animSpeed(0), warpFall(0), warpArea(0), viewSkipAverage(0), skid(0), pushObject(0), push(0), poleSpeed(0), lookVP(0), lookVPAmount(0), lift(0), lastPush(0), lastLookVP(0), idleTrail(0), idleExtra(0), idleAnim(0), fireDirection(0)
 {
 	//the order here is important; Bunny::PlayerProperties::Object should remain nullptr so that operator= can be called in the other direction at the end of the level
 	PlayerProperties = Players[playerID];
@@ -621,13 +621,37 @@ void Bunny::ProcessInput()
 	}
 }
 
+void Bunny::ProcessFireInput()
+{
+	if ( SpeedX || SpeedY || !KeyUp || (fireType == Weapon::Blaster && shieldTime > 0) )
+		fireDirection = 0;
+	else
+		fireDirection = 8;
+	if ( fireType != Weapon::Blaster || shieldTime <= 0 || lastFire < 8 ) {
+		if ( fireType == Weapon::Seeker || fireType == Weapon::RF || fireType == Weapon::TNT ) {
+			if ( !fireHold ) {
+				fire = 1;
+				lastFire = -1;
+				fireHold = true;
+			}
+		} else {
+			if ( lastFire >= PlayerProperties.FireSpeed ) {
+				fire = 1;
+				lastFire = -1;
+			}
+		}
+	} else {
+		fire = 1;
+		lastFire = -1;
+	}
+}
 void Bunny::ProcessSelectInput()
 {
 	if ( KeyFire && downAttack >= DOWNATTACKLEN ) {
-		;//onProcessPlayerInputFire(play); //todo
+		ProcessFireInput();
 	} else {
-		//fireHold = 0;
-		const int diminishedFireSpeed = fireSpeed - 5;
+		fireHold = false;
+		const int diminishedFireSpeed = PlayerProperties.FireSpeed - 5;
 		if ( lastFire < diminishedFireSpeed )
 			lastFire = diminishedFireSpeed;
 	}
@@ -636,7 +660,7 @@ void Bunny::ProcessSelectInput()
 		if ( !WasPressingKeySelectLastGameTick ) {
 			WasPressingKeySelectLastGameTick = true;
 			while (true) {
-				if (++fireType >= WEAPON_COUNT) { fireType = Weapon::Blaster; break; } //blaster is infinite
+				if (++fireType >= Weapon::LAST) { fireType = Weapon::Blaster; break; } //blaster is infinite
 				if (PlayerProperties.Ammo[fireType]) { break; }
 			}
 		}
@@ -2314,25 +2338,25 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 		if (!goUp || SpeedY > 0)
 			spring = 0;
 		if (fly > 1) { //some sort of object
-			if (lastFire >= fireSpeed + 25) {
+			if (lastFire >= PlayerProperties.FireSpeed + 25) {
 				if (!fixAnim)
 					AssignAnimation(((PlayerProperties.CharacterIndex != char2SPAZ) && (idleTime % (AISPEED * 2) <= AISPEED)) ? RabbitAnims::HANGIDLE1 : RabbitAnims::HANGIDLE2, 7);
 			}
 			else if (fireDirection == 8) { //up
-				if (lastFire > fireSpeed + 10) {
+				if (lastFire > PlayerProperties.FireSpeed + 10) {
 					fixAnim = 0;
 					AssignAnimation(RabbitAnims::HANGFIREQUIT, 5);
 				}
 				else if (!fixAnim)
-					AssignAnimation(RabbitAnims::HANGFIREUP, fireSpeed / 2, true);
+					AssignAnimation(RabbitAnims::HANGFIREUP, PlayerProperties.FireSpeed / 2, true);
 			}
 			else {
-				if (lastFire > fireSpeed + 10) {
+				if (lastFire > PlayerProperties.FireSpeed + 10) {
 					fixAnim = 0;
 					AssignAnimation(RabbitAnims::HANGINGFIREQUIT, 5);
 				}
 				else if (!fixAnim)
-					AssignAnimation(RabbitAnims::HANGINGFIRERIGHT, fireSpeed / 2, true);
+					AssignAnimation(RabbitAnims::HANGINGFIRERIGHT, PlayerProperties.FireSpeed / 2, true);
 			}
 		}
 		else if (fly == -1) { //airboard
@@ -2340,10 +2364,10 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 				AssignAnimation(RabbitAnims::AIRBOARD, 6);
 		}
 		else { //fly carrot
-			if (lastFire < fireSpeed + 20) {
+			if (lastFire < PlayerProperties.FireSpeed + 20) {
 				if (!fixAnim) {
-					if (lastFire <= fireSpeed + 10)
-						AssignAnimation(RabbitAnims::HELICOPTERFIRERIGHT, fireSpeed / 2);
+					if (lastFire <= PlayerProperties.FireSpeed + 10)
+						AssignAnimation(RabbitAnims::HELICOPTERFIRERIGHT, PlayerProperties.FireSpeed / 2);
 					else
 						AssignAnimation(RabbitAnims::HELICOPTERFIREQUIT, 5);
 				}
@@ -2399,7 +2423,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 			animSpeed = runningAnimSpeed;
 	}
 	else if (hang) {
-		if (lastFire >= fireSpeed + 25) {
+		if (lastFire >= PlayerProperties.FireSpeed + 25) {
 			if (SpeedX) {
 				if (SpeedX < 1) { //issue #641
 					if (SpeedX <= -1)
@@ -2424,13 +2448,13 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 					AssignAnimation((idleTime % (AISPEED * 2) <= AISPEED) ? RabbitAnims::HANGIDLE1 : RabbitAnims::HANGIDLE2, 7);
 			}
 		}
-		else if (lastFire > fireSpeed + 10) {
+		else if (lastFire > PlayerProperties.FireSpeed + 10) {
 			fixAnim = 0;
 			AssignAnimation((fireDirection != 8) ? RabbitAnims::HANGINGFIREQUIT : RabbitAnims::HANGFIREQUIT, 5);
 		}
 		else {
 			if (!fixAnim)
-				AssignAnimation((fireDirection == 8) ? RabbitAnims::HANGFIREUP : RabbitAnims::HANGINGFIRERIGHT, fireSpeed / 2, true);
+				AssignAnimation((fireDirection == 8) ? RabbitAnims::HANGFIREUP : RabbitAnims::HANGINGFIRERIGHT, PlayerProperties.FireSpeed / 2, true);
 			SpeedX = 0;
 			AccelerationX = 0;
 		}
@@ -2439,21 +2463,21 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 		idleTime = 0;
 		if (!goUp || SpeedY > -1)
 			spring = 0;
-		if (lastFire >= fireSpeed + 20) {
+		if (lastFire >= PlayerProperties.FireSpeed + 20) {
 			if (!fixAnim)
 				AssignAnimation(RabbitAnims::SPRING, std::max(1, int(SpeedY + 10)));
 		}
 		else if (!fixAnim) {
-			if (lastFire > fireSpeed + 10)
+			if (lastFire > PlayerProperties.FireSpeed + 10)
 				AssignAnimation(RabbitAnims::JUMPFIREQUIT, 5);
 			else
-				AssignAnimation(RabbitAnims::JUMPFIRERIGHT, fireSpeed / 2);
+				AssignAnimation(RabbitAnims::JUMPFIRERIGHT, PlayerProperties.FireSpeed / 2);
 		}
 	}
 	else if (!goDown) {
 		if (!SpeedY) {
 			helicopter = 0;
-			if (lastFire <= fireSpeed + 10) {
+			if (lastFire <= PlayerProperties.FireSpeed + 10) {
 				skid = 0;
 				if (UsesAnimation(RabbitAnims::BUTTSTOMPLAND) || UsesAnimation(RabbitAnims::FALLLAND) || UsesAnimation(RabbitAnims::SKID2) || UsesAnimation(RabbitAnims::SKID3))
 					fixAnim = 0;
@@ -2519,12 +2543,12 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 					else if (lookVPAmount < 60)
 						lookVPAmount += 1;
 				}
-				if (lastFire >= fireSpeed + 15) {
+				if (lastFire >= PlayerProperties.FireSpeed + 15) {
 					AssignAnimation(RabbitAnims::DIVE, ANIM_SPEED_MAX, false, 1);
 				}
 				else if (!fixAnim) {
-					if (lastFire < fireSpeed + 10) // __OFSUB__
-						AssignAnimation(RabbitAnims::DIVEFIRERIGHT, fireSpeed / 2);
+					if (lastFire < PlayerProperties.FireSpeed + 10) // __OFSUB__
+						AssignAnimation(RabbitAnims::DIVEFIRERIGHT, PlayerProperties.FireSpeed / 2);
 					else
 						AssignAnimation(RabbitAnims::DIVEFIREQUIT, 5);
 				}
@@ -2533,19 +2557,19 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 				if (runDash > 0)
 					runDash = 0;
 			}
-			else if (lastFire < fireSpeed + 30) {
+			else if (lastFire < PlayerProperties.FireSpeed + 30) {
 				if (!fireDirection) {
 					if (!fixAnim) {
-						if (lastFire <= fireSpeed + 10)
-							AssignAnimation(RabbitAnims::FIRE, fireSpeed / 2);
+						if (lastFire <= PlayerProperties.FireSpeed + 10)
+							AssignAnimation(RabbitAnims::FIRE, PlayerProperties.FireSpeed / 2);
 						else
 							AssignAnimation(RabbitAnims::QUIT, 5);
 					}
 				}
 				else if (fireDirection == 8) {
 					if (!fixAnim) {
-						if (lastFire <= fireSpeed + 10)
-							AssignAnimation(RabbitAnims::FIREUP, fireSpeed / 2);
+						if (lastFire <= PlayerProperties.FireSpeed + 10)
+							AssignAnimation(RabbitAnims::FIREUP, PlayerProperties.FireSpeed / 2);
 						else
 							AssignAnimation(RabbitAnims::FIREUPQUIT, 5);
 					}
@@ -2824,10 +2848,10 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 	else if (dive = 0, SpeedY > 0) {
 		if (downAttack < 0 || downAttack >= 50) {
 			if (helicopter) {
-				if (lastFire < fireSpeed + 20) {
+				if (lastFire < PlayerProperties.FireSpeed + 20) {
 					if (!fixAnim) {
-						if (lastFire <= fireSpeed)
-							AssignAnimation(RabbitAnims::HELICOPTERFIRERIGHT, fireSpeed / 2);
+						if (lastFire <= PlayerProperties.FireSpeed)
+							AssignAnimation(RabbitAnims::HELICOPTERFIRERIGHT, PlayerProperties.FireSpeed / 2);
 						else
 							AssignAnimation(RabbitAnims::HELICOPTERFIREQUIT, 5);
 					}
@@ -2835,15 +2859,15 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 				else if (!fixAnim)
 					AssignAnimation(RabbitAnims::HELICOPTER, 4);
 			}
-			else if (lastFire >= fireSpeed + 20) {
+			else if (lastFire >= PlayerProperties.FireSpeed + 20) {
 				if (!fixAnim)
 					AssignAnimation((abs(SpeedX) <= 1) ? RabbitAnims::FALL : RabbitAnims::RIGHTFALL, 8);
 			}
 			else if (!fixAnim) {
-				if (lastFire > fireSpeed + 10)
+				if (lastFire > PlayerProperties.FireSpeed + 10)
 					AssignAnimation(RabbitAnims::JUMPFIREQUIT, 5);
 				else
-					AssignAnimation(RabbitAnims::JUMPFIRERIGHT, fireSpeed / 2);
+					AssignAnimation(RabbitAnims::JUMPFIRERIGHT, PlayerProperties.FireSpeed / 2);
 			}
 		}
 		else {
@@ -2867,12 +2891,12 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 				AssignAnimation(RabbitAnims::SPRING, std::max(1, 5 - downAttack / 16));
 		}
 	}
-	else if (lastFire < fireSpeed + 20) {
+	else if (lastFire < PlayerProperties.FireSpeed + 20) {
 		if (!fixAnim) {
-			if (lastFire > fireSpeed + 10)
+			if (lastFire > PlayerProperties.FireSpeed + 10)
 				AssignAnimation(RabbitAnims::JUMPFIREQUIT, 5);
 			else
-				AssignAnimation(RabbitAnims::JUMPFIRERIGHT, fireSpeed / 2);
+				AssignAnimation(RabbitAnims::JUMPFIRERIGHT, PlayerProperties.FireSpeed / 2);
 		}
 	}
 	else if ((absoluteSpeed = abs(SpeedX)) < 0.5f) {
@@ -2931,7 +2955,38 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 		}
 	}
 }
-void Bunny::ProcessActionFire() {
+void Bunny::DepleteAmmo() {
+	if (fireType == Weapon::Blaster)//infinite
+		return; 
+	if (--PlayerProperties.Ammo[fireType] < 1) {
+		PlayerProperties.Ammo[fireType] = 0;
+		PlayerProperties.Powerups[fireType] = false;
+		while (true) {
+			--fireType;
+			if (fireType == Weapon::Blaster || PlayerProperties.Ammo[fireType] > 0) return;
+		}
+	}
+}
+bool Bunny::ProcessActionFire() {
+	if (fireType == Weapon::Blaster && shieldTime > 0 && !lastFire)
+		return true;
+	else {
+		const bool hasAmmo = fireType == Weapon::Blaster || PlayerProperties.Ammo[fireType] > 0;
+		if (fireType != Weapon::Toaster || lastFire > PlayerProperties.FireSpeed) {
+			if (!lastFire && hasAmmo)
+				return true;
+		} else {
+			//if (!wp->bubbles || yPos < GameGlobals->level.waterLevel)
+				//loopSample = PlayLoopSample(xPos,yPos,sCOMMON_FLAMER,0,0,loopSample);
+			if (hasAmmo) {
+				const int adjustedFireSpeed = int(abs(SpeedY / 4));
+				if (6 - adjustedFireSpeed <= 1 || !(lastFire % (6 - adjustedFireSpeed)))
+					return true;
+				else DepleteAmmo();
+			}
+		}
+	}
+	return false;
 }
 bool Bunny::ProcessActionSpecialMove() {
 	if (PlayerProperties.CharacterIndex == char2JAZZ) {
@@ -3058,7 +3113,8 @@ void Bunny::ProcessAction(unsigned int gameTicks)
 	}
 
 	//if (PlayerProperties.CharacterIndex != char2FROG && PlayerProperties.CharacterIndex != char2BIRDBLUE) //todo non-rabbits
-		ProcessActionFire();
+		if (ProcessActionFire())
+			AddBullet();
 	/*if (charCurr != mFROG)*/ { //todo non-rabbits
 		ApproachZero(morph);
 	}
