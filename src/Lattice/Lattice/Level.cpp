@@ -231,12 +231,12 @@ bool GameState::MaskedPixel(int x, int y) const {
 }
 unsigned int GameState::MaskedHLine(int x, int y, int length) const {
 	const auto retval = Lev.Layers[SPRITELAYER].MaskedHLine(x, y, length);
-	//AnimFrame::DrawRectangle(Lev.Layers[SPRITELAYER], x, y, length, 1, retval ? 16 : 24);
+	//AnimFrame::AppendRectangle(Lev.Layers[SPRITELAYER], x, y, length, 1, retval ? 16 : 24);
 	return retval;
 }
 unsigned int GameState::MaskedVLine(int x, int y, int length) const {
 	const auto retval = Lev.Layers[SPRITELAYER].MaskedVLine(x, y, length);
-	//AnimFrame::DrawRectangle(Lev.Layers[SPRITELAYER], x, y, 1, length, retval ? 16 : 24);
+	//AnimFrame::AppendRectangle(Lev.Layers[SPRITELAYER], x, y, 1, length, retval ? 16 : 24);
 	return retval;
 }
 bool GameState::MaskedPixel(int x, int y, Event& outEvent) const {

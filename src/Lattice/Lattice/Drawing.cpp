@@ -84,9 +84,10 @@ void InitCreateShaders(std::vector<sf::Shader*>& shaders, const std::vector<std:
 			shaders.push_back(nullptr);
 		else {
 			sf::Shader* shader = new sf::Shader();
-			if (shader->loadFromMemory(shaderSource, sf::Shader::Fragment))
-				shader->setParameter("texture", sf::Shader::CurrentTexture);
-			else
+			if (shader->loadFromMemory(shaderSource, sf::Shader::Fragment)) {
+				if (shaderSource.find("uniform sampler2D texture") != std::string::npos)
+					shader->setParameter("texture", sf::Shader::CurrentTexture);
+			} else
 				ShowErrorMessage((L"Error compiling shader: " + std::wstring(shaderSource.begin(), shaderSource.end())).c_str());
 			shaders.push_back(shader);
 		}
@@ -101,7 +102,7 @@ void VertexCollection::draw(sf::RenderTarget & target, sf::RenderStates states) 
 }
 void VertexCollectionQueue::draw(sf::RenderTarget & target, sf::RenderStates states) const
 {
-	for (auto& it : Collections)
+	for (const auto& it : Collections)
 		target.draw(it, states);
 }
 
@@ -122,13 +123,13 @@ sf::Shader* SpriteMode::GetShader() const
 	return Shader;
 }
 
-void VertexCollectionQueue::DrawQuad(quad& q, sf::Texture* texture, const SpriteMode& spriteMode)
+void VertexCollectionQueue::AppendQuad(quad& q, sf::Texture* texture, const SpriteMode& spriteMode)
 {
 	if (Collections.empty() || !Collections.back().Matches(texture, spriteMode))
-		Collections.push_back(VertexCollection(texture, spriteMode));
+		Collections.emplace_back(texture, spriteMode);
 	Collections.back().AppendQuad(q);
 }
-void VertexCollectionQueue::DrawSprite(const SpriteMode& mode, int x, int y, const AnimFrame& sprite, bool flipX, bool flipY)
+void VertexCollectionQueue::AppendSprite(const SpriteMode& mode, int x, int y, const AnimFrame& sprite, bool flipX, bool flipY)
 {
 	quad repositionedQuad(sprite.Quad);
 	if (flipX)
@@ -136,18 +137,18 @@ void VertexCollectionQueue::DrawSprite(const SpriteMode& mode, int x, int y, con
 	if (flipY)
 		repositionedQuad.flipVertically();
 	repositionedQuad.positionPositionAt(x + (!flipX ? sprite.HotspotX : -(sprite.Width + sprite.HotspotX)), y + (!flipY ? sprite.HotspotY : -(sprite.Height + sprite.HotspotY)));
-	DrawQuad(repositionedQuad, sprite.Texture, mode);
+	AppendQuad(repositionedQuad, sprite.Texture, mode);
 }
-void VertexCollectionQueue::DrawRectangle(const SpriteMode& mode, int x, int y, int width, int height, sf::Uint8 color)
+void VertexCollectionQueue::AppendRectangle(const SpriteMode& mode, int x, int y, int width, int height, sf::Uint8 color)
 {
 	quad rectangleQuad((float)width, (float)height);
 	const sf::Vector2f texCoords(static_cast<float>(color), static_cast<float>(DefaultPaletteLineNames::XPosToIndex));
 	rectangleQuad.positionPositionAt(x, y);
 	for (int i = 0; i < 4; ++i)
 		rectangleQuad.vertices[i].texCoords = texCoords;
-	DrawQuad(rectangleQuad, PaletteTexture, mode);
+	AppendQuad(rectangleQuad, PaletteTexture, mode);
 }
-void VertexCollectionQueue::DrawPixel(const SpriteMode& mode, int x, int y, sf::Uint8 color)
+void VertexCollectionQueue::AppendPixel(const SpriteMode& mode, int x, int y, sf::Uint8 color)
 {
-	return DrawRectangle(mode, x, y, 1, 1, color);
+	return AppendRectangle(mode, x, y, 1, 1, color);
 }

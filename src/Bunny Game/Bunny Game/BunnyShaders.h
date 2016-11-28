@@ -2,11 +2,12 @@
 #include <array>
 #include "Shaders.h"
 #include "Drawing.h"
+#include "BunnyMisc.h"
 
 namespace BunnyPaletteLineNames {
 	enum {
 		FIRST = DefaultPaletteLineNames::LAST - 1,
-		Gem, __lastgem = Gem + 3,
+		Gem, __lastgem = Gem + GEM_COLOR_COUNT-1,
 								  //pallineBRIGHTNESS, pallineBRIGHTNESSTOFREEZECOLORS, pallineMENUPLAYERSPRITEMAPPING, pallineTBGFADEINTENSITY, pallineHEATEFFECTOFFSETS, pallinePLAYERS, pallineGEMS = pallinePLAYERS + 32,
 		LAST
 	};

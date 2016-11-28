@@ -7,6 +7,12 @@
 #define DOWNATTACKWAIT	40
 #define FLASHTIME		5
 
+#define GEM_COLOR_COUNT 4
+#define WEAPON_COUNT 9
+#define AMMO_MAX 99
+#define START_HEALTH 5
+#define START_LIVES 3
+
 #define ApproachZero(a) if (a > 0) --a; else if (a < 0) ++a
 #define LowerToZero(a) if (a) --a
 

@@ -23,12 +23,15 @@ void Pickup::HitBy(GameObject& other)
 {
 	if (other.ObjectType == BunnyObjectType::Player) {
 		Explosion::AddExplosion(*this, ExplosionSetID, 86);
+		Collected(static_cast<Bunny&>(other));
+		//todo sound
+		//todo points
 		Delete();
 	}
 }
 void Pickup::Draw(Layer* layers) const
 {
-	layers[SPRITELAYER].DrawSprite(SpriteMode::Paletted, int(PositionX), int(PositionY + BounceYOffset), GetFrame(), DirectionX < 0);
+	layers[SPRITELAYER].AppendSprite(SpriteMode::Paletted, int(PositionX), int(PositionY + BounceYOffset), GetFrame(), DirectionX < 0);
 }
 
 AmmoPickup::AmmoPickup(ObjectStartPos & objStart, int ai, int an, int anp) : Pickup(objStart, ai), AmmoID(ai), AnimIDNormal(an), AnimIDPoweredUp(anp) {}
@@ -37,8 +40,70 @@ void AmmoPickup::Behave(GameState& gameState)
 	AnimID = AnimIDNormal; //todo check player powerup status
 	Pickup::Behave(gameState);
 }
+void AmmoPickup::HitBy(GameObject& other)
+{
+	if (other.ObjectType == BunnyObjectType::Player && static_cast<Bunny&>(other).PlayerProperties.Ammo[AmmoID] < AMMO_MAX)
+		Pickup::HitBy(other);
+}
+void AmmoPickup::Collected(Bunny& play) const
+{
+	int& ammoCounter = play.PlayerProperties.Ammo[AmmoID];
+	ammoCounter = std::min(ammoCounter + 3, AMMO_MAX);
+}
 
 void Gem::Draw(Layer* layers) const
 {
-	layers[SPRITELAYER].DrawSprite(mode, int(PositionX), int(PositionY + BounceYOffset), GetFrame(), DirectionX < 0);
+	layers[SPRITELAYER].AppendSprite(mode, int(PositionX), int(PositionY + BounceYOffset), GetFrame(), DirectionX < 0);
+}
+void Gem::Collected(Bunny& play) const
+{
+	play.PlayerProperties.Gems[GemColor] += 1;
+}
+
+void Carrot::HitBy(GameObject& other)
+{
+	if (other.ObjectType == BunnyObjectType::Player && static_cast<Bunny&>(other).Health < START_HEALTH)
+		Pickup::HitBy(other);
+}
+void Carrot::Collected(Bunny& play) const
+{
+	play.Health += 1;
+}
+void FullEnergy::HitBy(GameObject& other)
+{
+	if (other.ObjectType == BunnyObjectType::Player && static_cast<Bunny&>(other).Health < START_HEALTH)
+		Pickup::HitBy(other);
+}
+void FullEnergy::Collected(Bunny& play) const
+{
+	play.Health = START_HEALTH;
+}
+
+void ExtraLife::Collected(Bunny& play) const
+{
+	play.PlayerProperties.Lives += 1;
+}
+void FlyCarrot::Collected(Bunny& play) const
+{
+	play.fly = 1;
+}
+void Food::Collected(Bunny& play) const
+{
+	play.EatFood();
+}
+void FreezeEnemies::Collected(Bunny& play) const
+{
+	play.freeze = 3*AISPEED;
+}
+void GoldCoin::Collected(Bunny& play) const
+{
+	play.PlayerProperties.Coins += 5;
+}
+void Invincibility::Collected(Bunny& play) const
+{
+	play.invincibility = 15*AISPEED;
+}
+void SilverCoin::Collected(Bunny& play) const
+{
+	play.PlayerProperties.Coins += 1;
 }

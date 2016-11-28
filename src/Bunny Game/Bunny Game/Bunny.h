@@ -2,6 +2,30 @@
 #include "BunnyObject.h"
 #include "BunnyMisc.h"
 
+#define MAXLOCALPLAYERS 1
+
+//this struct holds all the player variables that hold constant across level boundaries/when restarting from a checkpoint
+class Bunny;
+struct Player {
+	Bunny* Object;
+
+	int Score, Lives, Coins;
+	int Food; //Food needs special treatment because it doesn't reset upon death
+	std::array<bool, WEAPON_COUNT> Powerups;
+	std::array<int, WEAPON_COUNT> Ammo;
+	std::array<int, GEM_COLOR_COUNT> Gems;
+	
+	Player() {
+		memset(this, 0, sizeof(*this));
+		Lives = START_LIVES;
+	}
+	Player& operator=(const Player& other) {
+		memcpy(this, &other, sizeof(*this));
+		return *this;
+	}
+};
+extern std::array<Player, MAXLOCALPLAYERS> Players;
+
 class Bunny : public BunnyObject {
 	bool KeyUp, KeyRight, KeyDown, KeyLeft, KeyFire, KeySelect, KeyRun, KeyJump;
 	float SpeedX, AccelerationX, OldSpeedX, WarpTargetPositionX;
@@ -12,10 +36,9 @@ class Bunny : public BunnyObject {
 	};
 	PlatformTypes platformType;
 	float platform_relX, platform_relY, moveSpeedX, moveSpeedY, fixScrollX, quakeX, shiftPositionX, poleSpeed;
-	int fire, lastFire, lastDownAttack, freeze, invincibility, airBoard, helicopter, helicopterTotal, specialJump, dive, lastDive, hit, DirectionKeyX, DirectionKeyY, warpCounter, frogMorph, bossActive, vPole, swim, stop, stoned, stonedLen, spring, specialMove, slope, runDash, run, lastRun, rolling, quake, platform, ledgeWiggle, lastSpring, lastJump, idleTime, hPole, hang, vine, fly, fixStartX, downAttack, charCurr, characterIndex, beMoved, lastTilePosition, sugarRush, sucked, shieldType, shieldTime, morph, flicker, frameCount, animSpeed, warpFall, warpArea, viewSkipAverage, skid, pushObject, push, lookVP, lookVPAmount, lift, lastPush, lastLookVP, idleTrail, idleExtra, idleAnim, health, fireSpeed, fireDirection;
+	int playerID, fire, lastFire, lastDownAttack, airBoard, helicopter, helicopterTotal, specialJump, dive, lastDive, hit, DirectionKeyX, DirectionKeyY, warpCounter, frogMorph, bossActive, vPole, swim, stop, stoned, stonedLen, spring, specialMove, slope, runDash, run, lastRun, rolling, quake, platform, ledgeWiggle, lastSpring, lastJump, idleTime, hPole, hang, vine, fixStartX, downAttack, charCurr, characterIndex, beMoved, lastTilePosition, sugarRush, sucked, shieldType, shieldTime, morph, flicker, frameCount, animSpeed, warpFall, warpArea, viewSkipAverage, skid, pushObject, push, lookVP, lookVPAmount, lift, lastPush, lastLookVP, idleTrail, idleExtra, idleAnim, health, fireSpeed, fireDirection;
 	bool goUp, goRight, goLeft, goDown, goFarDown, fixAnim;
 	Event* LastSuckerTube;
-	int Health;
 
 	void GetInput(const KeyStates&);		//461C20
 	void ProcessInput();					//435AC0
@@ -40,4 +63,10 @@ class Bunny : public BunnyObject {
 	//void Draw(Layer*) const override;
 public:
 	Bunny(ObjectStartPos& objStart);
+
+	void EatFood();
+
+	int Health;
+	int freeze, invincibility, fly;
+	Player PlayerProperties;
 };

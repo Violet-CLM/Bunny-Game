@@ -17,7 +17,7 @@ std::vector<std::string> BunnyShaderSources = {
 
 void GeneratePaletteTextureBunnyEdition(sf::Texture& tex, const sf::Color* const paletteColors, std::array<sf::Color, COLORSPERPALETTE>& buffer) {
 	//Based on the code for generating 16-bit gem color LUTs, which reads indices 0,4,8,12,16 (and ONLY those indices) from the 8-bit LUTs and creates 128-color-long LUTs consisting of four smooth gradients among those five endpoints.
-	const static int gemPaletteStopColors[5 * 4] = {
+	const static int gemPaletteStopColors[5 * GEM_COLOR_COUNT] = {
 		55, 52, 48, 15, 15,
 		87, 84, 80, 15, 15,
 		39, 36, 32, 15, 15,

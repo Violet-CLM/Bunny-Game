@@ -211,10 +211,10 @@ protected:
 public:
 	std::vector<VertexCollection> Collections;
 
-	void DrawQuad(quad&, sf::Texture*, const SpriteMode&);
-	void DrawSprite(const SpriteMode&, int, int, const AnimFrame&, bool = false, bool = false);
-	void DrawRectangle(const SpriteMode&, int, int, int, int, sf::Uint8);
-	void DrawPixel(const SpriteMode&, int, int, sf::Uint8);
+	void AppendQuad(quad&, sf::Texture*, const SpriteMode&);
+	void AppendSprite(const SpriteMode&, int, int, const AnimFrame&, bool = false, bool = false);
+	void AppendRectangle(const SpriteMode&, int, int, int, int, sf::Uint8);
+	void AppendPixel(const SpriteMode&, int, int, sf::Uint8);
 };
 
 void GeneratePaletteTexture(sf::Texture&, const sf::Uint8*, PaletteTableSetupFunction, unsigned int);

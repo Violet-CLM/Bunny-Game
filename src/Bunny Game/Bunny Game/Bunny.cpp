@@ -5,15 +5,29 @@
 
 enum char2Indices { char2JAZZ, char2SPAZ, char2LORI }; //todo better solution elsewhere
 
-Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), platformType(PlatformTypes::None), AccelerationX(0), SpeedY(0), AccelerationY(0), platform_relX(0), platform_relY(0), freeze(0), invincibility(0), airBoard(0), helicopter(0), helicopterTotal(0), specialJump(0), dive(0), lastDive(0), fire(0), lastFire(0), lastDownAttack(0), hit(0), DirectionKeyX(0), DirectionKeyY(0), moveSpeedX(0), moveSpeedY(0), fixScrollX(0), quakeX(0), warpCounter(0), frogMorph(0), bossActive(0), vPole(0), swim(0), stop(0), stoned(0), stonedLen(0), spring(0), specialMove(0), slope(0), shiftPositionX(0), runDash(0), run(0), lastRun(0), rolling(0), quake(0), platform(0), ledgeWiggle(0), lastSpring(0), lastJump(0), idleTime(0), hPole(0), hang(0), vine(0), goUp(0), goRight(0), goLeft(0), goDown(0), goFarDown(0), fly(0), fixStartX(0), downAttack(DOWNATTACKLEN), charCurr(0), characterIndex(RandFac(1)), beMoved(0), sugarRush(0), sucked(0), shieldType(0), shieldTime(0), morph(0), flicker(0), fixAnim(false), frameCount(0), animSpeed(0), warpFall(0), warpArea(0), viewSkipAverage(0), skid(0), pushObject(0), push(0), poleSpeed(0), lookVP(0), lookVPAmount(0), lift(0), lastPush(0), lastLookVP(0), idleTrail(0), idleExtra(0), idleAnim(0), health(5), fireSpeed(0), fireDirection(0)
+Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), platformType(PlatformTypes::None), AccelerationX(0), SpeedY(0), AccelerationY(0), playerID(0), platform_relX(0), platform_relY(0), freeze(0), invincibility(0), airBoard(0), helicopter(0), helicopterTotal(0), specialJump(0), dive(0), lastDive(0), fire(0), lastFire(0), lastDownAttack(0), hit(0), DirectionKeyX(0), DirectionKeyY(0), moveSpeedX(0), moveSpeedY(0), fixScrollX(0), quakeX(0), warpCounter(0), frogMorph(0), bossActive(0), vPole(0), swim(0), stop(0), stoned(0), stonedLen(0), spring(0), specialMove(0), slope(0), shiftPositionX(0), runDash(0), run(0), lastRun(0), rolling(0), quake(0), platform(0), ledgeWiggle(0), lastSpring(0), lastJump(0), idleTime(0), hPole(0), hang(0), vine(0), goUp(0), goRight(0), goLeft(0), goDown(0), goFarDown(0), fly(0), fixStartX(0), downAttack(DOWNATTACKLEN), charCurr(0), characterIndex(RandFac(1)), beMoved(0), sugarRush(0), sucked(0), shieldType(0), shieldTime(0), morph(0), flicker(0), fixAnim(false), frameCount(0), animSpeed(0), warpFall(0), warpArea(0), viewSkipAverage(0), skid(0), pushObject(0), push(0), poleSpeed(0), lookVP(0), lookVPAmount(0), lift(0), lastPush(0), lastLookVP(0), idleTrail(0), idleExtra(0), idleAnim(0), fireSpeed(0), fireDirection(0)
 {
+	if (characterIndex == char2SPAZ)
+		Set = AnimationSets[GetVersionSpecificAnimationID(AnimSets::Spaz)];
+	else if (characterIndex == char2LORI)
+		Set = AnimationSets[AnimSets::Lori];
 	AnimID = 67;
 	DetermineFrame(1);
 	DirectionX = DirectionY = 1;
 	ObjectType = BunnyObjectType::Player;
 	CollisionShapes.emplace_back(18,32);
 
-	Health = 5;
+	Health = START_HEALTH;
+
+	//the order here is important; Bunny::PlayerProperties::Object should remain nullptr so that operator= can be called in the other direction at the end of the level
+	PlayerProperties = Players[playerID];
+	Players[playerID].Object = this;
+}
+void Bunny::EatFood() {
+	if (((PlayerProperties.Food += 1) % 100) == 0) {
+		sugarRush = 20*AISPEED;
+		//todo sound effects
+	}
 }
 //void Bunny::Draw(Layer *) const
 //{
@@ -2008,7 +2022,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 			warpCounter = -1;
 		}
 	}
-	else if (!health) {
+	else if (!Health) {
 		SpeedX = 0;
 		AccelerationX = 0;
 		AccelerationY = 0;
@@ -3074,3 +3088,5 @@ void Bunny::Behave(GameState& gameState)
 	ProcessAction(gameState.GameTicks);
 	AdjustViewpoint(gameState);
 }
+
+std::array<Player, MAXLOCALPLAYERS> Players;
