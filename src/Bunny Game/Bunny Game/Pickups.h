@@ -26,7 +26,7 @@ class AmmoPickup : public Pickup {
 	void Collected(Bunny&) const override;
 	void HitBy(GameObject&) override; //doesn't get collected if player is already at full ammo
 public:
-	AmmoPickup(ObjectStartPos& objStart, int ai, int an, int anp);
+	AmmoPickup(ObjectStartPos& objStart, int ai);
 };
 class Food : public Pickup {
 	using Pickup::Pickup;

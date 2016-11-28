@@ -8,8 +8,6 @@
 #define FLASHTIME		5
 
 #define GEM_COLOR_COUNT 4
-#define WEAPON_COUNT 9
-#define AMMO_MAX 99
 #define START_HEALTH 5
 #define START_LIVES 3
 

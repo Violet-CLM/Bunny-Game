@@ -2,6 +2,7 @@
 #include "Game.h"
 #include "BunnyMisc.h"
 #include "BunnyEffects.h"
+#include "BunnyWeapons.h"
 #include "BunnyObjectList.h"
 #include "BunnyVersionDependentStuff.h"
 
@@ -34,7 +35,7 @@ void Pickup::Draw(Layer* layers) const
 	layers[SPRITELAYER].AppendSprite(SpriteMode::Paletted, int(PositionX), int(PositionY + BounceYOffset), GetFrame(), DirectionX < 0);
 }
 
-AmmoPickup::AmmoPickup(ObjectStartPos & objStart, int ai, int an, int anp) : Pickup(objStart, ai), AmmoID(ai), AnimIDNormal(an), AnimIDPoweredUp(anp) {}
+AmmoPickup::AmmoPickup(ObjectStartPos & objStart, int ai) : Pickup(objStart, ai), AmmoID(ai), AnimIDNormal(AmmoIconAnimIDs[ai]), AnimIDPoweredUp(AmmoIconAnimIDs[ai]-1) {}
 void AmmoPickup::Behave(GameState& gameState)
 {
 	AnimID = AnimIDNormal; //todo check player powerup status
@@ -48,6 +49,7 @@ void AmmoPickup::HitBy(GameObject& other)
 void AmmoPickup::Collected(Bunny& play) const
 {
 	int& ammoCounter = play.PlayerProperties.Ammo[AmmoID];
+	if (ammoCounter == 0) play.fireType = AmmoID;
 	ammoCounter = std::min(ammoCounter + 3, AMMO_MAX);
 }
 

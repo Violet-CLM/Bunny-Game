@@ -1,6 +1,7 @@
 #pragma once
 #include "BunnyObject.h"
 #include "BunnyMisc.h"
+#include "BunnyWeapons.h"
 
 #define MAXLOCALPLAYERS 1
 
@@ -28,6 +29,7 @@ extern std::array<Player, MAXLOCALPLAYERS> Players;
 
 class Bunny : public BunnyObject {
 	bool KeyUp, KeyRight, KeyDown, KeyLeft, KeyFire, KeySelect, KeyRun, KeyJump;
+	bool WasPressingKeySelectLastGameTick;
 	float SpeedX, AccelerationX, OldSpeedX, WarpTargetPositionX;
 	float SpeedY, AccelerationY, OldSpeedY, WarpTargetPositionY;
 
@@ -42,6 +44,7 @@ class Bunny : public BunnyObject {
 
 	void GetInput(const KeyStates&);		//461C20
 	void ProcessInput();					//435AC0
+		void ProcessSelectInput();
 		void ProcessInputNoAirboard();
 		void ProcessInputJumpFallStuff();
 		void ProcessInputStuffWithFlyAndSwim();
@@ -67,6 +70,6 @@ public:
 	void EatFood();
 
 	int Health;
-	int freeze, invincibility, fly;
+	int freeze, invincibility, fly, fireType;
 	Player PlayerProperties;
 };

@@ -614,11 +614,34 @@ void Bunny::ProcessInput()
 			vine = 0;
 		}
 		else*/
-			//ProcessSelectInput(move); //todo!
+			ProcessSelectInput(); //todo!
 
 		ProcessInputJumpFallStuff();
 		ProcessInputStuffWithFlyAndSwim(); //todo!
 	}
+}
+
+void Bunny::ProcessSelectInput()
+{
+	if ( KeyFire && downAttack >= DOWNATTACKLEN ) {
+		;//onProcessPlayerInputFire(play); //todo
+	} else {
+		//fireHold = 0;
+		const int diminishedFireSpeed = fireSpeed - 5;
+		if ( lastFire < diminishedFireSpeed )
+			lastFire = diminishedFireSpeed;
+	}
+	++lastFire;
+	if ( KeySelect ) {
+		if ( !WasPressingKeySelectLastGameTick ) {
+			WasPressingKeySelectLastGameTick = true;
+			while (true) {
+				if (++fireType >= WEAPON_COUNT) { fireType = Weapon::Blaster; break; } //blaster is infinite
+				if (PlayerProperties.Ammo[fireType]) { break; }
+			}
+		}
+	} else
+		WasPressingKeySelectLastGameTick = false;
 }
 
 void Bunny::DoLandscapeCollision(GameState& gameState)

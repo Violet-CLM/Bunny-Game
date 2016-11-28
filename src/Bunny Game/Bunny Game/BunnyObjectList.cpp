@@ -18,14 +18,14 @@ ObjectList* GetObjectList() {
 
 		ObjT(EXPLOSION, Ammo, Explosion),
 
-		ObjTC(GUN2AMMO3, Ammo, AmmoPickup, 1, 25, 24),
-		ObjTC(GUN3AMMO3, Ammo, AmmoPickup, 2, 29, 28),
-		ObjTC(GUN4AMMO3, Ammo, AmmoPickup, 3, 34, 33),
-		ObjTC(GUN5AMMO3, Ammo, AmmoPickup, 4, 49, 48),
-		ObjTC(GUN6AMMO3, Ammo, AmmoPickup, 5, 57, 56),
-		ObjTC(GUN7AMMO3, Ammo, AmmoPickup, 6, 59, 59),
-		ObjTC(GUN8AMMO3, Ammo, AmmoPickup, 7, 62, 61),
-		ObjTC(GUN9AMMO3, Ammo, AmmoPickup, 8, 68, 67),
+		ObjTC(GUN2AMMO3, Ammo, AmmoPickup, Weapon::Bouncer),
+		ObjTC(GUN3AMMO3, Ammo, AmmoPickup, Weapon::Ice),
+		ObjTC(GUN4AMMO3, Ammo, AmmoPickup, Weapon::Seeker),
+		ObjTC(GUN5AMMO3, Ammo, AmmoPickup, Weapon::RF),
+		ObjTC(GUN6AMMO3, Ammo, AmmoPickup, Weapon::Toaster),
+		ObjTC(GUN7AMMO3, Ammo, AmmoPickup, Weapon::TNT),
+		ObjTC(GUN8AMMO3, Ammo, AmmoPickup, Weapon::Gun8),
+		ObjTC(GUN9AMMO3, Ammo, AmmoPickup, Weapon::Gun9),
 
 		ObjTC(APPLE, Pickups, Food, 1),
 		ObjTC(BANANA, Pickups, Food, 2),

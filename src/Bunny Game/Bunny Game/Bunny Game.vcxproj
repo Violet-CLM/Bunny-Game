@@ -188,6 +188,7 @@
     <ClInclude Include="BunnyObjectList.h" />
     <ClInclude Include="BunnyShaders.h" />
     <ClInclude Include="BunnyVersionDependentStuff.h" />
+    <ClInclude Include="BunnyWeapons.h" />
     <ClInclude Include="Diamondus.h" />
     <ClInclude Include="Bunny.h" />
     <ClInclude Include="Pickups.h" />
