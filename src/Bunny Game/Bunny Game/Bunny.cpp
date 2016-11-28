@@ -5,23 +5,23 @@
 
 enum char2Indices { char2JAZZ, char2SPAZ, char2LORI }; //todo better solution elsewhere
 
-Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), platformType(PlatformTypes::None), AccelerationX(0), SpeedY(0), AccelerationY(0), playerID(0), platform_relX(0), platform_relY(0), freeze(0), invincibility(0), airBoard(0), helicopter(0), helicopterTotal(0), specialJump(0), dive(0), lastDive(0), fire(0), lastFire(0), lastDownAttack(0), hit(0), DirectionKeyX(0), DirectionKeyY(0), moveSpeedX(0), moveSpeedY(0), fixScrollX(0), quakeX(0), warpCounter(0), frogMorph(0), bossActive(0), vPole(0), swim(0), stop(0), stoned(0), stonedLen(0), spring(0), specialMove(0), slope(0), shiftPositionX(0), runDash(0), run(0), lastRun(0), rolling(0), quake(0), platform(0), ledgeWiggle(0), lastSpring(0), lastJump(0), idleTime(0), hPole(0), hang(0), vine(0), goUp(0), goRight(0), goLeft(0), goDown(0), goFarDown(0), fly(0), fixStartX(0), downAttack(DOWNATTACKLEN), charCurr(0), characterIndex(RandFac(1)), beMoved(0), sugarRush(0), sucked(0), shieldType(0), shieldTime(0), morph(0), flicker(0), fixAnim(false), frameCount(0), animSpeed(0), warpFall(0), warpArea(0), viewSkipAverage(0), skid(0), pushObject(0), push(0), poleSpeed(0), lookVP(0), lookVPAmount(0), lift(0), lastPush(0), lastLookVP(0), idleTrail(0), idleExtra(0), idleAnim(0), fireSpeed(0), fireDirection(0)
+Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), platformType(PlatformTypes::None), AccelerationX(0), SpeedY(0), AccelerationY(0), playerID(0), platform_relX(0), platform_relY(0), freeze(0), invincibility(0), airBoard(0), helicopter(0), helicopterTotal(0), specialJump(0), dive(0), lastDive(0), fire(0), lastFire(0), lastDownAttack(0), hit(0), DirectionKeyX(0), DirectionKeyY(0), moveSpeedX(0), moveSpeedY(0), fixScrollX(0), quakeX(0), warpCounter(0), frogMorph(0), bossActive(0), vPole(0), swim(0), stop(0), stoned(0), stonedLen(0), spring(0), specialMove(0), slope(0), shiftPositionX(0), runDash(0), run(0), lastRun(0), rolling(0), quake(0), platform(0), ledgeWiggle(0), lastSpring(0), lastJump(0), idleTime(0), hPole(0), hang(0), vine(0), goUp(0), goRight(0), goLeft(0), goDown(0), goFarDown(0), fly(0), fixStartX(0), downAttack(DOWNATTACKLEN), charCurr(0), beMoved(0), sugarRush(0), sucked(0), shieldType(0), shieldTime(0), morph(0), flicker(0), fixAnim(false), frameCount(0), animSpeed(0), warpFall(0), warpArea(0), viewSkipAverage(0), skid(0), pushObject(0), push(0), poleSpeed(0), lookVP(0), lookVPAmount(0), lift(0), lastPush(0), lastLookVP(0), idleTrail(0), idleExtra(0), idleAnim(0), fireSpeed(0), fireDirection(0)
 {
-	if (characterIndex == char2SPAZ)
+	//the order here is important; Bunny::PlayerProperties::Object should remain nullptr so that operator= can be called in the other direction at the end of the level
+	PlayerProperties = Players[playerID];
+	Players[playerID].Object = this;
+
+	if ((PlayerProperties.CharacterIndex = RandFac(1)) == char2SPAZ) //todo assign character elsewhere, obviously
 		Set = AnimationSets[GetVersionSpecificAnimationID(AnimSets::Spaz)];
-	else if (characterIndex == char2LORI)
+	else if (PlayerProperties.CharacterIndex == char2LORI)
 		Set = AnimationSets[AnimSets::Lori];
-	AnimID = 67;
+	AssignAnimation(RabbitAnims::STAND);
 	DetermineFrame(1);
 	DirectionX = DirectionY = 1;
 	ObjectType = BunnyObjectType::Player;
 	CollisionShapes.emplace_back(18,32);
 
 	Health = START_HEALTH;
-
-	//the order here is important; Bunny::PlayerProperties::Object should remain nullptr so that operator= can be called in the other direction at the end of the level
-	PlayerProperties = Players[playerID];
-	Players[playerID].Object = this;
 }
 void Bunny::EatFood() {
 	if (((PlayerProperties.Food += 1) % 100) == 0) {
@@ -78,7 +78,7 @@ void Bunny::ProcessInputNoAirboard() {
 				xSpeed = 31 * xSpeed / 32;
 			}
 		}
-		else*/ /*if (!(helicopter && characterProfile[characterIndex].helicopterXSpeed))*/ { //not swimming, not controlled by helicopter xSpeed //todo? character profiles
+		else*/ /*if (!(helicopter && characterProfile[PlayerProperties.CharacterIndex].helicopterXSpeed))*/ { //not swimming, not controlled by helicopter xSpeed //todo? character profiles
 			if (runDash >= 0 && !beMoved) {
 				if (DirectionKeyX) {
 					runDash = 0;
@@ -167,7 +167,7 @@ void Bunny::ProcessInputJumpFallStuff() {
 	//for everything after this, move->jump == 1
 	if (swim) {
 		/*if (PositionY < GameGlobals->level.waterLevel + 32 * FIXMUL) { //todo swimming
-			;//PlaySample(PositionX, PositionY, (characterIndex != char2LORI) ? sCOMMON_JUMP : (RandFac(3) + sLORISOUNDS_LORIJUMP), 40, 0);
+			;//PlaySample(PositionX, PositionY, (PlayerProperties.CharacterIndex != char2LORI) ? sCOMMON_JUMP : (RandFac(3) + sLORISOUNDS_LORIJUMP), 40, 0);
 			swim = spring = helicopterTotal = specialJump = 0;
 			SpeedY = jumpSpeed - 4 * FIXMUL;
 		}*/
@@ -179,8 +179,8 @@ void Bunny::ProcessInputJumpFallStuff() {
 	}
 	if (SpeedY > 0 || (SpeedY < 0 && helicopter)) { //helicopter check is new
 		if (lastJump >= 5 && lastJump < 30) { //press jump in midair
-			//tCharacterProfile* profile = &characterProfile[characterIndex]; //todo? character indices
-			if (characterIndex == char2SPAZ) {// profile->airJump == airjumpSPAZ) { //change, -ish
+			//tCharacterProfile* profile = &characterProfile[PlayerProperties.CharacterIndex]; //todo? character indices
+			if (PlayerProperties.CharacterIndex == char2SPAZ) {// profile->airJump == airjumpSPAZ) { //change, -ish
 				if (specialJump < 1) { //profile->doubleJumpCountMax) {
 					++specialJump;
 					//if (onWallClimb()) //this part can (and nearly must) be done even if you're buttstomping
@@ -226,7 +226,7 @@ void Bunny::ProcessInputJumpFallStuff() {
 			}
 		}
 		else if (platform == 0 || platformType != 4) {
-			//;//PlaySample(PositionX, PositionY, (characterIndex != char2LORI) ? sCOMMON_JUMP : (RandFac(3) + sLORISOUNDS_LORIJUMP), 40, 0); //todo sample
+			//;//PlaySample(PositionX, PositionY, (PlayerProperties.CharacterIndex != char2LORI) ? sCOMMON_JUMP : (RandFac(3) + sLORISOUNDS_LORIJUMP), 40, 0); //todo sample
 			SpeedY = -10 - (abs(SpeedX) / 4); //jumpSpeed = -10
 		}
 		spring = 0;
@@ -235,7 +235,7 @@ void Bunny::ProcessInputJumpFallStuff() {
 	}
 	else {
 		if (!(((hang == 2) && (SpeedY != 0 || lastJump <= 2)) || hang == 0 || SpeedY != 0)) { //was <= 8, but that was more sensitive than needed just for preventing jumping up through hooks
-			//;//PlaySample(PositionX, PositionY, (characterIndex != char2LORI) ? sCOMMON_JUMP : (RandFac(3) + sLORISOUNDS_LORIJUMP), 40, 0); //todo sample
+			//;//PlaySample(PositionX, PositionY, (PlayerProperties.CharacterIndex != char2LORI) ? sCOMMON_JUMP : (RandFac(3) + sLORISOUNDS_LORIJUMP), 40, 0); //todo sample
 			SpeedY = -10;
 			helicopterTotal = specialJump = 0;
 			//if (!getPlayerVarSettingLocal(pvANTIGRAV)) //todo no fire zones
@@ -277,7 +277,7 @@ void Bunny::ProcessInputStuffWithFlyAndSwim() {
 		}
 	}
 	else if (!fly) {
-		if (helicopter <= 0) {// || helicopterTotal >= characterProfile[characterIndex].helicopterDurationMax) { //todo? character profiles
+		if (helicopter <= 0) {// || helicopterTotal >= characterProfile[PlayerProperties.CharacterIndex].helicopterDurationMax) { //todo? character profiles
 			helicopterTotal = helicopter = 0;
 			AccelerationY = 0;
 		}
@@ -285,7 +285,7 @@ void Bunny::ProcessInputStuffWithFlyAndSwim() {
 			--helicopter;
 			++helicopterTotal;
 			//loopSample = PlayLoopSample(xPos, yPos, sCOMMON_HELI1, 25, 32000, loopSample); //todo sample
-			const float maxSpeedY = 1;// characterProfile[characterIndex].helicopterSpeedY; //todo? character profiles
+			const float maxSpeedY = 1;// characterProfile[PlayerProperties.CharacterIndex].helicopterSpeedY; //todo? character profiles
 			if (maxSpeedY >= 0) {
 				if (SpeedY >= 0) {
 					AccelerationY = maxSpeedY / 128;
@@ -304,7 +304,7 @@ void Bunny::ProcessInputStuffWithFlyAndSwim() {
 				else
 					AccelerationY = -0.375f;
 			}
-			/*if (int maxXSpeed = characterProfile[characterIndex].helicopterXSpeed) {
+			/*if (int maxXSpeed = characterProfile[PlayerProperties.CharacterIndex].helicopterXSpeed) {
 				if (DirectionX < 0) maxXSpeed = -maxXSpeed;
 				xAcc = maxXSpeed / 32;
 				if (maxXSpeed >= 0) {
@@ -465,7 +465,7 @@ void Bunny::ProcessInput()
 		//return ProcessBirdInput(move);
 	LowerToZero(frogMorph);
 	LowerToZero(beMoved);
-	//if (characterIndex == char2FROG)
+	//if (PlayerProperties.CharacterIndex == char2FROG)
 		//return ProcessFrogInput(move);
 	if (hang == 2) { //hook, not vine
 		AccelerationX = 0;
@@ -571,7 +571,7 @@ void Bunny::ProcessInput()
 				lastDownAttack = dive = 0;
 			downAttack = downAttack;
 		}
-		if (KeyRun){// && characterProfile[characterIndex].canRun) { //changed //todo? character profiles
+		if (KeyRun){// && characterProfile[PlayerProperties.CharacterIndex].canRun) { //changed //todo? character profiles
 			run = std::min(32, run + 1);
 			if (lastRun > 2 && lastRun < 15 && !runDash)
 				runDash = 1;
@@ -714,7 +714,7 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 		AccelerationX = 0;
 	}
 
-	if (true) {// if (IsRabbit(characterIndex)) {	//todo !BIRD  and !FROG!!!!!!!!
+	if (true) {// if (IsRabbit(PlayerProperties.CharacterIndex)) {	//todo !BIRD  and !FROG!!!!!!!!
 		if (stonedLen) {
 			if (SpeedX > 2) {
 				SpeedX = 2;
@@ -757,7 +757,7 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 			SpeedX = 0;
 			if (downAttack >= DOWNATTACKWAIT) {
 				if (downAttack == DOWNATTACKWAIT) {
-					//if (characterIndex == char2SPAZ) { //todo sound
+					//if (PlayerProperties.CharacterIndex == char2SPAZ) { //todo sound
 					//	;//PlaySample(PositionX, PositionY, sSPAZSOUNDS_YAHOO, 0, 0);
 					//}
 				}
@@ -841,7 +841,7 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 			mSpeedY = SpeedY;
 
 		}
-		else if (characterIndex == char2FROG) {
+		else if (PlayerProperties.CharacterIndex == char2FROG) {
 
 			if (goDown && !stop) {
 				if (SpeedY < 0) {
@@ -942,7 +942,7 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 				idleTime = 0;
 			} else if (eventHere.ID == EventIDs::FLOATUP) {
 				SpeedY -= (8 - abs(SpeedY));
-				/*if (characterIndex != char2FROG)*/ AccelerationY = -0.5f; //todo frog?
+				/*if (PlayerProperties.CharacterIndex != char2FROG)*/ AccelerationY = -0.5f; //todo frog?
 				mSpeedY = SpeedY;
 				if (mSpeedY > 4) {
 					mSpeedY = 4;
@@ -1030,7 +1030,7 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 
 	//first: check if we gonna hit a vine
 	//if (mSpeedY>=0)
-	if (!fly) {// && characterIndex != char2FROG) { //todo frog
+	if (!fly) {// && PlayerProperties.CharacterIndex != char2FROG) { //todo frog
 		for (ty = (gravDir == 1 ? -8 : 11); ty; ty += gravDir) {
 			check = gameState.MaskedHLine(px, py + ty, 24);
 			if (!check) {	//really nothing there
@@ -1215,7 +1215,7 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 	}
 
 	goDown = !gameState.MaskedHLine(px, py + ((gravDir == 1) ? 25 : -25), 24, tileAttr);
-	if ((tileAttr.ID == EventIDs::VINE || tileAttr.ID == EventIDs::HOOK) && !hang/* && characterIndex != char2FROG*/) {
+	if ((tileAttr.ID == EventIDs::VINE || tileAttr.ID == EventIDs::HOOK) && !hang/* && PlayerProperties.CharacterIndex != char2FROG*/) {
 		goDown = true;
 	}
 
@@ -1572,7 +1572,7 @@ void Bunny::DoZoneDetection(Event& curEvent, unsigned int gameTicks)
 		break;*/
 
 	/*case aMORPHFROG:
-		if (characterIndex != char2FROG) {
+		if (PlayerProperties.CharacterIndex != char2FROG) {
 			;//PlaySample(PositionX, PositionY, sFROG_JAZZ2FROG, 0, 0);
 
 			//added so that the local client tells other clients/server of a change in
@@ -1646,7 +1646,7 @@ void Bunny::DoZoneDetection(Event& curEvent, unsigned int gameTicks)
 		break;*/
 
 	case EventIDs::HPOLE:
-		if (!fly) {// && IsRabbit(characterIndex)) { //todo frog, bird
+		if (!fly) {// && IsRabbit(PlayerProperties.CharacterIndex)) { //todo frog, bird
 			if (currentTilePosition != lastTilePosition || hPole < -5) {
 				if (SpeedX > 0) {
 					AccelerationX = SpeedX + 8;
@@ -1673,7 +1673,7 @@ void Bunny::DoZoneDetection(Event& curEvent, unsigned int gameTicks)
 
 
 	case EventIDs::VPOLE:
-		if (!fly) { // && IsRabbit(characterIndex)) {//todo frog, bird
+		if (!fly) { // && IsRabbit(PlayerProperties.CharacterIndex)) {//todo frog, bird
 			if (currentTilePosition != lastTilePosition || vPole < -5) {
 				if (SpeedY > 0)
 					SpeedY = 16;
@@ -1853,9 +1853,9 @@ inline void Bunny::CenterInTile(bool x, bool y)
 void Bunny::PoleSamples() const {
 	/*if (!SoundGlobals->soundEnabled)
 		return;
-	if (play.characterIndex != char2SPAZ) {
+	if (play.PlayerProperties.CharacterIndex != char2SPAZ) {
 		;//PlaySample(play.xPos, play.yPos, sCOMMON_SWISH5 + RandFac(3), 0, 0);
-		if (play.characterIndex == char2LORI)
+		if (play.PlayerProperties.CharacterIndex == char2LORI)
 			;//PlaySample(play.xPos, play.yPos, sLORISOUNDS_WEHOO, 0, 0);
 	}
 	else {
@@ -2049,7 +2049,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 					Sound_UpdateVolume();
 				}
 				if (frameCount == 0) {
-					if (characterIndex == char2JAZZ) {
+					if (PlayerProperties.CharacterIndex == char2JAZZ) {
 						int samplePositionX = PositionX, sampleFrequency = 0, sampleVolume, sampleSample = 0; //todo samples
 						switch (FrameID) {
 						case 0:
@@ -2088,7 +2088,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 						if (sampleSample)
 							;//PlaySample(samplePositionX, PositionY, sampleSample, sampleVolume, sampleFrequency);
 					}
-					else if (characterIndex == char2SPAZ) {
+					else if (PlayerProperties.CharacterIndex == char2SPAZ) {
 						int samplePositionX = PositionX, sampleFrequency, sampleVolume, sampleSample = 0; //todo samples
 						switch (FrameID) {
 						case 1:
@@ -2122,7 +2122,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 						if (sampleSample)
 							;//PlaySample(samplePositionX, PositionY, sampleSample, sampleVolume, sampleFrequency);
 					}
-					else if (characterIndex == char2LORI && FrameID == 1) {
+					else if (PlayerProperties.CharacterIndex == char2LORI && FrameID == 1) {
 						;//PlaySample(PositionX, PositionY, sLORISOUNDS_DIE1, 0, 0);
 					}
 				}
@@ -2293,7 +2293,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 		if (fly > 1) { //some sort of object
 			if (lastFire >= fireSpeed + 25) {
 				if (!fixAnim)
-					AssignAnimation(((characterIndex != char2SPAZ) && (idleTime % (AISPEED * 2) <= AISPEED)) ? RabbitAnims::HANGIDLE1 : RabbitAnims::HANGIDLE2, 7);
+					AssignAnimation(((PlayerProperties.CharacterIndex != char2SPAZ) && (idleTime % (AISPEED * 2) <= AISPEED)) ? RabbitAnims::HANGIDLE1 : RabbitAnims::HANGIDLE2, 7);
 			}
 			else if (fireDirection == 8) { //up
 				if (lastFire > fireSpeed + 10) {
@@ -2330,13 +2330,13 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 		}
 	}
 	else if (specialMove) {
-		if (characterIndex == char2JAZZ || characterIndex == char2SPAZ) {
+		if (PlayerProperties.CharacterIndex == char2JAZZ || PlayerProperties.CharacterIndex == char2SPAZ) {
 			if (specialMove < 28)
 				AssignAnimation(RabbitAnims::STATIONARYJUMPSTART, ANIM_SPEED_MAX, false, specialMove / 4);
 			else if (specialMove < 70 && !fixAnim)
 				AssignAnimation(RabbitAnims::STATIONARYJUMP, 4);
 		}
-		else if (characterIndex == char2LORI) {
+		else if (PlayerProperties.CharacterIndex == char2LORI) {
 			const int specificFrameIDInLorisAttack = 4 * GetFrameCount() - 4;
 			if (specialMove >= specificFrameIDInLorisAttack) {
 				beMoved = 0;
@@ -2395,7 +2395,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 				}
 			}
 			else if (!fixAnim) {
-				if (characterIndex != char2JAZZ)
+				if (PlayerProperties.CharacterIndex != char2JAZZ)
 					AssignAnimation(RabbitAnims::HANGIDLE2, 7);
 				else
 					AssignAnimation((idleTime % (AISPEED * 2) <= AISPEED) ? RabbitAnims::HANGIDLE1 : RabbitAnims::HANGIDLE2, 7);
@@ -2550,7 +2550,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 			}
 			else if (ledgeWiggle > 0) {
 				idleTime = 0;
-				if ((++ledgeWiggle <= 5 * GetFrameCount()) || (characterIndex != char2JAZZ && (ledgeWiggle = 0, true))) { //JJ2+ change; "!= JAZZ" was "== SPAZ"
+				if ((++ledgeWiggle <= 5 * GetFrameCount()) || (PlayerProperties.CharacterIndex != char2JAZZ && (ledgeWiggle = 0, true))) { //JJ2+ change; "!= JAZZ" was "== SPAZ"
 					if (!fixAnim) {
 						if (!UsesAnimation(RabbitAnims::LEDGEWIGGLE)) {
 							FrameID = 0;
@@ -2568,11 +2568,11 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 					}
 					animSpeed = 5;
 				}
-				if (!frameCount && FrameID == 1 && characterIndex != char2LORI && UsesAnimation(RabbitAnims::LEDGEWIGGLE)) {
-					;//PlaySample(PositionX, PositionY, (characterIndex == char2JAZZ) ? sJAZZSOUNDS_BALANCE : sSPAZSOUNDS_WOOHOO, 0, 0);
+				if (!frameCount && FrameID == 1 && PlayerProperties.CharacterIndex != char2LORI && UsesAnimation(RabbitAnims::LEDGEWIGGLE)) {
+					;//PlaySample(PositionX, PositionY, (PlayerProperties.CharacterIndex == char2JAZZ) ? sJAZZSOUNDS_BALANCE : sSPAZSOUNDS_WOOHOO, 0, 0);
 				}
 			}
-			else if (characterIndex == char2JAZZ && idleTime > AISPEED * 3) {
+			else if (PlayerProperties.CharacterIndex == char2JAZZ && idleTime > AISPEED * 3) {
 				if (AnimID == idleAnim) {
 					if (!fixAnim) {
 						idleTime = AISPEED;
@@ -2625,7 +2625,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 				}
 			}
 			else {
-				if (characterIndex == char2SPAZ && idleTime > AISPEED * 2) {
+				if (PlayerProperties.CharacterIndex == char2SPAZ && idleTime > AISPEED * 2) {
 					if (AnimID == idleAnim && !fixAnim) {
 						idleTime = 1;
 						fixAnim = 0;
@@ -2728,7 +2728,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 					else if (idleAnim == RabbitAnimIDs[RabbitAnims::IDLE4] && FrameID == 5)
 						;//PlaySample(PositionX, PositionY, sSPAZSOUNDS_BURP, 0, 22050);
 				}
-				else if (characterIndex == char2LORI && idleTime > AISPEED * 2) {
+				else if (PlayerProperties.CharacterIndex == char2LORI && idleTime > AISPEED * 2) {
 					idleTime = 0;
 					const int pickIdleAnimation = RandFac(7) - 2;
 					if (pickIdleAnimation == 0) {
@@ -2877,7 +2877,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 		}
 	}
 	else {
-		if (!UsesAnimation(RabbitAnims::ROLLING) && characterIndex == char2SPAZ) {
+		if (!UsesAnimation(RabbitAnims::ROLLING) && PlayerProperties.CharacterIndex == char2SPAZ) {
 			const int spazSoundEffect = RandFac(3);
 			if (spazSoundEffect <= 1)
 				;//PlaySample(PositionX, PositionY, spazSoundEffect ? sSPAZSOUNDS_WOOHOO : sSPAZSOUNDS_OHOH, 0, 0);
@@ -2899,7 +2899,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 				lookVPAmount = 0;
 		}
 	}
-	if (characterIndex == char2SPAZ && idleTrail > 0 && idleTime < AISPEED * 2) { //part of issue #96
+	if (PlayerProperties.CharacterIndex == char2SPAZ && idleTrail > 0 && idleTime < AISPEED * 2) { //part of issue #96
 		if (idleExtra == 0)
 			idleAnim = RabbitAnimIDs[RabbitAnims::IDLE1];
 		if (++idleExtra > AISPEED) {
@@ -2911,7 +2911,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 void Bunny::ProcessActionFire() {
 }
 bool Bunny::ProcessActionSpecialMove() {
-	if (characterIndex == char2JAZZ) {
+	if (PlayerProperties.CharacterIndex == char2JAZZ) {
 		if (goUp) {
 			if (specialMove < 16)
 				SpeedX = SpeedY = 0;
@@ -2921,7 +2921,7 @@ bool Bunny::ProcessActionSpecialMove() {
 				return false;
 		} else
 			return false;
-	} else if (characterIndex == char2SPAZ) {
+	} else if (PlayerProperties.CharacterIndex == char2SPAZ) {
 		if (DirectionX >= 0) {
 			if (!goRight) { SpeedX = SpeedY = 0; return false; }
 		} else if (!goLeft) { SpeedX = SpeedY = 0; return false; }
@@ -2961,7 +2961,7 @@ void Bunny::ProcessAction(unsigned int gameTicks)
 
 	/*if (charCurr == mBIRD) //todo non-rabbits
 		AdjustBirdPlayer(playerID);
-	else if (characterIndex == char2FROG)
+	else if (PlayerProperties.CharacterIndex == char2FROG)
 		AdjustFrogPlayer(playerID);
 	else*/ {
 		if (runDash < 0) {
@@ -3034,7 +3034,7 @@ void Bunny::ProcessAction(unsigned int gameTicks)
 		}
 	}
 
-	//if (characterIndex != char2FROG && characterIndex != char2BIRDBLUE) //todo non-rabbits
+	//if (PlayerProperties.CharacterIndex != char2FROG && PlayerProperties.CharacterIndex != char2BIRDBLUE) //todo non-rabbits
 		ProcessActionFire();
 	/*if (charCurr != mFROG)*/ { //todo non-rabbits
 		ApproachZero(morph);

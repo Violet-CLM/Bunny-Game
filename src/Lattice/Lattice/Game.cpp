@@ -62,7 +62,7 @@ int Lattice::StartGame(int argc, char *argv[])
 	std::wstring filename = L"C:\\Games\\Jazz2\\Diam3.j2l";
 	if (argc == 2) {
 		std::wstring proposedFilename = WStringFromCharArray(argv[1]);
-		if (!(proposedFilename.length() > 4 && proposedFilename.substr(filename.length() - 5, 4) == L".j2l"))
+		if (!(proposedFilename.length() > 4 && proposedFilename.substr(filename.length() - 4, 4) == L".j2l"))
 			proposedFilename += L".j2l";
 		filename = proposedFilename;
 	}

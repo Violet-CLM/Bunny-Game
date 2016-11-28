@@ -227,6 +227,15 @@ AnimFrame& AnimFrame::Get(int setID, int animID, int frameID)
 {
 	return (*AnimationSets[setID]->Animations[animID].AnimFrames)[frameID];
 }
+AnimFrame& AnimFrame::GetLimited(int setID, int animID, int frameID)
+{
+	auto& animFrames = *AnimationSets[setID]->Animations[animID].AnimFrames;
+	if (animFrames.size() == 0)
+		frameID = 0;
+	else
+		frameID %= animFrames.size();
+	return animFrames[frameID];
+}
 Animation::Animation(const sf::Uint8*& animInfoData, const sf::Uint8*& frameInfoData, const sf::Uint8* const imageData)
 {
 	memcpy((char*)this, animInfoData, NumberOfBytesToReadFromFile);

@@ -1,4 +1,4 @@
 #pragma once
 #include "Drawing.h"
 
-void DrawPlayerHUD(VertexCollectionQueue&);
+void DrawPlayerHUD(VertexCollectionQueue&, unsigned int);

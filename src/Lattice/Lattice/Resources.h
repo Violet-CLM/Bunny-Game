@@ -72,6 +72,7 @@ public:
 	bool SmallerThan(unsigned int) const;
 
 	static AnimFrame& Get(int, int, int);
+	static AnimFrame& GetLimited(int, int, int); //frameID is moduloed to fit
 };
 class Animation {
 private:

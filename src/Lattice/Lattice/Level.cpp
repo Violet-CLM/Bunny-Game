@@ -223,7 +223,7 @@ void Level::Update(ObjectActivityFunction& updateActiveObjects, ObjectCollisionT
 		Layers[layerID].Update(GameTicks, AnimOffset, Camera);
 
 	HUD.Collections.resize(0);
-	updateHUD(HUD);
+	updateHUD(HUD, GameTicks);
 }
 
 bool GameState::MaskedPixel(int x, int y) const {
