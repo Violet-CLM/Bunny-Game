@@ -95,7 +95,7 @@ GameObject& ObjectInitialization::AddObject(Level& level, Event& ev, float x, fl
 
 
 unsigned int GameObject::GetFrameCount() const {
-	return Set->Animations[AnimID].AnimFrames->size();
+	return (unsigned int)Set->Animations[AnimID].AnimFrames->size();
 }
 void GameObject::DetermineFrame(unsigned int frameID)
 {

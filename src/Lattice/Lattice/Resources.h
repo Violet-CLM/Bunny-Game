@@ -77,12 +77,13 @@ class Animation {
 private:
 	sf::Uint16 FrameCount;
 	sf::Uint16 FPS;
+	const static size_t NumberOfBytesToReadFromFile = 8;
 public:
 	std::unique_ptr<std::vector<AnimFrame>> AnimFrames;
 
 	Animation(const sf::Uint8*&, const sf::Uint8*&, const sf::Uint8* const);
 };
-static_assert(sizeof(Animation) == 8, "Animation incorrect size!");
+
 class AnimSet {
 private:
 	char AnimationCount;   // Number of animations in set

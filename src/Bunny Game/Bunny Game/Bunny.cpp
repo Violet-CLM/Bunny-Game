@@ -12,6 +12,8 @@ Bunny::Bunny(ObjectStartPos & objStart) : BunnyObject(objStart), SpeedX(0), plat
 	DirectionX = DirectionY = 1;
 	ObjectType = BunnyObjectType::Player;
 	CollisionShapes.emplace_back(18,32);
+
+	Health = 5;
 }
 //void Bunny::Draw(Layer *) const
 //{

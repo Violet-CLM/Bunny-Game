@@ -15,6 +15,7 @@ class Bunny : public BunnyObject {
 	int fire, lastFire, lastDownAttack, freeze, invincibility, airBoard, helicopter, helicopterTotal, specialJump, dive, lastDive, hit, DirectionKeyX, DirectionKeyY, warpCounter, frogMorph, bossActive, vPole, swim, stop, stoned, stonedLen, spring, specialMove, slope, runDash, run, lastRun, rolling, quake, platform, ledgeWiggle, lastSpring, lastJump, idleTime, hPole, hang, vine, fly, fixStartX, downAttack, charCurr, characterIndex, beMoved, lastTilePosition, sugarRush, sucked, shieldType, shieldTime, morph, flicker, frameCount, animSpeed, warpFall, warpArea, viewSkipAverage, skid, pushObject, push, lookVP, lookVPAmount, lift, lastPush, lastLookVP, idleTrail, idleExtra, idleAnim, health, fireSpeed, fireDirection;
 	bool goUp, goRight, goLeft, goDown, goFarDown, fixAnim;
 	Event* LastSuckerTube;
+	int Health;
 
 	void GetInput(const KeyStates&);		//461C20
 	void ProcessInput();					//435AC0

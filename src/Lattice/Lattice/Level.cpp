@@ -142,15 +142,16 @@ bool Level::ProcessLevelData(PreloadedAnimationsList defaultAnimList, ObjectList
 	data1Ptr += 2 * numberOfTilesInData1Arrays; //skip over XMask
 	AnimatedTiles.resize(AnimCount);
 	memcpy(AnimatedTiles.data(), data1Ptr, AnimCount * sizeof(AnimatedTile));
-	for (std::vector<AnimatedTile>::iterator it = AnimatedTiles.begin(); it != AnimatedTiles.end(); ++it) {
+	for (auto& it : AnimatedTiles) {
 		if (needToUpdateRawTileValues)
-			it->UpdateLevelVersion(AnimOffset - 0xC00);
-		it->GenerateFullFrameList(AnimatedTileFrames);
+			it.UpdateLevelVersion(AnimOffset - 0xC00);
+		it.GenerateFullFrameList(AnimatedTileFrames);
 	}
 	int animTileID = AnimOffset;
-	for (std::vector<AnimatedTile>::iterator it = AnimatedTiles.begin(); it != AnimatedTiles.end(); ++it, ++animTileID) {
-		QuadsPerTile[animTileID] = QuadsPerTile[it->CurFrame.ID];
-		TilesetPtr->CopyMask(animTileID, it->CurFrame.ID);
+	for (const auto& it : AnimatedTiles) {
+		QuadsPerTile[animTileID] = QuadsPerTile[it.CurFrame.ID];
+		TilesetPtr->CopyMask(animTileID, it.CurFrame.ID);
+		++animTileID;
 	}
 
 	//more bytes may be stored after this in the .j2l depending on which level editor was used, but they're all useless
@@ -183,12 +184,13 @@ void Level::UpdateAnimatedTiles() {
 	int animTileID = AnimOffset;
 	const auto time = getCurrentTime();
 
-	for (std::vector<AnimatedTile>::iterator it = AnimatedTiles.begin(); it != AnimatedTiles.end(); ++it, ++animTileID) {
-		it->Update(time);
-		if (it->CurFrame.ID != it->LastCurFrame) {
-			QuadsPerTile[animTileID] = QuadsPerTile[it->CurFrame.ID];
-			TilesetPtr->CopyMask(animTileID, it->CurFrame.ID);
+	for (auto& it : AnimatedTiles) {
+		it.Update(time);
+		if (it.CurFrame.ID != it.LastCurFrame) {
+			QuadsPerTile[animTileID] = QuadsPerTile[it.CurFrame.ID];
+			TilesetPtr->CopyMask(animTileID, it.CurFrame.ID);
 		}
+		++animTileID;
 	}
 }
 void Level::Update(ObjectActivityFunction& updateActiveObjects, ObjectCollisionTestFunction& collideObjects, HUDUpdateFunction& updateHUD, KeyStates& keys)

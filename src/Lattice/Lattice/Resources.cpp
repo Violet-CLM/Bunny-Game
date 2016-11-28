@@ -59,21 +59,16 @@ bool AnimFile::ReadAnims(std::wstring& Filepath, PreloadedAnimationsList& setIDs
 	
 
 	std::vector<AnimFrame*> SpriteTexturesSortedBySize;
-	for (std::vector<AnimSet*>::const_iterator it = AnimationSets.begin(); it != AnimationSets.end(); ++it) { //find ALL animframes, regardless of their parent animations
-		if (*it != nullptr) {
-			std::vector<Animation>& animations = (*it)->Animations;
-			for (std::vector<Animation>::const_iterator jt = animations.begin(); jt != animations.end(); ++jt) {
-				std::vector<AnimFrame>& animFrames = (*jt->AnimFrames);
-				for (std::vector<AnimFrame>::iterator kt = animFrames.begin(); kt != animFrames.end(); ++kt)
-					SpriteTexturesSortedBySize.push_back(&(*kt));
-			}
-		}
-	}
+	for (const auto& it : AnimationSets) //find ALL animframes, regardless of their parent animations
+		if (it != nullptr)
+			for (const auto& jt : it->Animations)
+				for (auto& kt : *jt.AnimFrames)
+					SpriteTexturesSortedBySize.push_back(&kt);
 	std::sort(SpriteTexturesSortedBySize.begin(), SpriteTexturesSortedBySize.end(), AnimFrame::SortBySize);
 
 	unsigned int hardwareMaximumTextureSize = sf::Texture::getMaximumSize(); //todo move somewhere else?
-	for (std::vector<AnimFrame*>::iterator it = SpriteTexturesSortedBySize.begin(); it != SpriteTexturesSortedBySize.end(); ++it) {
-		if (!(*it)->SmallerThan(hardwareMaximumTextureSize))
+	for (auto& it : SpriteTexturesSortedBySize) {
+		if (!it->SmallerThan(hardwareMaximumTextureSize))
 			continue;
 
 		for (unsigned int textureID = 0; ; ++textureID) {
@@ -90,9 +85,9 @@ bool AnimFile::ReadAnims(std::wstring& Filepath, PreloadedAnimationsList& setIDs
 			if (SpriteTrees[textureID] == nullptr)
 				continue;
 
-			SpriteCoordinateRectangle* textureCoordinates = SpriteTrees[textureID]->placeSprite((*it)->Width, (*it)->Height);
+			SpriteCoordinateRectangle* textureCoordinates = SpriteTrees[textureID]->placeSprite(it->Width, it->Height);
 			if (textureCoordinates != nullptr) {
-				(*it)->AssignTextureDetails(textureID, textureCoordinates);
+				it->AssignTextureDetails(textureID, textureCoordinates);
 				break;
 			}
 		}
@@ -115,12 +110,12 @@ bool AnimFile::ReadStream(std::ifstream& file) {
 		;//method should include its own debug messages
 	else {
 		file.read((char*)SetAddresses.data(), sizeof(unsigned int) * SetAddresses.size());
-		for (std::set<int>::const_iterator it = AnimSetIDs.begin(); it != AnimSetIDs.end(); ++it) {
+		for (const auto it : AnimSetIDs) {
 			//OutputDebugStringF(L"%d", *it);
-			if (AnimationSets.size() < size_t(1 + *it))
-				AnimationSets.resize(1 + *it);
-			file.seekg(SetAddresses[*it], std::ios_base::beg);
-			AnimationSets[*it] = new AnimSet(file);
+			if (AnimationSets.size() < size_t(1 + it))
+				AnimationSets.resize(1 + it);
+			file.seekg(SetAddresses[it], std::ios_base::beg);
+			AnimationSets[it] = new AnimSet(file);
 		}
 
 		return true;
@@ -194,9 +189,9 @@ SpriteCoordinateRectangle * SpriteTreeNode::placeSprite(const unsigned int width
 
 AnimFrame::AnimFrame(const sf::Uint8*& frameInfoData, const sf::Uint8* const imageData)
 {
-	memcpy((char*)this, frameInfoData, offsetof(AnimFrame, ImageAddress) + sizeof(ImageAddress));
-	frameInfoData += offsetof(AnimFrame, ImageAddress) + sizeof(ImageAddress) * 2; //skip MaskAddress
-	ImageAddress += int(imageData);
+	memcpy((char*)this, frameInfoData, offsetof(AnimFrame, ImageAddress) + 4); //4 instead of sizeof(ImageAddress) in case this is a 64-bit compilation
+	frameInfoData += offsetof(AnimFrame, ImageAddress) + 4 * 2; //skip MaskAddress
+	ImageAddress += UINT_PTR(imageData);
 
 	const sf::Uint32 alpha = (!(*(ImageAddress + 1) & 0x80u)) ? 0xFF000000u : 0x80000000u; //100% or 50% alpha
 	const sf::Uint8* mainSprite = ImageAddress + sizeof(sf::Uint16) * 2; //skip image-internal size//transparency declarations
@@ -234,12 +229,12 @@ AnimFrame& AnimFrame::Get(int setID, int animID, int frameID)
 }
 Animation::Animation(const sf::Uint8*& animInfoData, const sf::Uint8*& frameInfoData, const sf::Uint8* const imageData)
 {
-	memcpy((char*)this, animInfoData, sizeof(Animation));
-	animInfoData += sizeof(Animation);
+	memcpy((char*)this, animInfoData, NumberOfBytesToReadFromFile);
+	animInfoData += NumberOfBytesToReadFromFile;
 
-	AnimFrames = std::move(std::unique_ptr<std::vector<AnimFrame>>(new std::vector<AnimFrame>));
+	AnimFrames.reset(new std::vector<AnimFrame>);
 	for (int frameID = 0; frameID < FrameCount; ++frameID)
-		AnimFrames->push_back(AnimFrame(frameInfoData, imageData));
+		AnimFrames->emplace_back(frameInfoData, imageData);
 }
 AnimSet::AnimSet(std::ifstream& file)
 {
