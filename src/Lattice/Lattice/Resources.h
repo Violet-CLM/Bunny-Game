@@ -71,6 +71,9 @@ public:
 	static bool SortBySize(const AnimFrame* a, const AnimFrame* b) { return a->Area > b->Area; }
 	bool SmallerThan(unsigned int) const;
 
+	void MovePositionToGunSpotX(float&, bool) const;
+	void MovePositionToGunSpotY(float&, bool) const;
+
 	static AnimFrame& Get(int, int, int);
 	static AnimFrame& GetLimited(int, int, int); //frameID is moduloed to fit
 };

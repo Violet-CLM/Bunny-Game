@@ -223,6 +223,18 @@ bool AnimFrame::SmallerThan(unsigned int hardwareMaximumTextureSize) const
 {
 	return !(Width == 0 || Height == 0 || Width > hardwareMaximumTextureSize || Height > hardwareMaximumTextureSize);
 }
+void AnimFrame::MovePositionToGunSpotX(float& x, bool xFlipped) const {
+	if ( !xFlipped )
+		x += HotspotX - GunspotX;
+	else
+		x += GunspotX - HotspotX;
+}
+void AnimFrame::MovePositionToGunSpotY(float& y, bool yFlipped) const {
+	if ( !yFlipped )
+		y += HotspotY - GunspotY;
+	else
+		y += GunspotY - HotspotY;
+}
 AnimFrame& AnimFrame::Get(int setID, int animID, int frameID)
 {
 	return (*AnimationSets[setID]->Animations[animID].AnimFrames)[frameID];

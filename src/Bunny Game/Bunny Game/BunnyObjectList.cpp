@@ -27,6 +27,9 @@ ObjectList* GetObjectList() {
 		ObjTC(GUN8AMMO3, Ammo, AmmoPickup, Weapon::Gun8),
 		ObjTC(GUN9AMMO3, Ammo, AmmoPickup, Weapon::Gun9),
 
+		ObjTC(PLAYERBULLET1, Ammo, BlasterBullet, false),
+		ObjTC(PLAYERBULLETP1, Ammo, BlasterBullet, true),
+
 		ObjTC(APPLE, Pickups, Food, 1),
 		ObjTC(BANANA, Pickups, Food, 2),
 		ObjTC(BURGER, Pickups, Food, 11),

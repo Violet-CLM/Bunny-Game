@@ -38,7 +38,7 @@ class Bunny : public BunnyObject {
 		None, SwingingPlatform, SuckerTube
 	};
 	PlatformTypes platformType;
-	float platform_relX, platform_relY, moveSpeedX, moveSpeedY, fixScrollX, quakeX, shiftPositionX, poleSpeed;
+	float platform_relX, platform_relY, moveSpeedX, moveSpeedY, fixScrollX, quakeX, shiftPositionX, poleSpeed, fireAngle;
 	int playerID, fire, lastFire, lastDownAttack, airBoard, helicopter, helicopterTotal, specialJump, dive, lastDive, hit, DirectionKeyX, DirectionKeyY, warpCounter, frogMorph, bossActive, vPole, swim, stop, stoned, stonedLen, spring, specialMove, slope, runDash, run, lastRun, rolling, quake, platform, ledgeWiggle, lastSpring, lastJump, idleTime, hPole, hang, vine, fixStartX, downAttack, charCurr, beMoved, lastTilePosition, sugarRush, sucked, shieldType, shieldTime, morph, flicker, frameCount, animSpeed, warpFall, warpArea, viewSkipAverage, skid, pushObject, push, lookVP, lookVPAmount, lift, lastPush, lastLookVP, idleTrail, idleExtra, idleAnim, health, fireSpeed, fireDirection;
 	bool goUp, goRight, goLeft, goDown, goFarDown, fixAnim, fireHold;
 	Event* LastSuckerTube;
@@ -62,6 +62,9 @@ class Bunny : public BunnyObject {
 	void PoleSamples() const;
 	void ProcessAction(unsigned int);		//4348E0
 		void AddBullet();
+		void AddBullet(sf::Vector2f, float, bool=true);
+		void AddSingleBullet(float, sf::Vector2f, EventID, bool=true, float=0);
+		void AddSingleBullet(float, sf::Vector2f, EventID, float,float, bool=false);
 		bool ProcessActionFire();
 		bool ProcessActionSpecialMove();
 	void AdjustViewpoint(GameState&) const;	//43E560
