@@ -22,18 +22,20 @@ void Lattice::StartGame(sf::RenderWindow& window, std::wstring& Filepath)
 		LoadLevel(Filepath, DefaultAnimList, *ObjectInitializationList);
 }
 
-void Lattice::ProcessInput()
+bool Lattice::ProcessInput()
 {
 	sf::Event event;
 	while (Window->pollEvent(event))
 	{
-		if (event.type == sf::Event::Closed)
+		if (event.type == sf::Event::Closed) {
 			Window->close();
-		else if (event.type == sf::Event::KeyPressed)
+			return false;
+		} else if (event.type == sf::Event::KeyPressed)
 			Keys.SetKey(event.key.code, true);
 		else if (event.type == sf::Event::KeyReleased)
 			Keys.SetKey(event.key.code, false);
 	}
+	return true;
 }
 
 void Lattice::Update()
@@ -72,14 +74,16 @@ int Lattice::StartGame(int argc, char *argv[])
 
 	double previous = getCurrentTime();
 	double lag = 0.0;
-	while (window.isOpen())
+	while (true)
 	{
 		const double current = getCurrentTime();
 		const double elapsed = current - previous;
 		previous = current;
 		lag += elapsed;
 
-		ProcessInput();
+		if (!ProcessInput()) //false: window closed
+			break;
+
 		while (lag >= MS_PER_UPDATE)
 		{
 			Update();

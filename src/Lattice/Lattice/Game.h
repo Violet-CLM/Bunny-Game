@@ -54,7 +54,7 @@ public:
 	void SetHUDUpdateFunction(HUDUpdateFunction&);
 	void SetObjectList(ObjectList*);
 
-	void ProcessInput();
+	bool ProcessInput();
 	void Update();
 	void Render(double leftoverTimeElapsed);
 };
