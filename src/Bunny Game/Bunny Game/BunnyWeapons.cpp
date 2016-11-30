@@ -241,6 +241,7 @@ void PlayerBullet::Explode()
 
 BlasterBullet::BlasterBullet(ObjectStartPos& objStart, bool poweredUp) : PlayerBullet(objStart, Weapon::Blaster) {
 	AnimID = poweredUp ? 20 : 17;
+	CollisionShapes.emplace_back(11 + poweredUp*2, 4);
 	SpeedX = float(6 + poweredUp);
 	AccelerationX = poweredUp ? 0.1875f : 0.125f;
 	killAnimID = 4;

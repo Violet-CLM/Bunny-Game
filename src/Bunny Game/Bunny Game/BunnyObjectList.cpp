@@ -102,7 +102,9 @@ PreloadedAnimationsList GetDefaultAnimList() {
 }
 
 bool ObjectsShouldCollide(const GameObject& a, const GameObject& b) {
-	if (a.ObjectType == BunnyObjectType::Player && b.ObjectType == BunnyObjectType::Pickup)
+	if ((a.ObjectType == BunnyObjectType::Player || a.ObjectType == BunnyObjectType::PlayerBullet) && (b.ObjectType == BunnyObjectType::Pickup || b.ObjectType == BunnyObjectType::Enemy))
+		return true;
+	if (a.ObjectType == BunnyObjectType::Player && b.ObjectType == BunnyObjectType::EnemyBullet)
 		return true;
 	//todo
 	return false;
@@ -110,7 +112,7 @@ bool ObjectsShouldCollide(const GameObject& a, const GameObject& b) {
 
 void ShouldObjectsBeActive(Level& level) {
 	level.ForEachEvent([&level](Event& ev, int xTile, int yTile) {
-		if (!ev.Active && !ev.Difficulty && ObjectInitializationList.count(ev.ID) && ObjectInitializationList[ev.ID].CreateObjectFromEventMap) { //todo better difficulty check
+		if (!ev.Active && !ev.Difficulty /* ev.ID >= EventIDs::GUN3AMMO3*/ && ObjectInitializationList.count(ev.ID) && ObjectInitializationList[ev.ID].CreateObjectFromEventMap) { //todo better difficulty check
 			ObjectInitializationList[ev.ID].AddObject(level, ev, float(xTile * TILEWIDTH + (TILEWIDTH/2)), float(yTile * TILEHEIGHT + (TILEHEIGHT/2)));
 			ev.Active = true;
 		}

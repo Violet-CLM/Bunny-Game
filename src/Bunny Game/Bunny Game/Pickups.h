@@ -6,9 +6,11 @@
 class Pickup : public BunnyObject {
 	using BunnyObject::BunnyObject;
 
+	unsigned int TimeTillCollectable = 0;
+	bool Pickup::InMotion() const;
 protected:
-	float BounceYOffset;
-
+	float BounceYOffset, SpeedX, SpeedY;
+	
 	void Draw(Layer*) const override;
 	void Behave(GameState&) override;
 	virtual void Collected(Bunny&) const {} //called by HitBy

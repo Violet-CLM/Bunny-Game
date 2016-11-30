@@ -48,11 +48,11 @@ friend class VertexCollectionQueue;
 public:
 	sf::Uint16 Width;
 	sf::Uint16 Height;
-private:
 	sf::Int16 ColdspotX;    // Relative to hotspot
 	sf::Int16 ColdspotY;    // Relative to hotspot
 	sf::Int16 HotspotX;
 	sf::Int16 HotspotY;
+private:
 	sf::Int16 GunspotX;     // Relative to hotspot
 	sf::Int16 GunspotY;     // Relative to hotspot
 	union {

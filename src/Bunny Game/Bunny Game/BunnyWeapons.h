@@ -29,7 +29,7 @@ class PlayerBullet : public BunnyObject {
 protected:
 	Weapon::Weapon ammoID;
 	int lifeTime, damage, killAnimID, lastRico = 0, ricos = 0;
-	float SpeedX, SpeedY = 0, AccelerationX, AccelerationY = 0, pxSpeed;
+	float AccelerationX, AccelerationY = 0, pxSpeed;
 
 	bool Ricochet();
 	virtual void Move(GameState&) = 0;
@@ -39,6 +39,8 @@ public:
 	PlayerBullet(ObjectStartPos&, Weapon::Weapon);
 	void Aim(float targetAngle, float xSpeed, float pxSpeed, bool reduceLifetime);
 	void Explode();
+
+	float SpeedX, SpeedY = 0;
 };
 
 class BlasterBullet : public PlayerBullet {
