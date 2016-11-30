@@ -15,6 +15,7 @@
 #define LowerToZero(a) if (a) --a
 
 unsigned int RandFac(unsigned int andValue);
+int Rand2Fac(unsigned int andValue);
 
 float sintable(int);
 float costable(int);

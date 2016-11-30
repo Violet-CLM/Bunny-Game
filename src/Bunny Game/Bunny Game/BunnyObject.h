@@ -12,7 +12,7 @@ namespace BunnyObjectType {
 
 class BunnyObject : public GameObject { //put deactivates, etc. code in here
 	using GameObject::GameObject;
-	void Draw(Layer*) const override;
 protected:
+	void Draw(Layer*) const override;
 	int DirectionX, DirectionY;
 };

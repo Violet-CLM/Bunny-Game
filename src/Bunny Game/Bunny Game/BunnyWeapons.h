@@ -28,9 +28,10 @@ const int AmmoIconAnimIDs[Weapon::LAST] = {-1, 25, 29, 34, 49, 57, 59, 62, 68};
 class PlayerBullet : public BunnyObject {
 protected:
 	Weapon::Weapon ammoID;
-	int lifeTime, damage, killAnimID;
+	int lifeTime, damage, killAnimID, lastRico = 0, ricos = 0;
 	float SpeedX, SpeedY = 0, AccelerationX, AccelerationY = 0, pxSpeed;
 
+	bool Ricochet();
 	virtual void Move(GameState&) = 0;
 	void Behave(GameState&) override;
 	//void HitBy(GameObject&) override;
@@ -41,8 +42,9 @@ public:
 };
 
 class BlasterBullet : public PlayerBullet {
+	int counter = 0;
 	void Move(GameState&) override;
-	//void Draw(Layer*) const override;
+	void Draw(Layer*) const override;
 public:
 	BlasterBullet(ObjectStartPos&, bool);
 };

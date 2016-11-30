@@ -130,7 +130,7 @@ void Bunny::AddBullet(sf::Vector2f position, float targetAngle, bool directlyFro
 				AddSingleBullet((DirectionX >= 0) ? ARIGHT : ALEFT, position, eventID, directlyFromPlayer);
 			} else if (directlyFromPlayer && fireType == Weapon::Toaster) {
 				if ( fireDirection == 8 )
-					position.y -= 524288;
+					position.y -= 8;
 				speed += (99 - fireSpeed) / 32.f;
 			}
 			AddSingleBullet(targetAngle, position, eventID, directlyFromPlayer, speed);
@@ -156,7 +156,7 @@ void Bunny::AddSingleBullet(float targetAngle, sf::Vector2f position, EventID ev
 			yMod = -yMod; //antigrav shoots down, of course
 		}*/
 		if (fireDirection != 8) { //left/right
-			pxSpeed = xSpeed;
+			pxSpeed = SpeedX;
 			if (fireType != Weapon::RF) {
 				if (pxSpeed < -8) pxSpeed = -8;
 				else if (pxSpeed > 8) pxSpeed = 8;
@@ -176,9 +176,28 @@ void Bunny::AddSingleBullet(float targetAngle, sf::Vector2f position, EventID ev
 PlayerBullet::PlayerBullet(ObjectStartPos& objStart, Weapon::Weapon id) : BunnyObject(objStart), ammoID(id) {
 	ObjectType = BunnyObjectType::PlayerBullet;
 }
+bool PlayerBullet::Ricochet()
+{
+	if (lastRico > 4 && ricos < 8) {//ricochet
+		PositionX -= SpeedX + pxSpeed; //to move it away
+		SpeedX = -SpeedX;
+		AccelerationX = -AccelerationX;
+		DirectionX = -DirectionX;
+		SpeedY = std::min(std::max(-SpeedY + Rand2Fac(0x7FFF) / 4096.f, -8.f), 8.f);
+
+		//for (t=0;t<8+(int)RandFac(7);t++)
+		//	AddParticleSparks(obj->xpos,obj->ypos,-obj->direction);
+		///PlaySample(obj->xpos,obj->ypos,ricosamps[RandFac(3)],0,0);
+
+		ricos += 1;
+		lastRico = 0;
+		return true;
+	}
+	return false;
+}
 void PlayerBullet::Behave(GameState& gameState) {
-	//todo?
 	Move(gameState);
+	++lastRico;
 }
 void PlayerBullet::Aim(float targetAngle, float xSpeed, float pxSpeedNew, bool reduceLifetime) {
 	if (reduceLifetime) {
@@ -186,7 +205,7 @@ void PlayerBullet::Aim(float targetAngle, float xSpeed, float pxSpeedNew, bool r
 	}
 	if (!xSpeed)
 		xSpeed = SpeedX;
-	pxSpeed = pxSpeed;
+	pxSpeed = pxSpeedNew;
 
 	float ySpeed = -cos(targetAngle) * SpeedX;
 	xSpeed *= sin(targetAngle);
@@ -220,16 +239,6 @@ void PlayerBullet::Explode()
 }
 
 
-void BlasterBullet::Move(GameState &) {
-	//todo obviously
-	PositionX += (SpeedX += AccelerationX) + pxSpeed;
-	PositionY += (SpeedY += AccelerationY);
-}
-
-/*void BlasterBullet::Draw(Layer* layer) const {
-	const auto angle = atan2(SpeedX, SpeedY);
-}*/
-
 BlasterBullet::BlasterBullet(ObjectStartPos& objStart, bool poweredUp) : PlayerBullet(objStart, Weapon::Blaster) {
 	AnimID = poweredUp ? 20 : 17;
 	SpeedX = float(6 + poweredUp);
@@ -238,4 +247,38 @@ BlasterBullet::BlasterBullet(ObjectStartPos& objStart, bool poweredUp) : PlayerB
 	damage = 1 + poweredUp;
 	lifeTime = AISPEED / 2 - poweredUp*5;
 	//obj->lighttype = 2 - poweredUp;
+}
+void BlasterBullet::Move(GameState& gameState) {
+	Event eventAtPixel;
+	if (counter > lifeTime)
+		Explode();
+	else if (counter > 0 && gameState.MaskedPixel(int(PositionX), int(PositionY), eventAtPixel) && (eventAtPixel.ID != EventIDs::RICOCHET || !Ricochet())) {
+		Explode();
+	} else {
+		++counter;
+
+		PositionX += SpeedX + pxSpeed;
+		PositionY += SpeedY;
+
+		if (pxSpeed > 0.125f)
+			pxSpeed -= 0.125f;
+		else if (pxSpeed < -0.125f)
+			pxSpeed += 0.125f;
+		else
+			pxSpeed = 0;
+
+		SpeedX += AccelerationX;
+		if (SpeedX > 10)
+			SpeedX = 10;
+		else if (SpeedX < -10)
+			SpeedX = -10;
+
+		SpeedY += AccelerationY;
+	}
+}
+void BlasterBullet::Draw(Layer* layer) const {
+	if (counter < 3) //DONT DISPLAY THE BULLET WHEN STILL INSIDE CHARACTER!!
+		return;
+	//const auto angle = atan2(SpeedX, SpeedY);
+	PlayerBullet::Draw(layer); //todo
 }
