@@ -85,7 +85,13 @@ void Pickup::Draw(Layer* layers) const
 	layers[SPRITELAYER].AppendSprite(SpriteMode::Paletted, int(PositionX), int(PositionY + BounceYOffset), GetFrame(), DirectionX < 0);
 }
 
-AmmoPickup::AmmoPickup(ObjectStartPos & objStart, int ai) : Pickup(objStart, ai), AmmoID(ai), AnimIDNormal(AmmoIconAnimIDs[ai]), AnimIDPoweredUp(AmmoIconAnimIDs[ai]-1) {}
+AmmoPickup::AmmoPickup(ObjectStartPos & objStart, int ai) : Pickup(objStart, ai), AmmoID(ai), AnimIDNormal(AmmoIconAnimIDs[ai]), AnimIDPoweredUp(AmmoIconAnimIDs[ai]-1) {
+	Shift = (AmmoID != Weapon::Toaster
+#ifdef BETAPEPPER
+		&& AmmoID != Weapon::Gun8
+#endif
+		) ? 0 : 5;
+}
 void AmmoPickup::Behave(GameState& gameState)
 {
 	AnimID = AnimIDNormal; //todo check player powerup status
@@ -93,14 +99,14 @@ void AmmoPickup::Behave(GameState& gameState)
 }
 void AmmoPickup::HitBy(GameObject& other)
 {
-	if (!(other.ObjectType == BunnyObjectType::Player && static_cast<Bunny&>(other).PlayerProperties.Ammo[AmmoID] >= AMMO_MAX))
+	if (!(other.ObjectType == BunnyObjectType::Player && static_cast<Bunny&>(other).PlayerProperties.Ammo[AmmoID] >= (AMMO_MAX << Shift)))
 		Pickup::HitBy(other);
 }
 void AmmoPickup::Collected(Bunny& play) const
 {
 	int& ammoCounter = play.PlayerProperties.Ammo[AmmoID];
 	if (ammoCounter == 0) play.fireType = AmmoID;
-	ammoCounter = std::min(ammoCounter + ((AmmoID != Weapon::Toaster) ? 3 : 96), AMMO_MAX);
+	ammoCounter = std::min(ammoCounter + (3 << Shift), AMMO_MAX << Shift);
 }
 
 void Gem::Draw(Layer* layers) const {

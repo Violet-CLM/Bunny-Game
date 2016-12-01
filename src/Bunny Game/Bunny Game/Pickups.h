@@ -23,6 +23,7 @@ class AmmoPickup : public Pickup {
 	int AmmoID;
 	int AnimIDNormal;
 	int AnimIDPoweredUp;
+	unsigned int Shift; //for toaster
 
 	void Behave(GameState&) override;
 	void Collected(Bunny&) const override;

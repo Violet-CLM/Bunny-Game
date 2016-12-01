@@ -67,3 +67,11 @@ class BouncerBulletPU : public PlayerBullet {
 public:
 	BouncerBulletPU(ObjectStartPos&);
 };
+
+class PepperSprayBullet : public PlayerBullet {
+	bool adjustedSpeedsPostAiming = false;
+	int counter = 0;
+	void Move(GameState&) override;
+public:
+	PepperSprayBullet(ObjectStartPos&, bool);
+};

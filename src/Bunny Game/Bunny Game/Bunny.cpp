@@ -3037,7 +3037,11 @@ bool Bunny::ProcessActionFire() {
 		return true;
 	else {
 		const bool hasAmmo = fireType == Weapon::Blaster || PlayerProperties.Ammo[fireType] > 0;
-		if (fireType != Weapon::Toaster || lastFire > PlayerProperties.FireSpeed) {
+		if ((fireType != Weapon::Toaster
+#ifdef BETAPEPPER
+			&& fireType != Weapon::Gun8
+#endif
+			) || lastFire > PlayerProperties.FireSpeed) {
 			if (!lastFire && hasAmmo)
 				return true;
 		} else {

@@ -158,8 +158,7 @@ void Bunny::AddSingleBullet(float targetAngle, sf::Vector2f position, EventID ev
 		if (fireDirection != 8) { //left/right
 			pxSpeed = SpeedX;
 			if (fireType != Weapon::RF) {
-				if (pxSpeed < -8) pxSpeed = -8;
-				else if (pxSpeed > 8) pxSpeed = 8;
+				LimitTo(pxSpeed, 8);
 			}
 			//pxSpeed &= 0xFFFFFF00;
 		} else if (targetAngle == AUP) {
@@ -207,7 +206,7 @@ void PlayerBullet::Aim(float targetAngle, float xSpeed, float pxSpeedNew, bool r
 		xSpeed = SpeedX;
 	pxSpeed = pxSpeedNew;
 
-	float ySpeed = -cos(targetAngle) * SpeedX;
+	float ySpeed = -cos(targetAngle) * xSpeed;
 	xSpeed *= sin(targetAngle);
 	
 	const float xRatio = (xSpeed / SpeedX);
@@ -399,4 +398,31 @@ void BouncerBulletPU::Draw(Layer* layer) const {
 	if (counter < 7) //DONT DISPLAY THE BULLET WHEN STILL INSIDE CHARACTER!!
 		return;
 	DrawNormally(layer);
+}
+
+
+PepperSprayBullet::PepperSprayBullet(ObjectStartPos& start, bool poweredUp) : PlayerBullet(start, Weapon::Gun8) {
+	AnimID = 9 + poweredUp;
+	CollisionShapes.emplace_back(2 + poweredUp*4);
+	SpeedX = 1;
+	killAnimID = 10;
+	damage = 1 + poweredUp;
+	//if (poweredUp)
+		//obj->lighttype = 2;
+}
+void PepperSprayBullet::Move(GameState& gameState) {
+	if (!adjustedSpeedsPostAiming) {
+		SpeedX += pxSpeed;
+		adjustedSpeedsPostAiming = true;
+	}
+	PositionX += (SpeedX += AccelerationX) + pxSpeed;
+	PositionY += SpeedY += AccelerationY;
+	
+	ApproachZeroByUnit(pxSpeed, 0.125f);
+
+	if (++counter > (AISPEED - 16) || gameState.MaskedPixel(int(PositionX), int(PositionY))) { //54 is hardcoded: shooting "up" does not reduce pepper spray's lifetime
+		Explode();
+		//light=2;
+		//lighttype=1;
+	}
 }
