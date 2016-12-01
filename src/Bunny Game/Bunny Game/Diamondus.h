@@ -1,8 +1,9 @@
 #pragma once
 #include "BunnyObject.h"
 
-class Bee : public BunnyObject {
-	using BunnyObject::BunnyObject;
+class Bee : public Enemy {
 	int Counter;
-	void Behave(GameState&) override;
+	void Move(GameState&) override;
+public:
+	Bee(ObjectStartPos&);
 };

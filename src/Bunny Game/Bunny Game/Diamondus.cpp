@@ -1,8 +1,11 @@
 #include "Diamondus.h"
 #include "BunnyMisc.h"
 
-void Bee::Behave(GameState& gameState)
-{
+Bee::Bee(ObjectStartPos& start) : Enemy(start) {
+	CollisionShapes.emplace_back(24,33);
+	Energy = 1;
+}
+void Bee::Move(GameState& gameState) {
 	++Counter;
 	DetermineFrame(gameState.GameTicks / 6);
 
@@ -15,3 +18,4 @@ void Bee::Behave(GameState& gameState)
 		costable(Counter * 8) * 16 +
 		sintable(gameState.GameTicks * 8) * 4;
 }
+

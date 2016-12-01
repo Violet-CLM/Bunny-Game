@@ -103,9 +103,8 @@ void AmmoPickup::Collected(Bunny& play) const
 	ammoCounter = std::min(ammoCounter + (AmmoID != Weapon::Toaster) ? 3 : 96, AMMO_MAX);
 }
 
-void Gem::Draw(Layer* layers) const
-{
-	layers[SPRITELAYER].AppendSprite(mode, int(PositionX), int(PositionY + BounceYOffset), GetFrame(), DirectionX < 0);
+void Gem::Draw(Layer* layers) const {
+	DrawNormally(layers, mode);
 }
 void Gem::Collected(Bunny& play) const
 {
@@ -120,6 +119,7 @@ void Carrot::HitBy(GameObject& other)
 void Carrot::Collected(Bunny& play) const
 {
 	play.Health += 1;
+	play.AddToInvincibilityDuration(AISPEED);
 }
 void FullEnergy::HitBy(GameObject& other)
 {
@@ -129,6 +129,7 @@ void FullEnergy::HitBy(GameObject& other)
 void FullEnergy::Collected(Bunny& play) const
 {
 	play.Health = START_HEALTH;
+	play.AddToInvincibilityDuration(AISPEED * 5);
 }
 
 void ExtraLife::Collected(Bunny& play) const

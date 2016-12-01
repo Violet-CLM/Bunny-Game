@@ -17,6 +17,17 @@ std::vector<std::string> ShaderSources = {
 		vec4 index = texture2D(texture, gl_TexCoord[0].xy);\
 		vec4 pixel = texture2D(tables, vec2(index.r, 0)); \
 		gl_FragColor = vec4(pixel.r, pixel.g, pixel.b, index.a);\
+	}",
+		//Shaders::SingleColorPaletted
+	"uniform sampler2D texture;\
+	uniform sampler2D tables;\
+	uniform float param;\
+	\
+	void main(void)\
+	{\
+		vec4 index = texture2D(texture, gl_TexCoord[0].xy);\
+		vec4 pixel = texture2D(tables, vec2(param, 0)); \
+		gl_FragColor = vec4(pixel.r, pixel.g, pixel.b, index.a);\
 	}"
 };
 std::vector<sf::Shader*> Shaders;

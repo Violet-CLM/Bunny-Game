@@ -28,7 +28,7 @@ const int AmmoIconAnimIDs[Weapon::LAST] = {-1, 25, 29, 34, 49, 57, 59, 62, 68};
 class PlayerBullet : public BunnyObject {
 protected:
 	Weapon::Weapon ammoID;
-	int lifeTime, damage, killAnimID, lastRico = 0, ricos = 0;
+	int lifeTime, killAnimID, lastRico = 0, ricos = 0;
 	float AccelerationX, AccelerationY = 0, pxSpeed;
 
 	bool Ricochet();
@@ -40,6 +40,7 @@ public:
 	void Aim(float targetAngle, float xSpeed, float pxSpeed, bool reduceLifetime);
 	void Explode();
 
+	int damage;
 	float SpeedX, SpeedY = 0;
 };
 

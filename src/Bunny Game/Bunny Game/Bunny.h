@@ -69,12 +69,21 @@ class Bunny : public BunnyObject {
 		bool ProcessActionSpecialMove();
 	void AdjustViewpoint(GameState&) const;	//43E560
 
+	void DisableSpecialMove();
+
 	void Behave(GameState&) override;
-	//void Draw(Layer*) const override;
+	void Draw(Layer*) const override;
 public:
+	enum AttackTypes {
+		NotAttacking, Buttstomp, SugarRush, SpecialAttack, RunThroughFrozenEnemy
+	};
 	Bunny(ObjectStartPos& objStart);
 
 	void EatFood();
+	bool Hurt(unsigned int = 1);
+	AttackTypes GetAttackType(bool = false) const;
+	void HitEnemyUsingAttackType(AttackTypes);
+	void AddToInvincibilityDuration(int);
 
 	int Health;
 	int freeze, invincibility, fly, fireType;

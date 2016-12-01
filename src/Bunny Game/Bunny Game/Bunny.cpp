@@ -1,3 +1,4 @@
+#include "Misc.h"
 #include "Bunny.h"
 #include "BunnyMisc.h"
 #include "BunnyObjectList.h"
@@ -29,9 +30,73 @@ void Bunny::EatFood() {
 		//todo sound effects
 	}
 }
-//void Bunny::Draw(Layer *) const
-//{
-//}
+bool Bunny::Hurt(unsigned int damage)
+{
+	if (hit || flicker || invincibility || sugarRush || downAttack < DOWNATTACKWAIT) // || GameGlobals->level.finish
+		return false;
+	//todo bird
+	//todo shield
+	{
+		Health -= damage;
+		hit = AISPEED;
+		idleTime = 0;
+		//todo sound effects
+	}
+	return true;
+}
+Bunny::AttackTypes Bunny::GetAttackType(bool frozenEnemy) const {
+	if (
+		(PlayerProperties.CharacterIndex == char2JAZZ && specialMove > 16) ||
+		(PlayerProperties.CharacterIndex == char2SPAZ && specialMove > 10) ||
+		(PlayerProperties.CharacterIndex == char2LORI && specialMove > 1)
+	)
+		return AttackTypes::SpecialAttack;
+	if (sugarRush)
+		return AttackTypes::SugarRush;
+	if (downAttack < DOWNATTACKLEN && SpeedY > 6)
+		return AttackTypes::Buttstomp;
+	if (frozenEnemy && abs(SpeedX) > 12)
+		return AttackTypes::RunThroughFrozenEnemy;
+	return AttackTypes::NotAttacking;
+}
+void Bunny::HitEnemyUsingAttackType(AttackTypes attackType) {
+	switch (attackType) {
+		case AttackTypes::SpecialAttack: //only for bosses
+			DisableSpecialMove();
+			break;
+		case AttackTypes::SugarRush:
+		case AttackTypes::Buttstomp:
+			downAttack = DOWNATTACKLEN; //turn it off!
+			SpeedY = SpeedY / -2 -8;
+			AccelerationY = 0;
+			DisableSpecialMove();
+			AddToInvincibilityDuration(-AISPEED);
+			break;
+		case AttackTypes::RunThroughFrozenEnemy:
+			AccelerationX = 0;
+			SpeedX /= -2;
+			SpeedY = -6;
+			beMoved = AISPEED / 4;
+			AddToInvincibilityDuration(-10); //shorter because less traditional
+			break;
+	}
+}
+void Bunny::AddToInvincibilityDuration(int addDuration) {
+	if (addDuration > 0) invincibility = abs(invincibility) + addDuration;
+	else if (invincibility <= 0) invincibility += addDuration;
+	else invincibility -= addDuration;
+}
+void Bunny::DisableSpecialMove() {
+	if (specialMove) {
+		specialMove = 0;
+		if (PlayerProperties.CharacterIndex == char2SPAZ) { ////don't kick bosses forever
+			SpeedX = DirectionX << 4;
+			SpeedY = 0;
+			beMoved = 30;
+			lastJump = 0;
+		}
+	} 
+}
 
 void Bunny::GetInput(const KeyStates& keys) {
 	//todo base all these codes on JAZZ2.CFG
@@ -2217,7 +2282,7 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 		idleTime = 0;
 		if (hit == AISPEED) {
 			AssignAnimation(RabbitAnims::HURT, 4, true);
-			if (SpeedX <= 2) //issue #649
+			if (abs(SpeedX) <= 2)
 				SpeedX = -4.f * DirectionX;
 			else
 				SpeedX = SpeedX / -2 - (DirectionX << 17);
@@ -3166,6 +3231,11 @@ void Bunny::Behave(GameState& gameState)
 	DoZoneDetection(gameState.GetEvent(int(PositionX / TILEWIDTH), int(PositionY / TILEHEIGHT)), gameState.GameTicks);
 	ProcessAction(gameState.GameTicks);
 	AdjustViewpoint(gameState);
+}
+void Bunny::Draw(Layer* layers) const {
+	if (!flicker || ((long long)(getCurrentTime()) & 64))
+		DrawNormally(layers);
+	//else invisible
 }
 
 std::array<Player, MAXLOCALPLAYERS> Players;

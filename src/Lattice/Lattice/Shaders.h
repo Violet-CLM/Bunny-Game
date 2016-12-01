@@ -13,7 +13,7 @@ namespace DefaultPaletteLineNames {
 }
 namespace DefaultShaders {
 	enum {
-		Normal, Paletted,
+		Normal, Paletted, SingleColorPaletted,
 		LAST
 	};
 }
