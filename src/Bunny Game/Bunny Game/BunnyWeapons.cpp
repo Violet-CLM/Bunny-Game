@@ -336,3 +336,67 @@ void BouncerBullet::Draw(Layer* layer) const {
 		return;
 	DrawNormally(layer);
 }
+
+BouncerBulletPU::BouncerBulletPU(ObjectStartPos& objStart) : PlayerBullet(objStart, Weapon::Bouncer) {
+	AnimID = 26;
+	CollisionShapes.emplace_back(5);
+	SpeedX = 5;						//these are all the same as for non-PU, curiously
+	SpeedY = 1;						//
+	AccelerationX = 0.25f;			//
+	AccelerationY = 0.0915527344f;	//
+	killAnimID = 4;					//
+	lifeTime = AISPEED * 3 / 2;		//
+	//obj->lighttype = 2;			//
+	damage = 2;
+}
+void BouncerBulletPU::Move(GameState& gameState) {
+	PositionX += SpeedX + pxSpeed;
+	PositionY += SpeedY;
+	
+	SpeedX += AccelerationX;
+	//if (PositionY>GameGlobals->level.waterLevel)
+		//SpeedY+=AccelerationY+GameGlobals->level.gravity/4;
+	//else
+		SpeedY += AccelerationY + 0.125f;//GameGlobals->level.gravity;
+	
+	ApproachZeroByUnit(pxSpeed, 0.125f);
+	LimitTo(SpeedX, 6);
+	LimitTo(SpeedY, 6);
+
+	bool sample = false;
+	if (SpeedY < 0 && gameState.MaskedPixel(int(PositionX), int(PositionY - 4))) { //up
+		++bounces;
+		SpeedY = -(SpeedY * (9 + RandFac(7))) / 8;
+		sample = true;
+	} else if (SpeedY > 0 && gameState.MaskedPixel(int(PositionX), int(PositionY + 4))) { //down
+		++bounces;
+		SpeedY = SpeedY * -9 / 8;
+		sample = true;
+	}
+
+	if (
+		(SpeedX < 0 && gameState.MaskedPixel(int(PositionX - 2), int(PositionY))) ||//left
+		(SpeedX > 0 && gameState.MaskedPixel(int(PositionX + 2), int(PositionY))) //right
+	) {
+		++bounces;
+		SpeedX = SpeedX * -9 / 8;
+		if (!RandFac(3))
+			AccelerationX = -AccelerationX;
+		sample = true;
+	}
+
+	if (sample)
+		;//PlaySample(PositionX,PositionY,sCOMMON_BLOKPLOP,0,0);
+
+	if (counter++ > lifeTime || bounces > 16) {
+		//lighttype=0;
+		Explode();
+	};
+	
+	DetermineFrame(gameState.GameTicks >> 2);
+}
+void BouncerBulletPU::Draw(Layer* layer) const {
+	if (counter < 7) //DONT DISPLAY THE BULLET WHEN STILL INSIDE CHARACTER!!
+		return;
+	DrawNormally(layer);
+}

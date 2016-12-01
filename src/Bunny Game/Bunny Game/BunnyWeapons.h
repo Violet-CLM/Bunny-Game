@@ -59,3 +59,11 @@ class BouncerBullet : public PlayerBullet {
 public:
 	BouncerBullet(ObjectStartPos&);
 };
+
+class BouncerBulletPU : public PlayerBullet {
+	int counter = 0, bounces = 0;
+	void Move(GameState&) override;
+	void Draw(Layer*) const override;
+public:
+	BouncerBulletPU(ObjectStartPos&);
+};

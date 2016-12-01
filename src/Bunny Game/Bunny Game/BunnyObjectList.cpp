@@ -30,6 +30,7 @@ ObjectList* GetObjectList() {
 		ObjTC(PLAYERBULLET1, Ammo, BlasterBullet, false),
 		ObjTC(PLAYERBULLETP1, Ammo, BlasterBullet, true),
 		ObjT(PLAYERBULLET2, Ammo, BouncerBullet),
+		ObjT(PLAYERBULLETP2, Ammo, BouncerBulletPU),
 
 		ObjTC(APPLE, Pickups, Food, 1),
 		ObjTC(BANANA, Pickups, Food, 2),
