@@ -8,9 +8,9 @@
 #include "BunnyVersionDependentStuff.h"
 
 static ObjectList ObjectInitializationList;
-#define Obj(a, b, c, d, ...) {EventIDs::a, {GetVersionSpecificAnimationID(AnimSets::b), [](ObjectStartPos& objStart){ return (GameObject*)(new c(__VA_ARGS__)); }, d}}
-#define ObjT(a, b, c) Obj(a, b, c, true, objStart)
-#define ObjTC(a, b, c, ...) Obj(a, b, c, true, objStart, __VA_ARGS__)
+#define Obj(a, b, c, ...) {EventIDs::a, {GetVersionSpecificAnimationID(AnimSets::b), [](ObjectStartPos& objStart){ return (GameObject*)(new c(__VA_ARGS__)); }, EventIDs::a >= 33 || EventIDs::a == EventIDs::JAZZSTART}}
+#define ObjT(a, b, c) Obj(a, b, c, objStart)
+#define ObjTC(a, b, c, ...) Obj(a, b, c, objStart, __VA_ARGS__)
 ObjectList* GetObjectList() {
 	Pickup::ExplosionSetID = GetVersionSpecificAnimationID(AnimSets::Pickups);
 	return &(ObjectInitializationList = {
@@ -22,7 +22,7 @@ ObjectList* GetObjectList() {
 		//ObjTC(GUN3AMMO3, Ammo, AmmoPickup, Weapon::Ice),
 		//ObjTC(GUN4AMMO3, Ammo, AmmoPickup, Weapon::Seeker),
 		//ObjTC(GUN5AMMO3, Ammo, AmmoPickup, Weapon::RF),
-		//ObjTC(GUN6AMMO3, Ammo, AmmoPickup, Weapon::Toaster),
+		ObjTC(GUN6AMMO3, Ammo, AmmoPickup, Weapon::Toaster),
 		//ObjTC(GUN7AMMO3, Ammo, AmmoPickup, Weapon::TNT),
 		ObjTC(GUN8AMMO3, Ammo, AmmoPickup, Weapon::Gun8),
 		//ObjTC(GUN9AMMO3, Ammo, AmmoPickup, Weapon::Gun9),
@@ -31,6 +31,8 @@ ObjectList* GetObjectList() {
 		ObjTC(PLAYERBULLETP1, Ammo, BlasterBullet, true),
 		ObjT(PLAYERBULLET2, Ammo, BouncerBullet),
 		ObjT(PLAYERBULLETP2, Ammo, BouncerBulletPU),
+		ObjTC(PLAYERBULLET6, Ammo, ToasterBullet, false),
+		ObjTC(PLAYERBULLETP6, Ammo, ToasterBullet, true),
 		ObjTC(PLAYERBULLET8, Ammo, PepperSprayBullet, false),
 		ObjTC(PLAYERBULLETP8, Ammo, PepperSprayBullet, true),
 

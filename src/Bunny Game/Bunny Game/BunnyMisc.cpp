@@ -7,7 +7,7 @@ unsigned int RandFac(unsigned int andValue) {
 }
 int Rand2Fac(unsigned int andValue) {
 	int retVal = (int)RandFac(andValue);
-	return retVal - (retVal / 2);
+	return retVal - (andValue / 2);
 }
 
 float sintable(int a) {

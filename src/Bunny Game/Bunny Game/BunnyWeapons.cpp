@@ -131,7 +131,7 @@ void Bunny::AddBullet(sf::Vector2f position, float targetAngle, bool directlyFro
 			} else if (directlyFromPlayer && fireType == Weapon::Toaster) {
 				if ( fireDirection == 8 )
 					position.y -= 8;
-				speed += (99 - fireSpeed) / 32.f;
+				speed += (99 - PlayerProperties.FireSpeed) / 32.f;
 			}
 			AddSingleBullet(targetAngle, position, eventID, directlyFromPlayer, speed);
 		}
@@ -172,7 +172,7 @@ void Bunny::AddSingleBullet(float targetAngle, sf::Vector2f position, EventID ev
 	static_cast<PlayerBullet&>(AddObject(eventID, position.x, position.y)).Aim(targetAngle, xSpeed, pxSpeed, reduceLifetime);
 }
 
-PlayerBullet::PlayerBullet(ObjectStartPos& objStart, Weapon::Weapon id) : BunnyObject(objStart), ammoID(id) {
+PlayerBullet::PlayerBullet(ObjectStartPos& objStart, Weapon::Weapon id, int counterTarget) : BunnyObject(objStart), ammoID(id), CounterMustBeAtLeastThisHighToDrawBullet(counterTarget) {
 	ObjectType = BunnyObjectType::PlayerBullet;
 }
 bool PlayerBullet::Ricochet()
@@ -209,14 +209,10 @@ void PlayerBullet::Aim(float targetAngle, float xSpeed, float pxSpeedNew, bool r
 	float ySpeed = -cos(targetAngle) * xSpeed;
 	xSpeed *= sin(targetAngle);
 	
-	const float xRatio = (xSpeed / SpeedX);
-	const float yRatio = (ySpeed / SpeedX);
-	if (AccelerationY)
-		AccelerationY *= abs(xRatio);
-	AccelerationY += AccelerationX * yRatio;
-	if (SpeedY)
-		SpeedY *= abs(xRatio);
-	SpeedY += SpeedX * yRatio;
+	const float xRatio = xSpeed / SpeedX;
+	const float yRatio = ySpeed / SpeedX;
+	AccelerationY =	AccelerationY *	abs(xRatio)	+ AccelerationX *	yRatio;
+	SpeedY =		SpeedY *		abs(xRatio)	+ SpeedX *			yRatio;
 	AccelerationX *= xRatio;
 	SpeedX = xSpeed;
 	
@@ -236,9 +232,13 @@ void PlayerBullet::Explode()
 	//todo transfer lighttype
 	Delete();
 }
+void PlayerBullet::Draw(Layer* layer) const {
+	if (Counter >= CounterMustBeAtLeastThisHighToDrawBullet) //DONT DISPLAY THE BULLET WHEN STILL INSIDE CHARACTER!!
+		DrawNormally(layer);
+}
 
 
-BlasterBullet::BlasterBullet(ObjectStartPos& objStart, bool poweredUp) : PlayerBullet(objStart, Weapon::Blaster) {
+BlasterBullet::BlasterBullet(ObjectStartPos& objStart, bool poweredUp) : PlayerBullet(objStart, Weapon::Blaster, 3) {
 	AnimID = poweredUp ? 20 : 17;
 	CollisionShapes.emplace_back(11 + poweredUp*2, 4);
 	SpeedX = float(6 + poweredUp);
@@ -250,12 +250,12 @@ BlasterBullet::BlasterBullet(ObjectStartPos& objStart, bool poweredUp) : PlayerB
 }
 void BlasterBullet::Move(GameState& gameState) {
 	Event eventAtPixel;
-	if (counter > lifeTime)
+	if (Counter > lifeTime)
 		Explode();
-	else if (counter > 0 && gameState.MaskedPixel(int(PositionX), int(PositionY), eventAtPixel) && (eventAtPixel.ID != EventIDs::RICOCHET || !Ricochet())) {
+	else if (Counter > 0 && gameState.MaskedPixel(int(PositionX), int(PositionY), eventAtPixel) && (eventAtPixel.ID != EventIDs::RICOCHET || !Ricochet())) {
 		Explode();
 	} else {
-		++counter;
+		++Counter;
 
 		PositionX += SpeedX + pxSpeed;
 		PositionY += SpeedY;
@@ -270,13 +270,13 @@ void BlasterBullet::Move(GameState& gameState) {
 	}
 }
 void BlasterBullet::Draw(Layer* layer) const {
-	if (counter < 3) //DONT DISPLAY THE BULLET WHEN STILL INSIDE CHARACTER!!
+	if (Counter < CounterMustBeAtLeastThisHighToDrawBullet)
 		return;
 	//const auto angle = atan2(SpeedX, SpeedY);
 	PlayerBullet::Draw(layer); //todo
 }
 
-BouncerBullet::BouncerBullet(ObjectStartPos& objStart) : PlayerBullet(objStart, Weapon::Bouncer) {
+BouncerBullet::BouncerBullet(ObjectStartPos& objStart) : PlayerBullet(objStart, Weapon::Bouncer, 7) {
 	AnimID = 23;
 	CollisionShapes.emplace_back(4);
 	SpeedX = 5;
@@ -323,17 +323,12 @@ void BouncerBullet::Move(GameState& gameState) {
 	if (sample)
 		;//PlaySample(PositionX,PositionY,sCOMMON_BLOKPLOP,40,0); //todo sample
 
-	if (counter++ > lifeTime || bounces > 16) {
+	if (Counter++ > lifeTime || bounces > 16) {
 		//lighttype=0;
 		Explode();
 	};
 	
 	DetermineFrame(gameState.GameTicks >> 2);
-}
-void BouncerBullet::Draw(Layer* layer) const {
-	if (counter < 7) //DONT DISPLAY THE BULLET WHEN STILL INSIDE CHARACTER!!
-		return;
-	DrawNormally(layer);
 }
 
 BouncerBulletPU::BouncerBulletPU(ObjectStartPos& objStart) : PlayerBullet(objStart, Weapon::Bouncer) {
@@ -387,19 +382,13 @@ void BouncerBulletPU::Move(GameState& gameState) {
 	if (sample)
 		;//PlaySample(PositionX,PositionY,sCOMMON_BLOKPLOP,0,0);
 
-	if (counter++ > lifeTime || bounces > 16) {
+	if (Counter++ > lifeTime || bounces > 16) {
 		//lighttype=0;
 		Explode();
 	};
 	
 	DetermineFrame(gameState.GameTicks >> 2);
 }
-void BouncerBulletPU::Draw(Layer* layer) const {
-	if (counter < 7) //DONT DISPLAY THE BULLET WHEN STILL INSIDE CHARACTER!!
-		return;
-	DrawNormally(layer);
-}
-
 
 PepperSprayBullet::PepperSprayBullet(ObjectStartPos& start, bool poweredUp) : PlayerBullet(start, Weapon::Gun8) {
 	AnimID = 9 + poweredUp;
@@ -420,9 +409,64 @@ void PepperSprayBullet::Move(GameState& gameState) {
 	
 	ApproachZeroByUnit(pxSpeed, 0.125f);
 
-	if (++counter > (AISPEED - 16) || gameState.MaskedPixel(int(PositionX), int(PositionY))) { //54 is hardcoded: shooting "up" does not reduce pepper spray's lifetime
+	if (++Counter > (AISPEED - 16) || gameState.MaskedPixel(int(PositionX), int(PositionY))) { //54 is hardcoded: shooting "up" does not reduce pepper spray's lifetime
 		Explode();
 		//light=2;
 		//lighttype=1;
+	}
+}
+
+
+ToasterBullet::ToasterBullet(ObjectStartPos& start, bool poweredUp) : PlayerBullet(start, Weapon::Toaster, 9) {
+	AnimID = poweredUp ? 58 : 55;
+	CollisionShapes.emplace_back(9);
+	SpeedX = 4;
+	AccelerationX = 0.125f;
+	damage = 1 + poweredUp;
+	lifeTime = AISPEED / 2;
+}
+void ToasterBullet::Explode() {
+	if (damage == 1) //not powered up
+		Delete();
+	else {
+		if (Counter == 0)
+			Counter = 3;
+		ObjectType = BunnyObjectType::NonInteractive;
+		SpeedX = 0; AccelerationX = 0;
+		SpeedY = 0; AccelerationY = 0;
+		Delete(); //todo obviously
+	}
+}
+void ToasterBullet::Move(GameState& gameState) {
+	if (!Started) {
+		Started = true;
+		DistanceFromParentY = Parent->PositionY - PositionY;
+
+		const float randomSpeed = Rand2Fac(3) * 0.015625f;
+		const auto angle = atan2(-SpeedY, SpeedX); //among various changes for better spreading when fired at non-orthogonal angles
+		AccelerationX = sin(angle) * randomSpeed;
+		AccelerationY = cos(angle) * randomSpeed;
+
+		return;
+	}
+	if (abs(SpeedX) > abs(SpeedY)) {
+		Minimize(SpeedX, 6);
+		else Maximize(SpeedX, -6);
+		else ApproachZeroByUnit(SpeedX, 0.015625f);
+	} else {
+		ApproachZeroByUnit(SpeedY, 0.015625f);
+	}
+	PositionX += (SpeedX += AccelerationX) + pxSpeed;
+	PositionY += (SpeedY += AccelerationY);
+
+	if (gameState.MaskedPixel(int(PositionX), int(PositionY))) {
+		Explode();
+	} else { //animate
+		if ((Counter & 7) == 0 && ++FrameID >= GetFrameCount())
+			Delete();
+		else if (++Counter > 8)
+			;//lightType = 1;
+		else //in early moments, adjust PositionY to follow shooter's
+			PositionY = Parent->PositionY - DistanceFromParentY;
 	}
 }
