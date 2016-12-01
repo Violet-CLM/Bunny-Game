@@ -100,7 +100,7 @@ void AmmoPickup::Collected(Bunny& play) const
 {
 	int& ammoCounter = play.PlayerProperties.Ammo[AmmoID];
 	if (ammoCounter == 0) play.fireType = AmmoID;
-	ammoCounter = std::min(ammoCounter + (AmmoID != Weapon::Toaster) ? 3 : 96, AMMO_MAX);
+	ammoCounter = std::min(ammoCounter + ((AmmoID != Weapon::Toaster) ? 3 : 96), AMMO_MAX);
 }
 
 void Gem::Draw(Layer* layers) const {

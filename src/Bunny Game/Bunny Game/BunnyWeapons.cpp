@@ -244,7 +244,7 @@ BlasterBullet::BlasterBullet(ObjectStartPos& objStart, bool poweredUp) : PlayerB
 	CollisionShapes.emplace_back(11 + poweredUp*2, 4);
 	SpeedX = float(6 + poweredUp);
 	AccelerationX = poweredUp ? 0.1875f : 0.125f;
-	killAnimID = 4;
+	killAnimID = 80;
 	damage = 1 + poweredUp;
 	lifeTime = AISPEED / 2 - poweredUp*5;
 	//obj->lighttype = 2 - poweredUp;
@@ -261,20 +261,13 @@ void BlasterBullet::Move(GameState& gameState) {
 		PositionX += SpeedX + pxSpeed;
 		PositionY += SpeedY;
 
-		if (pxSpeed > 0.125f)
-			pxSpeed -= 0.125f;
-		else if (pxSpeed < -0.125f)
-			pxSpeed += 0.125f;
-		else
-			pxSpeed = 0;
-
 		SpeedX += AccelerationX;
-		if (SpeedX > 10)
-			SpeedX = 10;
-		else if (SpeedX < -10)
-			SpeedX = -10;
-
 		SpeedY += AccelerationY;
+
+		ApproachZeroByUnit(pxSpeed, 0.125f);
+		LimitTo(SpeedX, 10);
+
+		DetermineFrame(gameState.GameTicks >> 2);
 	}
 }
 void BlasterBullet::Draw(Layer* layer) const {
@@ -282,4 +275,64 @@ void BlasterBullet::Draw(Layer* layer) const {
 		return;
 	//const auto angle = atan2(SpeedX, SpeedY);
 	PlayerBullet::Draw(layer); //todo
+}
+
+BouncerBullet::BouncerBullet(ObjectStartPos& objStart) : PlayerBullet(objStart, Weapon::Bouncer) {
+	AnimID = 23;
+	CollisionShapes.emplace_back(4);
+	SpeedX = 5;
+	SpeedY = 1;
+	AccelerationX = 0.25f;
+	AccelerationY = 0.0915527344f;
+	killAnimID = 4;
+	damage = 1;
+	lifeTime = AISPEED * 3 / 2;
+	//obj->lighttype = 2;
+}
+void BouncerBullet::Move(GameState& gameState) {
+	PositionX += SpeedX + pxSpeed;
+	PositionY += SpeedY;
+
+	SpeedX += AccelerationX;
+	//if (PositionY>level.waterlevel)
+		//SpeedY+=AccelerationY+level.gravity/4;
+	//else
+		SpeedY += AccelerationY + 0.125f;//level.gravity;
+
+	ApproachZeroByUnit(pxSpeed, 0.125f);
+	LimitTo(SpeedX, 8);
+	LimitTo(SpeedY, 4);
+
+	int sample = 0;
+	if (
+		(SpeedY<0 && gameState.MaskedPixel(int(PositionX), int(PositionY - 4))) ||
+		(SpeedY > 0 && gameState.MaskedPixel(int(PositionX), int(PositionY + 4)) && (PositionY -= SpeedY, true)) //only move up if bouncing off the floor
+	) {
+		++bounces;
+		SpeedY = SpeedY * -7 / 8;
+		sample += 1;
+	}
+	if (
+		(SpeedX < 0 && gameState.MaskedPixel(int(PositionX - 2), int(PositionY))) ||
+		(SpeedX > 0 && gameState.MaskedPixel(int(PositionX + 2), int(PositionY)))
+	) {
+		++bounces;
+		SpeedX = SpeedX * -7 / 8;
+		AccelerationX = -AccelerationX;
+		sample += 1;
+	}
+	if (sample)
+		;//PlaySample(PositionX,PositionY,sCOMMON_BLOKPLOP,40,0); //todo sample
+
+	if (counter++ > lifeTime || bounces > 16) {
+		//lighttype=0;
+		Explode();
+	};
+	
+	DetermineFrame(gameState.GameTicks >> 2);
+}
+void BouncerBullet::Draw(Layer* layer) const {
+	if (counter < 7) //DONT DISPLAY THE BULLET WHEN STILL INSIDE CHARACTER!!
+		return;
+	DrawNormally(layer);
 }

@@ -13,6 +13,11 @@
 
 #define ApproachZero(a) if (a > 0) --a; else if (a < 0) ++a
 #define LowerToZero(a) if (a) --a
+#define ApproachZeroByUnit(a, u) if (a > u) a -= u; else if (a < -u) a += u; else a = 0
+#define Minimize(value, limit) if (value > limit) value = limit
+#define Maximize(value, limit) if (value < limit) value = limit
+#define LimitToRange(value, lower, upper) Maximize(value, lower); else Minimize(value, upper)
+#define LimitTo(value, limit) LimitToRange(value, -limit, limit)
 
 unsigned int RandFac(unsigned int andValue);
 int Rand2Fac(unsigned int andValue);

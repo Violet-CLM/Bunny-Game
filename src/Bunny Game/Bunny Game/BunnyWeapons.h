@@ -51,3 +51,11 @@ class BlasterBullet : public PlayerBullet {
 public:
 	BlasterBullet(ObjectStartPos&, bool);
 };
+
+class BouncerBullet : public PlayerBullet {
+	int counter = 0, bounces = 0;
+	void Move(GameState&) override;
+	void Draw(Layer*) const override;
+public:
+	BouncerBullet(ObjectStartPos&);
+};
