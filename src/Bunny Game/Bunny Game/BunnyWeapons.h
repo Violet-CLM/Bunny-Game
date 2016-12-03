@@ -68,8 +68,10 @@ public:
 };
 
 class ToasterBullet : public PlayerBullet {
-	int counter = 0;
-	float DistanceFromParentY = 0;
+	union {
+		int NumberOfTimesToShowEndAnimation;
+		float DistanceFromParentY = 0;
+	};
 	bool Started = false;
 	void Move(GameState&) override;
 public:

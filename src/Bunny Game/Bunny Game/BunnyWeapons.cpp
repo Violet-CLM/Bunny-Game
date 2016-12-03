@@ -429,12 +429,9 @@ void ToasterBullet::Explode() {
 	if (damage == 1) //not powered up
 		Delete();
 	else {
-		if (Counter == 0)
-			Counter = 3;
+		AnimID = FrameID = 0;
+		NumberOfTimesToShowEndAnimation = 2; //number of times to do animation... it's possible in the original code for this to be 1 instead of 2, but only on rare occasion, so meh.
 		ObjectType = BunnyObjectType::NonInteractive;
-		SpeedX = 0; AccelerationX = 0;
-		SpeedY = 0; AccelerationY = 0;
-		Delete(); //todo obviously
 	}
 }
 void ToasterBullet::Move(GameState& gameState) {
@@ -443,12 +440,25 @@ void ToasterBullet::Move(GameState& gameState) {
 		DistanceFromParentY = Parent->PositionY - PositionY;
 
 		const float randomSpeed = Rand2Fac(3) * 0.015625f;
-		const auto angle = atan2(-SpeedY, SpeedX); //among various changes for better spreading when fired at non-orthogonal angles
+		const auto angle = (SpeedY != 0.f) ? 0 : atan2(-SpeedY, SpeedX); //among various changes for better spreading when fired at non-orthogonal angles
 		AccelerationX = sin(angle) * randomSpeed;
 		AccelerationY = cos(angle) * randomSpeed;
 
 		return;
 	}
+	if (ObjectType == BunnyObjectType::NonInteractive) { //exploding after hitting a wall/enemy
+		//if (RandFac(7)==0)
+		//	AddParticlePixel(obj->xpos,obj->ypos-65536*4,3);
+		
+		if ((gameState.GameTicks & 7) == 0 && (++FrameID >= GetFrameCount())) {
+			if (--NumberOfTimesToShowEndAnimation <= 0)
+				Delete();
+			else
+				FrameID = 0;
+		}
+		return;
+	}
+
 	if (abs(SpeedX) > abs(SpeedY)) {
 		Minimize(SpeedX, 6);
 		else Maximize(SpeedX, -6);
@@ -464,7 +474,7 @@ void ToasterBullet::Move(GameState& gameState) {
 	} else { //animate
 		if ((Counter & 7) == 0 && ++FrameID >= GetFrameCount())
 			Delete();
-		else if (++Counter > 8)
+		else if (++Counter >= CounterMustBeAtLeastThisHighToDrawBullet)
 			;//lightType = 1;
 		else //in early moments, adjust PositionY to follow shooter's
 			PositionY = Parent->PositionY - DistanceFromParentY;
