@@ -19,61 +19,7 @@ struct quad {
 	quad(float w, float h) {
 		setDimensions(w, h);
 	}
-	/*void useTexCoordsOfSprite(int frameID) {
-		sf::Vector2<float>* const frameTexCoords = SpritePropertyList[frameID].texCoords;
-		for (int i = 0; i < 4; ++i)
-			vertices[i].texCoords = frameTexCoords[i];
-	}*/
-	/*quad(int frameID, short angle, int scaleX, int scaleY) {
-		useTexCoordsOfSprite(frameID);
-		if (scaleX < 0)
-			flipHorizontally();
-		if (scaleY < 0)
-			flipVertically();
 
-		const Tframe* const frame = &frames[frameID];
-		const int left = (scaleX < 0) ? -(frame->width + frame->hotSpotX) : frame->hotSpotX;
-		const int top = (scaleY < 0) ? -(frame->height + frame->hotSpotY) : frame->hotSpotY;
-		const int right = frame->width + left;
-		const int bottom = frame->height + top;
-
-		scaleX = abs(scaleX);
-		scaleY = abs(scaleY);
-		const int sine = sinTable(angle) << 6;
-		const int cosine = cosTable(angle) << 6;
-		const int sineTimesInverseScaleX = sine / scaleX;
-		const int sineTimesInverseScaleY = sine / scaleY;
-		const int cosineTimesInverseScaleX = cosine / scaleX;
-		const int cosineTimesInverseScaleY = cosine / scaleY;
-
-		const int leftSine = left * sineTimesInverseScaleX;
-		const int leftCosine = left * cosineTimesInverseScaleX;
-		const int rightSine = right * sineTimesInverseScaleX;
-		const int rightCosine = right * cosineTimesInverseScaleX;
-		const int topSine = top * sineTimesInverseScaleY;
-		const int topCosine = top * cosineTimesInverseScaleY;
-		const int bottomSine = bottom * sineTimesInverseScaleY;
-		const int bottomCosine = bottom * cosineTimesInverseScaleY;
-
-		vertices[0].position.x = float((topSine + leftCosine) >> FIXFAC);
-		vertices[0].position.y = float((topCosine - leftSine) >> FIXFAC);
-		vertices[1].position.x = float((topSine + rightCosine) >> FIXFAC);
-		vertices[1].position.y = float((topCosine - rightSine) >> FIXFAC);
-		vertices[2].position.x = float((bottomSine + rightCosine) >> FIXFAC);
-		vertices[2].position.y = float((bottomCosine - rightSine) >> FIXFAC);
-		vertices[3].position.x = float((bottomSine + leftCosine) >> FIXFAC);
-		vertices[3].position.y = float((bottomCosine - leftSine) >> FIXFAC);
-	}*/
-
-	/*quad(int frameID, int width, int height, bool flippedX, bool flippedY) {
-		setDimensions((float)width, (float)height);
-		useTexCoordsOfSprite(frameID);
-
-		if (flippedX)
-			flipHorizontally();
-		if (flippedY)
-			flipVertically();
-	}*/
 	quad(const quad& tileQuad, int tileOrientation, unsigned int quadrant = 4) {
 		extern quad PossibleQuadOrientations[];
 

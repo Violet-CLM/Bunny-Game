@@ -110,7 +110,7 @@ void AmmoPickup::Collected(Bunny& play) const
 }
 
 void Gem::Draw(Layer* layers) const {
-	DrawNormally(layers, mode);
+	layers[SPRITELAYER].AppendSprite(mode, int(PositionX), int(PositionY + BounceYOffset), GetFrame(), DirectionX < 0);
 }
 void Gem::Collected(Bunny& play) const
 {

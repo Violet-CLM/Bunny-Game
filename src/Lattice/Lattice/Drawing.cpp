@@ -173,3 +173,45 @@ void VertexCollectionQueue::AppendResizedSprite(const SpriteMode& mode, int x, i
 	);
 	AppendQuad(repositionedQuad, sprite.Texture, mode);
 }
+void VertexCollectionQueue::AppendRotatedSprite(const SpriteMode& mode, int x, int y, const AnimFrame& sprite, float angle, float scaleX, float scaleY)
+{
+	if (scaleX == 0.f || scaleY == 0.f)
+		return;
+
+	quad repositionedQuad(sprite.Quad);
+	if (scaleX < 0)
+		repositionedQuad.flipHorizontally();
+	if (scaleY < 0)
+		repositionedQuad.flipVertically();
+
+	const int left = (scaleX < 0) ? -(sprite.Width + sprite.HotspotX) : sprite.HotspotX;
+	const int top = (scaleY < 0) ? -(sprite.Height + sprite.HotspotY) : sprite.HotspotY;
+	const int right = sprite.Width + left;
+	const int bottom = sprite.Height + top;
+
+	scaleX = abs(scaleX);
+	scaleY = abs(scaleY);
+	const float sine = sin(angle);
+	const float cosine = cos(angle);
+	const float sineTimesInverseScaleX = sine / scaleX;
+	const float sineTimesInverseScaleY = sine / scaleY;
+	const float cosineTimesInverseScaleX = cosine / scaleX;
+	const float cosineTimesInverseScaleY = cosine / scaleY;
+
+	const float leftSine = left * sineTimesInverseScaleX;
+	const float leftCosine = left * cosineTimesInverseScaleX;
+	const float rightSine = right * sineTimesInverseScaleX;
+	const float rightCosine = right * cosineTimesInverseScaleX;
+	const float topSine = top * sineTimesInverseScaleY;
+	const float topCosine = top * cosineTimesInverseScaleY;
+	const float bottomSine = bottom * sineTimesInverseScaleY;
+	const float bottomCosine = bottom * cosineTimesInverseScaleY;
+
+	repositionedQuad.vertices[0].position = sf::Vector2f(topSine + leftCosine, topCosine - leftSine);
+	repositionedQuad.vertices[1].position = sf::Vector2f(topSine + rightCosine, topCosine - rightSine);
+	repositionedQuad.vertices[2].position = sf::Vector2f(bottomSine + rightCosine, bottomCosine - rightSine);
+	repositionedQuad.vertices[3].position = sf::Vector2f(bottomSine + leftCosine, bottomCosine - leftSine);
+
+	repositionedQuad.positionPositionAt(x, y);
+	AppendQuad(repositionedQuad, sprite.Texture, mode);
+}

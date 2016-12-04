@@ -269,11 +269,10 @@ void BlasterBullet::Move(GameState& gameState) {
 		DetermineFrame(gameState.GameTicks >> 2);
 	}
 }
-void BlasterBullet::Draw(Layer* layer) const {
+void BlasterBullet::Draw(Layer* layers) const {
 	if (Counter < CounterMustBeAtLeastThisHighToDrawBullet)
 		return;
-	//const auto angle = atan2(SpeedX, SpeedY);
-	PlayerBullet::Draw(layer); //todo
+	layers[SPRITELAYER].AppendRotatedSprite(SpriteMode::Paletted, int(PositionX), int(PositionY), GetFrame(), atan2((SpeedX < 0) ? SpeedY : -SpeedY, abs(SpeedX)), DirectionX);
 }
 
 BouncerBullet::BouncerBullet(ObjectStartPos& objStart) : PlayerBullet(objStart, Weapon::Bouncer, 7) {
