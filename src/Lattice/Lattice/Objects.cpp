@@ -81,11 +81,16 @@ bool GameObject::CollidesWith(const GameObject& other) const
 	return false;
 }
 
+GameObject::GameObject(ObjectStartPos & objStart): HostLevel(objStart.HostLevel),HostLevelObjectList(HostLevel.Objects),HostEvent(objStart.HostEvent),Active(true),ObjectType(0),Parent(nullptr) {
+	PositionX = OriginX = objStart.OriginX;
+	PositionY = OriginY = objStart.OriginY;
+	Set = objStart.Set;
+}
+
 AnimFrame & GameObject::GetFrame() const
 {
 	return (*Set->Animations[AnimID].AnimFrames)[FrameID];
 }
-
 GameObject& ObjectInitialization::AddObject(Level& level, Event& ev, float x, float y) const
 {
 	GameObject* newObject = Function(ObjectStartPos(level, ev, x, y, AnimationSets[AnimSetID]));

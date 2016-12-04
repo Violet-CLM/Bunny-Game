@@ -2,10 +2,12 @@
 #include <memory>
 #include <functional>
 #include <vector>
+#include <forward_list>
 #include "Resources.h"
 #include "Layer.h"
 #include "Event.h"
 
+class Level;
 class ObjectStartPos {
 	friend class GameObject;
 private:
@@ -45,11 +47,7 @@ public:
 	bool CollidesWith(const GameObject&) const;
 	AnimFrame& GetFrame() const;
 
-	GameObject( ObjectStartPos& objStart) : HostLevel(objStart.HostLevel), HostEvent(objStart.HostEvent), Active(true), ObjectType(0), Parent(nullptr) {
-		PositionX = OriginX = objStart.OriginX;
-		PositionY = OriginY = objStart.OriginY;
-		Set = objStart.Set;
-	}
+	GameObject(ObjectStartPos& objStart);
 
 	float OriginX, OriginY;
 private:
@@ -67,6 +65,7 @@ public:
 	GameObject& AddObject(EventID, float, float);
 protected:
 	Event& HostEvent;
+	std::forward_list<std::unique_ptr<GameObject>>& HostLevelObjectList;
 	std::vector<ObjectCollisionShape> CollisionShapes;
 
 	GameObject* Parent;

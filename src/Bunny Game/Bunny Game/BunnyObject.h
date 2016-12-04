@@ -6,7 +6,7 @@
 namespace BunnyObjectType {
 	enum {
 		NonInteractive = 0,
-		Player, Pickup, Enemy, PlayerBullet, EnemyBullet
+		Player, Pickup, Interactive, PlayerBullet, EnemyBullet
 	};
 }
 
@@ -17,16 +17,17 @@ protected:
 	void Draw(Layer*) const override;
 	int DirectionX, DirectionY;
 };
-class Enemy : public BunnyObject {
+class Interactive : public BunnyObject {
 protected:
 	bool CancelSpecialAttacks = false;
 	unsigned int Points = 0, JustHit = 0;
 	int Energy = 1;
-	virtual void Move(GameState&) = 0;
+	virtual void Move(GameState&) {}
 	void Behave(GameState&) override;
-	bool Hurt(unsigned int, bool);
+	virtual bool Hurt(unsigned int, bool);
 	void HitBy(GameObject&) override;
 	void Draw(Layer*) const override;
 public:
-	Enemy(ObjectStartPos&);
+	Interactive(ObjectStartPos&, bool=true);
+	bool IsEnemy, TriggersTNT; //separate from IsEnemy for purposes of destruct scenery
 };

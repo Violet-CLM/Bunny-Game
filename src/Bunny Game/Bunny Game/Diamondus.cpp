@@ -1,7 +1,7 @@
 #include "Diamondus.h"
 #include "BunnyMisc.h"
 
-Bee::Bee(ObjectStartPos& start) : Enemy(start) {
+Bee::Bee(ObjectStartPos& start) : Interactive(start) {
 	CollisionShapes.emplace_back(24,33);
 	Energy = 1;
 }

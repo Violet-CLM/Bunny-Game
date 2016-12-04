@@ -210,7 +210,7 @@ void Level::Update(ObjectActivityFunction& updateActiveObjects, ObjectCollisionT
 	//	Objects.emplace_back(it);
 	//ObjectsToAdd.clear();
 	for (auto& it : Objects) {
-		it->Draw(Layers);
+ 		it->Draw(Layers);
 		it->Behave(gameState);
 	}
 	for (auto& it : Objects)

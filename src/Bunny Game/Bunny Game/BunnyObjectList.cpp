@@ -33,6 +33,7 @@ ObjectList* GetObjectList() {
 		ObjT(PLAYERBULLETP2, Ammo, BouncerBulletPU),
 		ObjTC(PLAYERBULLET6, Ammo, ToasterBullet, false),
 		ObjTC(PLAYERBULLETP6, Ammo, ToasterBullet, true),
+		ObjT(TNT, Ammo, TNTBullet),
 		ObjTC(PLAYERBULLET8, Ammo, PepperSprayBullet, false),
 		ObjTC(PLAYERBULLETP8, Ammo, PepperSprayBullet, true),
 
@@ -108,7 +109,7 @@ PreloadedAnimationsList GetDefaultAnimList() {
 }
 
 bool ObjectsShouldCollide(const GameObject& a, const GameObject& b) {
-	if ((a.ObjectType == BunnyObjectType::Player || a.ObjectType == BunnyObjectType::PlayerBullet) && (b.ObjectType == BunnyObjectType::Pickup || b.ObjectType == BunnyObjectType::Enemy))
+	if ((a.ObjectType == BunnyObjectType::Player || a.ObjectType == BunnyObjectType::PlayerBullet) && (b.ObjectType == BunnyObjectType::Pickup || b.ObjectType == BunnyObjectType::Interactive))
 		return true;
 	if (a.ObjectType == BunnyObjectType::Player && b.ObjectType == BunnyObjectType::EnemyBullet)
 		return true;

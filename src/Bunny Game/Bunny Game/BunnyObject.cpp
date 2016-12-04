@@ -11,17 +11,17 @@ void BunnyObject::Draw(Layer* layers) const {
 	DrawNormally(layers);
 }
 
-Enemy::Enemy(ObjectStartPos& start) : BunnyObject(start) {
-	ObjectType = BunnyObjectType::Enemy;
+Interactive::Interactive(ObjectStartPos& start, bool enemy) : BunnyObject(start), IsEnemy(enemy), TriggersTNT(enemy) {
+	ObjectType = BunnyObjectType::Interactive;
 }
-void Enemy::Behave(GameState& gameState) {
+void Interactive::Behave(GameState& gameState) {
 	Move(gameState);
 	LowerToZero(JustHit);
 }
-void Enemy::Draw(Layer* layers) const {
+void Interactive::Draw(Layer* layers) const {
 	DrawNormally(layers, !JustHit ? SpriteMode::Paletted : SpriteMode(Shaders[DefaultShaders::SingleColorPaletted], 15));
 }
-bool Enemy::Hurt(unsigned int force, bool hurtByBullet) {
+bool Interactive::Hurt(unsigned int force, bool hurtByBullet) {
 	JustHit = 5; //FLASHTIME
 	if ((Energy -= force) <= 0) {
 		//todo points
@@ -33,12 +33,13 @@ bool Enemy::Hurt(unsigned int force, bool hurtByBullet) {
 	}
 	return false;
 }
-void Enemy::HitBy(GameObject& other) {
+void Interactive::HitBy(GameObject& other) {
 	if (other.ObjectType == BunnyObjectType::Player) {
 		Bunny& play = static_cast<Bunny&>(other);
-		const auto attackType = play.GetAttackType(false); //false: enemy is not frozen (todo)
+		const auto attackType = play.GetAttackType(false); //false: Interactive is not frozen (todo)
 		if (attackType == Bunny::AttackTypes::NotAttacking) {
-			play.Hurt();
+			if (IsEnemy)
+				play.Hurt();
 		} else {
 			if (attackType != Bunny::AttackTypes::SpecialAttack || CancelSpecialAttacks) //only for bosses
 				play.HitEnemyUsingAttackType(attackType);

@@ -446,7 +446,7 @@ void ToasterBullet::Move(GameState& gameState) {
 
 		return;
 	}
-	if (ObjectType == BunnyObjectType::NonInteractive) { //exploding after hitting a wall/enemy
+	if (ObjectType == BunnyObjectType::NonInteractive) { //exploding after hitting a wall/Interactive
 		//if (RandFac(7)==0)
 		//	AddParticlePixel(obj->xpos,obj->ypos-65536*4,3);
 		
@@ -479,4 +479,77 @@ void ToasterBullet::Move(GameState& gameState) {
 		else //in early moments, adjust PositionY to follow shooter's
 			PositionY = Parent->PositionY - DistanceFromParentY;
 	}
+}
+
+TNTBullet::TNTBullet(ObjectStartPos& start) : Interactive(start, false) {
+	AnimID = 59;
+	CollisionShapes.emplace_back(11);
+
+	//lightType = 1;
+}
+bool TNTBullet::Hurt(unsigned int, bool fromBullet) {
+	if (fromBullet) {
+		ObjectType = BunnyObjectType::NonInteractive;
+		Counter = 0;
+		return true;
+	}
+	return true;
+}
+void TNTBullet::Behave(GameState& gameState) {
+	if (ObjectType == BunnyObjectType::Interactive) { //hasn't started exploding yet
+		if (++Counter > 255)
+			Hurt(1, true);
+		else if (!(Counter & 3)) {
+		//show counting animation
+			DetermineFrame(FrameID + 1);
+
+		//check for near objects!
+			for (const auto& it : HostLevelObjectList) {
+				if (it->ObjectType == BunnyObjectType::Interactive && static_cast<const Interactive&>(*it.get()).TriggersTNT) {
+					const auto dx = PositionX - it->PositionX;
+					if (dx > -64 && dx < 64) {
+						const auto dy = PositionY - it->PositionY;
+						if (dy > -64 && dy < 64) {
+							Hurt(1, true);
+							break; //nomore
+						}	//dy
+					}	//dx
+				}	//for each active gameobj
+			}
+		}	//if objcounter&3==0
+	} else {	//exploding
+		if ((++Counter & 3) == 3)
+			DetermineFrame(FrameID + 1);
+	
+		if (Counter < 20) {
+			/*if (Counter==1) {
+				if (RandFac(1))
+					obj->var1=sCOMMON_BELL_FIRE;
+				else
+					obj->var1=sCOMMON_BELL_FIRE2;
+			}	//counter=1*/
+
+			//obj->channel=PlayLoopSample(obj->xpos,obj->ypos,obj->var1,0,0,obj->channel);
+		} else if (Counter == 20) {
+			//PlaySample(obj->xpos,obj->ypos,sCOMMON_EXPL_TNT,128,0);
+
+			Explosion::AddExplosion(*this, 0, 77);
+			//DoFullBlast(num,obj->xpos,obj->ypos,obj->creator,96*96);
+				
+			//obj->lighttype=5;
+			light=18;
+		} else {
+			if (--light < 2) 
+				Delete();
+		}	//light
+	}
+}
+void TNTBullet::Draw(Layer* layers) const {
+	if (ObjectType == BunnyObjectType::Interactive)
+		DrawNormally(layers);
+	else if (Counter < 20) {
+		//obj->curframe=anims[obj->curanim].framelist[0];
+		//n=(256+(obj->counter-50)*(obj->counter-50))/4;
+		//AddScaledSprite(obj->xpos,obj->ypos,SPRITELAYER-1,n,obj->curframe);
+	} //else don't draw, let the Explosion object handle that
 }
