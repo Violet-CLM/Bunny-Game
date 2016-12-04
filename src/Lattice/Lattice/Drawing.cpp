@@ -152,3 +152,24 @@ void VertexCollectionQueue::AppendPixel(const SpriteMode& mode, int x, int y, sf
 {
 	return AppendRectangle(mode, x, y, 1, 1, color);
 }
+void VertexCollectionQueue::AppendResizedSprite(const SpriteMode& mode, int x, int y, const AnimFrame& sprite, float scaleX, float scaleY)
+{
+	if (scaleX == 0.f || scaleY == 0.f)
+		return;
+
+	quad repositionedQuad(sprite.Quad);
+	const bool flippedX = scaleX < 0;
+	const bool flippedY = scaleY < 0;
+	scaleX = abs(scaleX);
+	scaleY = abs(scaleY);
+	if (flippedX)
+		repositionedQuad.flipHorizontally();
+	if (flippedY)
+		repositionedQuad.flipVertically();
+	repositionedQuad.setDimensions(scaleX * sprite.Width, scaleY * sprite.Height);
+	repositionedQuad.positionPositionAt(
+		x + scaleX * (!flippedX ? sprite.HotspotX : (1 - sprite.HotspotX - sprite.Width)),
+		y + scaleY * (!flippedY ? sprite.HotspotY : (1 - sprite.HotspotY - sprite.Height))
+	);
+	AppendQuad(repositionedQuad, sprite.Texture, mode);
+}

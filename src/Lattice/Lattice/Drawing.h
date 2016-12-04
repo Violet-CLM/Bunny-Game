@@ -215,6 +215,8 @@ public:
 	void AppendSprite(const SpriteMode&, int, int, const AnimFrame&, bool = false, bool = false);
 	void AppendRectangle(const SpriteMode&, int, int, int, int, sf::Uint8);
 	void AppendPixel(const SpriteMode&, int, int, sf::Uint8);
+	void AppendResizedSprite(const SpriteMode&, int, int, const AnimFrame&, float,float);
+	void AppendRotatedSprite(const SpriteMode&, int, int, const AnimFrame&, float, float=1.f,float=1.f);
 };
 
 void GeneratePaletteTexture(sf::Texture&, const sf::Uint8*, PaletteTableSetupFunction, unsigned int);

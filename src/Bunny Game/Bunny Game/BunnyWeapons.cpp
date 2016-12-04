@@ -490,7 +490,7 @@ TNTBullet::TNTBullet(ObjectStartPos& start) : Interactive(start, false) {
 bool TNTBullet::Hurt(unsigned int, bool fromBullet) {
 	if (fromBullet) {
 		ObjectType = BunnyObjectType::NonInteractive;
-		Counter = 0;
+		Counter = FrameID = 0;
 		return true;
 	}
 	return true;
@@ -518,10 +518,7 @@ void TNTBullet::Behave(GameState& gameState) {
 			}
 		}	//if objcounter&3==0
 	} else {	//exploding
-		if ((++Counter & 3) == 3)
-			DetermineFrame(FrameID + 1);
-	
-		if (Counter < 20) {
+		if (++Counter < 20) {
 			/*if (Counter==1) {
 				if (RandFac(1))
 					obj->var1=sCOMMON_BELL_FIRE;
@@ -548,8 +545,7 @@ void TNTBullet::Draw(Layer* layers) const {
 	if (ObjectType == BunnyObjectType::Interactive)
 		DrawNormally(layers);
 	else if (Counter < 20) {
-		//obj->curframe=anims[obj->curanim].framelist[0];
-		//n=(256+(obj->counter-50)*(obj->counter-50))/4;
-		//AddScaledSprite(obj->xpos,obj->ypos,SPRITELAYER-1,n,obj->curframe);
+		const float scale = (((256 + (Counter-50) * (Counter-50)) / 4) & 255) / 32.f;
+		layers[SPRITELAYER].AppendResizedSprite(SpriteMode::Paletted, int(PositionX), int(PositionY), GetFrame(), scale,scale);
 	} //else don't draw, let the Explosion object handle that
 }

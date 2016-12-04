@@ -23,7 +23,7 @@ ObjectList* GetObjectList() {
 		//ObjTC(GUN4AMMO3, Ammo, AmmoPickup, Weapon::Seeker),
 		//ObjTC(GUN5AMMO3, Ammo, AmmoPickup, Weapon::RF),
 		ObjTC(GUN6AMMO3, Ammo, AmmoPickup, Weapon::Toaster),
-		//ObjTC(GUN7AMMO3, Ammo, AmmoPickup, Weapon::TNT),
+		ObjTC(GUN7AMMO3, Ammo, AmmoPickup, Weapon::TNT),
 		ObjTC(GUN8AMMO3, Ammo, AmmoPickup, Weapon::Gun8),
 		//ObjTC(GUN9AMMO3, Ammo, AmmoPickup, Weapon::Gun9),
 
