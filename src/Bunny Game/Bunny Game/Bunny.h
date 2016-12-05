@@ -29,6 +29,8 @@ struct Player {
 extern std::array<Player, MAXLOCALPLAYERS> Players;
 
 class Bunny : public BunnyObject {
+	friend class BunnyObject;
+
 	bool KeyUp, KeyRight, KeyDown, KeyLeft, KeyFire, KeySelect, KeyRun, KeyJump;
 	bool WasPressingKeySelectLastGameTick;
 	float SpeedX, AccelerationX, OldSpeedX, WarpTargetPositionX;
@@ -81,6 +83,7 @@ public:
 
 	void EatFood();
 	bool Hurt(unsigned int = 1);
+	bool IsHurt() const { return flicker != 0 || hit > 0; }
 	AttackTypes GetAttackType(bool = false) const;
 	void HitEnemyUsingAttackType(AttackTypes);
 	void AddToInvincibilityDuration(int);

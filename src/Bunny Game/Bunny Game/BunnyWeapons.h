@@ -90,8 +90,8 @@ class TNTBullet : public Interactive {
 	int light; //temporarily defined here until a proper GameObject::Light or BunnyObject::Light variable is engineered
 	unsigned int Counter = 0;
 	void Behave(GameState&) override;
-	bool Hurt(unsigned int, bool) override;
 	void Draw(Layer*) const override;
 public:
 	TNTBullet(ObjectStartPos&);
+	bool Hurt(unsigned int, bool) override;
 };

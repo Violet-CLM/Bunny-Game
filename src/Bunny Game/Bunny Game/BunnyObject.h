@@ -15,6 +15,7 @@ class BunnyObject : public GameObject { //put deactivates, etc. code in here
 protected:
 	void DrawNormally(Layer*, const SpriteMode& = SpriteMode::Paletted) const;
 	void Draw(Layer*) const override;
+	void DoBlast(int, bool=false);
 	int DirectionX, DirectionY;
 };
 class Interactive : public BunnyObject {
@@ -24,10 +25,10 @@ protected:
 	int Energy = 1;
 	virtual void Move(GameState&) {}
 	void Behave(GameState&) override;
-	virtual bool Hurt(unsigned int, bool);
 	void HitBy(GameObject&) override;
 	void Draw(Layer*) const override;
 public:
 	Interactive(ObjectStartPos&, bool=true);
+	virtual bool Hurt(unsigned int, bool);
 	bool IsEnemy, TriggersTNT; //separate from IsEnemy for purposes of destruct scenery
 };

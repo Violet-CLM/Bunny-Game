@@ -272,7 +272,7 @@ void BlasterBullet::Move(GameState& gameState) {
 void BlasterBullet::Draw(Layer* layers) const {
 	if (Counter < CounterMustBeAtLeastThisHighToDrawBullet)
 		return;
-	layers[SPRITELAYER].AppendRotatedSprite(SpriteMode::Paletted, int(PositionX), int(PositionY), GetFrame(), atan2((SpeedX < 0) ? SpeedY : -SpeedY, abs(SpeedX)), DirectionX);
+	layers[SPRITELAYER].AppendRotatedSprite(SpriteMode::Paletted, int(PositionX), int(PositionY), GetFrame(), atan2((SpeedX < 0) ? SpeedY : -SpeedY, abs(SpeedX)), float(DirectionX));
 }
 
 BouncerBullet::BouncerBullet(ObjectStartPos& objStart) : PlayerBullet(objStart, Weapon::Bouncer, 7) {
@@ -530,7 +530,7 @@ void TNTBullet::Behave(GameState& gameState) {
 			//PlaySample(obj->xpos,obj->ypos,sCOMMON_EXPL_TNT,128,0);
 
 			Explosion::AddExplosion(*this, 0, 77);
-			//DoFullBlast(num,obj->xpos,obj->ypos,obj->creator,96*96);
+			DoBlast(96*96, true);
 				
 			//obj->lighttype=5;
 			light=18;
@@ -545,6 +545,6 @@ void TNTBullet::Draw(Layer* layers) const {
 		DrawNormally(layers);
 	else if (Counter < 20) {
 		const float scale = (((256 + (Counter-50) * (Counter-50)) / 4) & 255) / 32.f;
-		layers[SPRITELAYER].AppendResizedSprite(SpriteMode::Paletted, int(PositionX), int(PositionY), GetFrame(), scale,scale);
+		layers[SPRITELAYER - 1].AppendResizedSprite(SpriteMode::Paletted, int(PositionX), int(PositionY), GetFrame(), scale,scale);
 	} //else don't draw, let the Explosion object handle that
 }

@@ -5,6 +5,7 @@
 
 class Pickup : public BunnyObject {
 	using BunnyObject::BunnyObject;
+	friend class BunnyObject;
 
 	unsigned int TimeTillCollectable = 0;
 	bool Pickup::InMotion() const;
