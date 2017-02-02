@@ -129,13 +129,20 @@ void GameObject::LostChild(GameObject& child)
 {
 	Children.remove(&child);
 }
+void GameObject::Orphan() {
+	if (Parent != nullptr)
+		Parent->LostChild(*this);
+	LostParent();
+}
+void GameObject::Adopt(GameObject& child) {
+	child.Parent = this;
+	Children.push_back(&child);
+}
 
 GameObject& GameObject::AddObject(EventID eventID, float x, float y, bool parent)
 {
 	GameObject& newObject = HostLevel.ObjectInitializationListPtr->at(eventID).AddObject(HostLevel, HostLevel.GetEvent(int(x / TILEWIDTH), int(y / TILEHEIGHT)), x, y);
-	if (parent) {
-		newObject.Parent = this;
-		Children.push_back(&newObject);
-	}
+	if (parent)
+		Adopt(newObject);
 	return newObject;
 }

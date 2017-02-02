@@ -63,6 +63,7 @@ public:
 	virtual void HitBy(GameObject&) {}
 
 	GameObject& AddObject(EventID, float, float, bool=false);
+	void Adopt(GameObject&);
 protected:
 	Event& HostEvent;
 	std::forward_list<std::unique_ptr<GameObject>>& HostLevelObjectList;
@@ -70,9 +71,10 @@ protected:
 
 	GameObject* Parent;
 	std::list<GameObject*> Children;
-	virtual void LostParent();
-	virtual void LostChild(GameObject&);
-
+	void LostParent();
+	void LostChild(GameObject&);
+	void Orphan();
+	
 	unsigned int GetFrameCount() const;
 	void DetermineFrame(unsigned int);
 	void Delete();

@@ -600,3 +600,121 @@ RFBullet& RFBullet::AddHorizontalRFBullet(GameObject& parent, sf::Vector2f posit
 	return newRFBullet;
 }
 
+SeekerBullet::SeekerBullet(ObjectStartPos& start, bool poweredUp) : PlayerBullet(start, Weapon::Seeker) {
+	AnimID = poweredUp ? 40 : 35; //facing down; each version has five animations for drawing at different angles
+	CollisionShapes.emplace_back(4);
+	SpeedX = poweredUp ? 1.5f : 2;
+	AccelerationX = 0.25f;
+	killAnimID = 5;
+	damage = 2 + poweredUp;
+	lifeTime = 2 * AISPEED;
+	//obj->lighttype=2;
+}
+void SeekerBullet::Move(GameState& gameState) {
+	if (!Started) {
+		Started = true;
+		SpeedX += pxSpeed;
+		Orphan(); //no longer use the Bunny object for Parent, because that system is about to be repurposed for the missile's target
+	}
+	
+	if (Parent == nullptr) { //no current target; try to find one!
+		float mindist = 256*256;
+		GameObject* target = nullptr;
+		for (auto& it : HostLevelObjectList) {
+			if (it->ObjectType == BunnyObjectType::Interactive && static_cast<const Interactive&>(*it.get()).IsEnemy) {
+				const auto dx = PositionX - it->PositionX;
+				const auto dy = PositionY - it->PositionY;
+				const auto distance = dx * dy;
+				if (distance < mindist && !TraceLine(gameState, PositionX,PositionY, it->PositionX, it->PositionY)) {
+					mindist = distance;
+					target = &*it;
+				}
+			}
+		}
+		if (target != nullptr)
+			target->Adopt(*this);
+	}
+
+		
+	if (Parent != nullptr)
+	{
+		float dx = Parent->PositionX - PositionX;
+		float dy = Parent->PositionY - PositionY;
+		{
+			float distance;
+			{
+				const auto dx2 = dx/4;
+				const auto dy2 = dy/4;
+				distance=(dx2*dx2+dy2*dy2);
+			}
+
+			if (distance<2048)
+				distance=sqrt(distance);
+			else
+				distance=64;	//whatever
+
+			if (distance>1) {
+				distance=(3*256)/distance;
+
+				dx=(dx*distance)/128;
+				dy=(dy*distance)/128;
+			}
+		}
+		SpeedX = (dx + SpeedX) / 8;
+		SpeedY = (dy + SpeedY) / 8;
+		DirectionX = (SpeedX < 0) ? -1 : 1;
+	}
+
+	PositionX += SpeedX;
+	PositionY += SpeedY;
+
+	if (++Counter > lifeTime || CheckFullPixel(gameState, int(PositionX), int(PositionY)))
+	{
+		Explode();
+		return;
+	}
+
+	 //chose angle
+	AnimID = (damage == 3) ? 40 : 35;
+	if (abs(SpeedX) < 0.5f) {
+		if (SpeedY < 0.f)
+			AnimID += 3; //up
+	} else if (abs(SpeedY) < 0.5f)
+		AnimID += 2; //horizontal
+	else if (SpeedY < 0.f)
+		AnimID += 4; //diagonal up
+	else
+		AnimID += 1; //diagonal down
+	DetermineFrame(gameState.GameTicks >> 2);
+}
+void SeekerBullet::Explode() {
+	//cLIGHTEXPLODE();
+
+	PlayerBullet::Explode(); //use standard killanim/deleting code
+}
+
+bool SeekerBullet::CheckFullPixel(const GameState& gameState, int x, int y) { //ignores masked tiles depending on certain events
+	const EventID eventAtPixel = gameState.GetEvent(x / TILEWIDTH, y / TILEHEIGHT).ID;
+	return
+		eventAtPixel != EventIDs::ONEWAY &&
+		eventAtPixel != EventIDs::VINE &&
+		eventAtPixel != EventIDs::HOOK &&
+		gameState.MaskedPixel(x,y);
+} //CheckFullPixel()
+int SeekerBullet::TraceLine(const GameState& gameState, float x0, float y0, float x1, float y1) {
+	float dx=(x1-x0)/64;
+	float dy=(y1-y0)/64;
+	int t=0;
+
+	do {
+		++t;
+
+		if (CheckFullPixel(gameState, int(x0),int(y0)))
+			return t;
+
+		x0+=dx;
+		y0+=dy;
+	} while (t<64);
+
+	return 0;
+} //TraceLine()

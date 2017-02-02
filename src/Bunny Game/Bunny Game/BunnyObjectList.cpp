@@ -20,7 +20,7 @@ ObjectList* GetObjectList() {
 
 		ObjTC(GUN2AMMO3, Ammo, AmmoPickup, Weapon::Bouncer),
 		//ObjTC(GUN3AMMO3, Ammo, AmmoPickup, Weapon::Ice),
-		//ObjTC(GUN4AMMO3, Ammo, AmmoPickup, Weapon::Seeker),
+		ObjTC(GUN4AMMO3, Ammo, AmmoPickup, Weapon::Seeker),
 		ObjTC(GUN5AMMO3, Ammo, AmmoPickup, Weapon::RF),
 		ObjTC(GUN6AMMO3, Ammo, AmmoPickup, Weapon::Toaster),
 		ObjTC(GUN7AMMO3, Ammo, AmmoPickup, Weapon::TNT),
@@ -31,6 +31,8 @@ ObjectList* GetObjectList() {
 		ObjTC(PLAYERBULLETP1, Ammo, BlasterBullet, true),
 		ObjT(PLAYERBULLET2, Ammo, BouncerBullet),
 		ObjT(PLAYERBULLETP2, Ammo, BouncerBulletPU),
+		ObjTC(PLAYERBULLET4, Ammo, SeekerBullet, false),
+		ObjTC(PLAYERBULLETP4, Ammo, SeekerBullet, true),
 		ObjTC(PLAYERBULLET5, Ammo, RFBullet, false),
 		ObjTC(PLAYERBULLETP5, Ammo, RFBullet, true),
 		ObjTC(PLAYERBULLET6, Ammo, ToasterBullet, false),

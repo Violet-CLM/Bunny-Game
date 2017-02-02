@@ -106,3 +106,13 @@ public:
 	static RFBullet& AddHorizontalRFBullet(GameObject&, sf::Vector2f, float,float, bool,bool);
 	RFBullet(ObjectStartPos&, bool);
 };
+
+class SeekerBullet : public PlayerBullet {
+	void Move(GameState&) override;
+	void Explode() override;
+	static bool CheckFullPixel(const GameState&, int, int);
+	static int TraceLine(const GameState&, float,float,float,float);
+	bool Started = false;
+public:
+	SeekerBullet(ObjectStartPos&, bool);
+};
