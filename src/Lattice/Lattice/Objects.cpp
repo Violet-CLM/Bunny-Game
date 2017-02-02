@@ -130,10 +130,12 @@ void GameObject::LostChild(GameObject& child)
 	Children.remove(&child);
 }
 
-GameObject& GameObject::AddObject(EventID eventID, float x, float y)
+GameObject& GameObject::AddObject(EventID eventID, float x, float y, bool parent)
 {
 	GameObject& newObject = HostLevel.ObjectInitializationListPtr->at(eventID).AddObject(HostLevel, HostLevel.GetEvent(int(x / TILEWIDTH), int(y / TILEHEIGHT)), x, y);
-	newObject.Parent = this;
-	Children.push_back(&newObject);
+	if (parent) {
+		newObject.Parent = this;
+		Children.push_back(&newObject);
+	}
 	return newObject;
 }

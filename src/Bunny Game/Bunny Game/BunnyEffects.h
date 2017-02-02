@@ -8,5 +8,5 @@ class Explosion : public BunnyObject {
 	void Behave(GameState&) override;
 
 public:
-	static Explosion& AddExplosion(GameObject&, int, int);
+	static Explosion& AddExplosion(GameObject&, int, int, bool=false);
 };

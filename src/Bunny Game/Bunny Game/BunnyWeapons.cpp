@@ -5,7 +5,7 @@
 
 void Bunny::AddBullet() { //figure out position and angle
 	if (fireType == Weapon::TNT) { //TNT needs to be placed at the same (horizontal) position as the player to allow TNT climbing
-		AddObject(EventIDs::TNT, PositionX, PositionY);
+		AddObject(EventIDs::TNT, PositionX, PositionY, true);
 	} else {
 		float angle;
 		sf::Vector2f position(PositionX, PositionY);
@@ -106,19 +106,18 @@ void Bunny::AddBullet(sf::Vector2f position, float targetAngle, bool directlyFro
 		}
 
 		if (fireType == Weapon::RF) {
-			/*if (directlyFromPlayer && (targetAngle == float(ARIGHT) || targetAngle == float(ALEFT)) && obj->behavior.isRFBullet(obj)) { //normal horizontal non-mouse-aimed RFs; use exact old speeds to avoid messing with jumps and kicks and things
-				int xSpeed = obj->xSpeed;
-				int pxSpeed = (xSpeed + (xSpeed * direction)) & 0xFFFFFF00;
-				AddSingleBullet(position, xSpeed, -1, pxSpeed, false, eventID);
+			if (directlyFromPlayer && (targetAngle == float(ARIGHT) || targetAngle == float(ALEFT))) { //normal horizontal non-mouse-aimed RFs; use exact old speeds to avoid messing with jumps and kicks and things
+				const bool right = targetAngle == float(ARIGHT);
+				RFBullet::AddHorizontalRFBullet(*this, position, SpeedX, -1, powerup,right);
 				if (powerup)
-					AddSingleBullet(position, xSpeed, 0, pxSpeed, false, eventID);
-				AddSingleBullet(position, xSpeed, 1, pxSpeed, false, eventID);
+					RFBullet::AddHorizontalRFBullet(*this, position, SpeedX, 0, powerup,right);
+				RFBullet::AddHorizontalRFBullet(*this, position, SpeedX, 1, powerup,right);
 			} else {
 				AddSingleBullet(targetAngle-ARFOFFSET, position, eventID, directlyFromPlayer);
 				if (powerup)
 					AddSingleBullet(targetAngle, position, eventID, directlyFromPlayer);
 				AddSingleBullet(targetAngle+ARFOFFSET, position, eventID, directlyFromPlayer);
-			}*/
+			}
 		} else if (fireType == Weapon::Gun8) {
 			int numberOfBulletsToFire = 2;
 			do
@@ -169,7 +168,7 @@ void Bunny::AddSingleBullet(float targetAngle, sf::Vector2f position, EventID ev
 	AddSingleBullet(targetAngle, position, eventID, xSpeed, pxSpeed, reduceLifetime);
 }
 void Bunny::AddSingleBullet(float targetAngle, sf::Vector2f position, EventID eventID, float xSpeed, float pxSpeed,  bool reduceLifetime) {
-	static_cast<PlayerBullet&>(AddObject(eventID, position.x, position.y)).Aim(targetAngle, xSpeed, pxSpeed, reduceLifetime);
+	static_cast<PlayerBullet&>(AddObject(eventID, position.x, position.y, true)).Aim(targetAngle, xSpeed, pxSpeed, reduceLifetime);
 }
 
 PlayerBullet::PlayerBullet(ObjectStartPos& objStart, Weapon::Weapon id, int counterTarget) : BunnyObject(objStart), ammoID(id), CounterMustBeAtLeastThisHighToDrawBullet(counterTarget) {
@@ -221,10 +220,6 @@ void PlayerBullet::Aim(float targetAngle, float xSpeed, float pxSpeedNew, bool r
 		else if (!first) obj->var1 = 512; //cosmetic
 	}*/
 	DirectionX = (AccelerationX >= 0) ? 1 : -1;
-	/*if (obj->upAnim && !(obj->behavior == cBULLET) && abs(ySpeed) > abs(xSpeed) && !obj->behavior.isRFBullet(obj))
-		obj->curAnim = obj->upAnim;
-	else if (nuDirection == 0)
-		nuDirection = 1; //toaster has very specific requirements for .direction*/
 }
 void PlayerBullet::Explode()
 {
@@ -548,3 +543,34 @@ void TNTBullet::Draw(Layer* layers) const {
 		layers[SPRITELAYER - 1].AppendResizedSprite(SpriteMode::Paletted, int(PositionX), int(PositionY), GetFrame(), scale,scale);
 	} //else don't draw, let the Explosion object handle that
 }
+
+RFBullet::RFBullet(ObjectStartPos& start, bool poweredUp) : PlayerBullet(start, Weapon::Toaster, 5) {
+	AnimID = poweredUp ? 51 : 45;
+	CollisionShapes.emplace_back(5);
+	SpeedX = poweredUp ? 1.5f : 1;
+	AccelerationX = 0.1875;
+	damage = 2;
+	lifeTime = poweredUp ? 35 : 40;
+	//obj->lighttype=2;
+}
+void RFBullet::Move(GameState &) {
+}
+void RFBullet::Explode() {
+	DoBlast(50*50);	
+
+	//if ((obj->load==aPLAYERBULLETP5) && parEnableLighting && !parLowDetail)
+		//AddHalo(obj->xpos,obj->ypos);
+
+	//PlaySample(obj->xpos,obj->ypos,sAMMO_BOEM1,128,0);
+}
+RFBullet& RFBullet::AddHorizontalRFBullet(GameObject& parent, sf::Vector2f position, float xSpeed,float ySpeed, bool poweredUp, bool right) { //for keeping SpeedX values constant at various angles, for RF kick purposes
+	RFBullet& newRFBullet = static_cast<RFBullet&>(parent.AddObject(poweredUp ? EventIDs::PLAYERBULLETP5 : EventIDs::PLAYERBULLET5, parent.PositionX, parent.PositionY, true));
+	if (!right) {
+		newRFBullet.SpeedX = -newRFBullet.SpeedX;
+		newRFBullet.AccelerationX = -newRFBullet.AccelerationX;
+	}
+	newRFBullet.pxSpeed = xSpeed + newRFBullet.SpeedX;
+	newRFBullet.SpeedY = ySpeed;
+	return newRFBullet;
+}
+

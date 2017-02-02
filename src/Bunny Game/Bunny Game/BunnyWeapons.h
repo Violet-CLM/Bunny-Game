@@ -95,3 +95,12 @@ public:
 	TNTBullet(ObjectStartPos&);
 	bool Hurt(unsigned int, bool) override;
 };
+
+
+class RFBullet : public PlayerBullet {
+	void Move(GameState&) override;
+	void Explode() override;
+public:
+	static RFBullet& AddHorizontalRFBullet(GameObject&, sf::Vector2f, float,float, bool,bool);
+	RFBullet(ObjectStartPos&, bool);
+};

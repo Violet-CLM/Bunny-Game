@@ -62,7 +62,7 @@ public:
 	virtual void Draw(Layer*) const = 0;
 	virtual void HitBy(GameObject&) {}
 
-	GameObject& AddObject(EventID, float, float);
+	GameObject& AddObject(EventID, float, float, bool=false);
 protected:
 	Event& HostEvent;
 	std::forward_list<std::unique_ptr<GameObject>>& HostLevelObjectList;
