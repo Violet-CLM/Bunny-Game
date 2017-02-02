@@ -171,7 +171,7 @@ void Bunny::AddSingleBullet(float targetAngle, sf::Vector2f position, EventID ev
 	static_cast<PlayerBullet&>(AddObject(eventID, position.x, position.y, true)).Aim(targetAngle, xSpeed, pxSpeed, reduceLifetime);
 }
 
-PlayerBullet::PlayerBullet(ObjectStartPos& objStart, Weapon::Weapon id, int counterTarget) : BunnyObject(objStart), ammoID(id), CounterMustBeAtLeastThisHighToDrawBullet(counterTarget) {
+PlayerBullet::PlayerBullet(ObjectStartPos& objStart, Weapon::Weapon id, int counterTarget, bool angle) : BunnyObject(objStart), ammoID(id), CounterMustBeAtLeastThisHighToDrawBullet(counterTarget), DrawAtAngle(angle) {
 	ObjectType = BunnyObjectType::PlayerBullet;
 }
 bool PlayerBullet::Ricochet()
@@ -227,13 +227,17 @@ void PlayerBullet::Explode()
 	//todo transfer lighttype
 	Delete();
 }
-void PlayerBullet::Draw(Layer* layer) const {
-	if (Counter >= CounterMustBeAtLeastThisHighToDrawBullet) //DONT DISPLAY THE BULLET WHEN STILL INSIDE CHARACTER!!
-		DrawNormally(layer);
+void PlayerBullet::Draw(Layer* layers) const {
+	if (Counter >= CounterMustBeAtLeastThisHighToDrawBullet) { //DONT DISPLAY THE BULLET WHEN STILL INSIDE CHARACTER!!
+		if (!DrawAtAngle)
+			DrawNormally(layers);
+		else
+			layers[SPRITELAYER].AppendRotatedSprite(SpriteMode::Paletted, int(PositionX), int(PositionY), GetFrame(), atan2((SpeedX < 0) ? SpeedY : -SpeedY, abs(SpeedX)), float(DirectionX));
+	}
 }
 
 
-BlasterBullet::BlasterBullet(ObjectStartPos& objStart, bool poweredUp) : PlayerBullet(objStart, Weapon::Blaster, 3) {
+BlasterBullet::BlasterBullet(ObjectStartPos& objStart, bool poweredUp) : PlayerBullet(objStart, Weapon::Blaster, 3, true) {
 	AnimID = poweredUp ? 20 : 17;
 	CollisionShapes.emplace_back(11 + poweredUp*2, 4);
 	SpeedX = float(6 + poweredUp);
@@ -263,11 +267,6 @@ void BlasterBullet::Move(GameState& gameState) {
 
 		DetermineFrame(gameState.GameTicks >> 2);
 	}
-}
-void BlasterBullet::Draw(Layer* layers) const {
-	if (Counter < CounterMustBeAtLeastThisHighToDrawBullet)
-		return;
-	layers[SPRITELAYER].AppendRotatedSprite(SpriteMode::Paletted, int(PositionX), int(PositionY), GetFrame(), atan2((SpeedX < 0) ? SpeedY : -SpeedY, abs(SpeedX)), float(DirectionX));
 }
 
 BouncerBullet::BouncerBullet(ObjectStartPos& objStart) : PlayerBullet(objStart, Weapon::Bouncer, 7) {
@@ -544,7 +543,7 @@ void TNTBullet::Draw(Layer* layers) const {
 	} //else don't draw, let the Explosion object handle that
 }
 
-RFBullet::RFBullet(ObjectStartPos& start, bool poweredUp) : PlayerBullet(start, Weapon::RF, 9) {
+RFBullet::RFBullet(ObjectStartPos& start, bool poweredUp) : PlayerBullet(start, Weapon::RF, 9, true) {
 	AnimID = poweredUp ? 51 : 45;
 	CollisionShapes.emplace_back(5);
 	SpeedX = poweredUp ? 1.5f : 1;
@@ -594,7 +593,8 @@ RFBullet& RFBullet::AddHorizontalRFBullet(GameObject& parent, sf::Vector2f posit
 		newRFBullet.SpeedX = -newRFBullet.SpeedX;
 		newRFBullet.AccelerationX = -newRFBullet.AccelerationX;
 		newRFBullet.DirectionX = -1;
-	}
+	} else
+		newRFBullet.DirectionX = 1;
 	newRFBullet.pxSpeed = xSpeed + newRFBullet.SpeedX;
 	newRFBullet.SpeedY = ySpeed;
 	return newRFBullet;

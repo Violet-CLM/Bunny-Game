@@ -26,10 +26,13 @@ namespace Weapon {
 const int AmmoIconAnimIDs[Weapon::LAST] = {-1, 25, 29, 34, 49, 57, 59, 62, 68};
 
 class PlayerBullet : public BunnyObject {
+private:
+	bool DrawAtAngle;
+	int lastRico = 0, ricos = 0;
 protected:
 	Weapon::Weapon ammoID;
 	int Counter = 0, CounterMustBeAtLeastThisHighToDrawBullet;
-	int lifeTime, killAnimID, lastRico = 0, ricos = 0;
+	int lifeTime, killAnimID;
 	float AccelerationX, AccelerationY = 0, pxSpeed;
 
 	bool Ricochet();
@@ -37,7 +40,7 @@ protected:
 	void Behave(GameState&) override;
 	void Draw(Layer*) const override;
 public:
-	PlayerBullet(ObjectStartPos&, Weapon::Weapon, int = 0);
+	PlayerBullet(ObjectStartPos&, Weapon::Weapon, int = 0, bool = false);
 	void Aim(float targetAngle, float xSpeed, float pxSpeed, bool reduceLifetime);
 	virtual void Explode();
 
@@ -48,7 +51,6 @@ public:
 class BlasterBullet : public PlayerBullet {
 	int counter = 0;
 	void Move(GameState&) override;
-	void Draw(Layer*) const override;
 public:
 	BlasterBullet(ObjectStartPos&, bool);
 };
