@@ -544,16 +544,39 @@ void TNTBullet::Draw(Layer* layers) const {
 	} //else don't draw, let the Explosion object handle that
 }
 
-RFBullet::RFBullet(ObjectStartPos& start, bool poweredUp) : PlayerBullet(start, Weapon::Toaster, 5) {
+RFBullet::RFBullet(ObjectStartPos& start, bool poweredUp) : PlayerBullet(start, Weapon::RF, 9) {
 	AnimID = poweredUp ? 51 : 45;
 	CollisionShapes.emplace_back(5);
 	SpeedX = poweredUp ? 1.5f : 1;
 	AccelerationX = 0.1875;
+	killAnimID = 3;
 	damage = 2;
 	lifeTime = poweredUp ? 35 : 40;
 	//obj->lighttype=2;
 }
-void RFBullet::Move(GameState &) {
+void RFBullet::Move(GameState& gameState) {
+	Event eventAtPixel;
+	if (Counter > lifeTime)
+		Explode();
+	else if (Counter > 0 && gameState.MaskedPixel(int(PositionX), int(PositionY), eventAtPixel) && (eventAtPixel.ID != EventIDs::RICOCHET || !Ricochet())) {
+		Explode();
+	} else {
+		PositionX += SpeedX + pxSpeed;
+		PositionY += SpeedY;
+
+		SpeedX += AccelerationX;
+		SpeedY += AccelerationY;
+
+		ApproachZeroByUnit(pxSpeed, 0.125f);
+
+		DetermineFrame(gameState.GameTicks >> 2);
+		if (++Counter >= CounterMustBeAtLeastThisHighToDrawBullet && !(Counter & 7)) {
+			//if (obj->ypos>level.waterlevel)
+			//	AddObject(obj->xpos,obj->ypos,aBUBBLE,0);
+			//else
+				Explosion::AddExplosion(*this, 0, 71);; //smoke particle
+		}
+	}
 }
 void RFBullet::Explode() {
 	DoBlast(50*50);	
@@ -562,12 +585,15 @@ void RFBullet::Explode() {
 		//AddHalo(obj->xpos,obj->ypos);
 
 	//PlaySample(obj->xpos,obj->ypos,sAMMO_BOEM1,128,0);
+
+	PlayerBullet::Explode(); //use standard killanim/deleting code
 }
 RFBullet& RFBullet::AddHorizontalRFBullet(GameObject& parent, sf::Vector2f position, float xSpeed,float ySpeed, bool poweredUp, bool right) { //for keeping SpeedX values constant at various angles, for RF kick purposes
 	RFBullet& newRFBullet = static_cast<RFBullet&>(parent.AddObject(poweredUp ? EventIDs::PLAYERBULLETP5 : EventIDs::PLAYERBULLET5, parent.PositionX, parent.PositionY, true));
 	if (!right) {
 		newRFBullet.SpeedX = -newRFBullet.SpeedX;
 		newRFBullet.AccelerationX = -newRFBullet.AccelerationX;
+		newRFBullet.DirectionX = -1;
 	}
 	newRFBullet.pxSpeed = xSpeed + newRFBullet.SpeedX;
 	newRFBullet.SpeedY = ySpeed;
