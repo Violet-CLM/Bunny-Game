@@ -1,6 +1,9 @@
 #pragma once
 #include "Level.h"
 
+#define FPS_MAX 60
+extern int FPS;
+
 class KeyStates {
 	friend class Lattice;
 private:

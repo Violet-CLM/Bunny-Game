@@ -6,6 +6,8 @@
 #include "Constants.h"
 #include "Shaders.h"
 
+int FPS;
+
 void Lattice::LoadLevel(std::wstring& Filepath, PreloadedAnimationsList& anims, ObjectList& objs)
 {
 	Level = Level::LoadLevel(Filepath, anims, objs, SetupPaletteTables, PaletteLineCount);
@@ -50,12 +52,17 @@ void Lattice::Render(double leftoverTimeElapsed)
 	Window->clear();
 	Window->draw(*Level, SpriteMode::Paletted.GetShader());
 	Window->display();
+	
+#ifdef SHOW_FPS
+	static sf::Clock Clock;
+	FPS = (int)(1000000ll / Clock.restart().asMicroseconds());
+#endif
 }
 
 int Lattice::StartGame(int argc, char *argv[])
 {
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS), "Error Loading Level", sf::Style::Titlebar | sf::Style::Close);
-	window.setFramerateLimit(60); //solves all problems now and forever
+	window.setFramerateLimit(FPS_MAX); //solves all problems now and forever
 
 	InitPopulateTextureArrays();
 	InitCreateShaders(Shaders, ShaderSources);

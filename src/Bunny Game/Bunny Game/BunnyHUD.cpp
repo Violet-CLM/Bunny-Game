@@ -5,6 +5,7 @@
 #include "BunnyWeapons.h"
 #include "Resources.h"
 #include "CharStrings.h"
+#include "Game.h"
 
 void DrawPlayerHUD(VertexCollectionQueue& Sprites, unsigned int GameTicks) {
 	const struct { //using resolution width >= 400 values
@@ -13,6 +14,8 @@ void DrawPlayerHUD(VertexCollectionQueue& Sprites, unsigned int GameTicks) {
 		unsigned int lineHeightShift = 1;
 		unsigned int lineHeight = 10;
 	} hm; //recreating this struct makes it easier to paste in JJ2+ code
+	const std::vector<AnimFrame>& smallFont = *AnimationSets[GetVersionSpecificAnimationID(AnimSets::Font)]->Animations[1].AnimFrames;
+	char buffer[16];
 
 	const auto& play = Players[0]; //no splitscreen support at present
 	//for (const auto& play : Players) if (play.Object != nullptr) {
@@ -31,7 +34,6 @@ void DrawPlayerHUD(VertexCollectionQueue& Sprites, unsigned int GameTicks) {
 				play->lastScoreDisplay = play->score;
 			}
 			*/
-			char buffer[10];
 			sprintf_s(buffer, "%07d", playerObject.PlayerProperties.Score);
 			WriteText(Sprites, 4, 12, buffer, hm.smallerFont);
 		}
@@ -44,7 +46,6 @@ void DrawPlayerHUD(VertexCollectionQueue& Sprites, unsigned int GameTicks) {
 		
 		{ //lives
 			Sprites.AppendSprite(SpriteMode::Paletted, 0, WINDOW_HEIGHT_PIXELS, AnimFrame::GetLimited(GetVersionSpecificAnimationID(AnimSets::Faces), 3 + playerObject.PlayerProperties.CharacterIndex, GameTicks / 6));
-			char buffer[10];
 			sprintf_s(buffer, "x%u", playerObject.PlayerProperties.Lives);
 			WriteText(Sprites, 32, WINDOW_HEIGHT_PIXELS - hm.lineHeight - 4, buffer, hm.smallerFont);
 		}
@@ -68,7 +69,6 @@ void DrawPlayerHUD(VertexCollectionQueue& Sprites, unsigned int GameTicks) {
 			}
 			Sprites.AppendSprite(SpriteMode::Paletted, ammo_xPos - 8, ammo_yPos, AnimFrame::GetLimited(AnimSets::Ammo, animID, GameTicks >> 2));
 		
-			char buffer[8];
 			if (ammoID == 0) {
 				sprintf_s(buffer, "x^");
 			} else {
@@ -83,5 +83,14 @@ void DrawPlayerHUD(VertexCollectionQueue& Sprites, unsigned int GameTicks) {
 			}
 			WriteText(Sprites, ammo_xPos, ammo_yPos, buffer, hm.smallerFont);
 		}
+
+#ifdef SHOW_FPS
+		{ //fps
+			const int info_xPos = WINDOW_WIDTH_PIXELS / 2;
+			int info_yPos = WINDOW_HEIGHT_PIXELS - 30;
+			sprintf_s(buffer, "fps %3u", std::min(FPS_MAX, FPS));
+			WriteText(Sprites, info_xPos, info_yPos, buffer, smallFont);
+		}
+#endif
 	//}
 }
