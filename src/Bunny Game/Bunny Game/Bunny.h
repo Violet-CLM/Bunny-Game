@@ -5,6 +5,8 @@
 
 #define MAXLOCALPLAYERS 1
 
+enum char2Indices { char2JAZZ, char2SPAZ, char2LORI }; //todo better solution elsewhere
+
 //this struct holds all the player variables that hold constant across level boundaries/when restarting from a checkpoint
 class Bunny;
 struct Player {

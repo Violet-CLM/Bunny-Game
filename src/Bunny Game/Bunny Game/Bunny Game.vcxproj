@@ -176,6 +176,7 @@
     <ClCompile Include="BunnyShaders.cpp" />
     <ClCompile Include="BunnyVersionDependentStuff.cpp" />
     <ClCompile Include="BunnyWeapons.cpp" />
+    <ClCompile Include="CharStrings.cpp" />
     <ClCompile Include="Diamondus.cpp" />
     <ClCompile Include="Bunny.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -190,6 +191,7 @@
     <ClInclude Include="BunnyShaders.h" />
     <ClInclude Include="BunnyVersionDependentStuff.h" />
     <ClInclude Include="BunnyWeapons.h" />
+    <ClInclude Include="CharStrings.h" />
     <ClInclude Include="Diamondus.h" />
     <ClInclude Include="Bunny.h" />
     <ClInclude Include="Pickups.h" />

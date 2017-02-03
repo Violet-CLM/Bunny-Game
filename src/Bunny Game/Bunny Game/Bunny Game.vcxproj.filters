@@ -68,6 +68,9 @@
     <ClCompile Include="BunnyWeapons.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CharStrings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Bunny Game.rc">
@@ -111,6 +114,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BunnyWeapons.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CharStrings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
