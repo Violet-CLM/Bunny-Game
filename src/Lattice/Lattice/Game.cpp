@@ -18,8 +18,9 @@ Lattice::Lattice() {}
 void Lattice::StartGame(sf::RenderWindow& window, std::wstring& Filepath)
 {
 	Window = &window;
-	if (!Filepath.empty())
+	if (!Filepath.empty()) {
 		LoadLevel(Filepath, DefaultAnimList, *ObjectInitializationList);
+	}
 }
 
 bool Lattice::ProcessInput()
@@ -61,12 +62,17 @@ int Lattice::StartGame(int argc, char *argv[])
 	SpriteMode::Normal = SpriteMode(Shaders[DefaultShaders::Normal], 0);
 	SpriteMode::Paletted = SpriteMode(Shaders[DefaultShaders::Paletted], 0);
 
-	std::wstring filename = L"C:\\Games\\Jazz2\\Diam3.j2l";
+	{ //set working directory to application's directory
+		wchar_t applicationDirectory[MAX_PATH]; //http://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
+		std::wstring applicationFilename(applicationDirectory, GetModuleFileName(NULL, applicationDirectory, MAX_PATH));
+		_wchdir(applicationFilename.substr(applicationFilename.find_last_of(L"/\\")).c_str());
+	}
+
+	std::wstring filename = L"Diam3.j2l";
 	if (argc == 2) {
-		std::wstring proposedFilename = WStringFromCharArray(argv[1]);
-		if (!(proposedFilename.length() > 4 && proposedFilename.substr(filename.length() - 4, 4) == L".j2l"))
-			proposedFilename += L".j2l";
-		filename = proposedFilename;
+		filename = WStringFromCharArray(argv[1]);
+		if (!(filename.length() > 4 && filename.substr(filename.length() - 4, 4) == L".j2l"))
+			filename += L".j2l";
 	}
 	StartGame(window, filename);
 	if (Level == nullptr)
