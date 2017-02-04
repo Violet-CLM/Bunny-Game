@@ -8,8 +8,9 @@
 
 int Pickup::ExplosionSetID = 0;
 
-Pickup::Pickup(ObjectStartPos & objStart, int ai) : BunnyObject(objStart) {
+Pickup::Pickup(ObjectStartPos & objStart, int ai, int s) : BunnyObject(objStart) {
 	AnimID = ai;
+	Sample = s;
 	if (((int(OriginX) >> 5) & 1) != ((int(OriginY) >> 5) & 1)) //checkerboard
 		DirectionX = -1;
 	ObjectType = BunnyObjectType::Pickup;
@@ -69,7 +70,12 @@ void Pickup::HitBy(GameObject& other)
 		if (TimeTillCollectable == 0) {
 			Explosion::AddExplosion(*this, ExplosionSetID, 86);
 			Collected(static_cast<Bunny&>(other));
-			//todo sound
+			if (Sample) {
+				//if (Sample == Samples::sCommon_PICKUP1)
+					//PickupSample(PositionX, PositionY); //todo
+				//else
+					AnimationSets[AnimSets::Common]->StartSound(Sample, PositionX, PositionY); //almost all pickup samples are in Common, which helpfully is the same number in both 1.23 and TSF
+			}
 			//todo points
 			Delete();
 		} //else do nothing
@@ -85,7 +91,7 @@ void Pickup::Draw(Layer* layers) const
 	layers[SPRITELAYER].AppendSprite(SpriteMode::Paletted, int(PositionX), int(PositionY + BounceYOffset), GetFrame(), DirectionX < 0);
 }
 
-AmmoPickup::AmmoPickup(ObjectStartPos & objStart, int ai) : Pickup(objStart, ai), AmmoID(ai), AnimIDNormal(AmmoIconAnimIDs[ai]), AnimIDPoweredUp(AmmoIconAnimIDs[ai]-1) {
+AmmoPickup::AmmoPickup(ObjectStartPos & objStart, int ai) : Pickup(objStart, ai, Samples::sCommon_PICKUPW1), AmmoID(ai), AnimIDNormal(AmmoIconAnimIDs[ai]), AnimIDPoweredUp(AmmoIconAnimIDs[ai]-1) {
 	Shift = (AmmoID != Weapon::Toaster
 #ifdef BETAPEPPER
 		&& AmmoID != Weapon::Gun8
@@ -136,6 +142,18 @@ void FullEnergy::Collected(Bunny& play) const
 {
 	play.Health = START_HEALTH;
 	play.AddToInvincibilityDuration(AISPEED * 5);
+	//don't use regular Pickup::Sample property, instead do a switch based on the player's character:
+	switch (play.PlayerProperties.CharacterIndex) {
+	case char2JAZZ:
+		PlaySample(JazzSounds, JUMMY, PositionX,PositionY);
+		break;
+	case char2SPAZ:
+		PlaySample(SpazSounds, HAPPY, PositionX,PositionY);
+		break;
+	default:
+		PlaySample(Common, EAT1 + RandFac(3), PositionX,PositionY);
+		break;
+	}
 }
 
 void ExtraLife::Collected(Bunny& play) const
