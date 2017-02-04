@@ -366,3 +366,6 @@ sf::Sound& AnimSet::StartSound(unsigned int sampleID, float PositionX, float Pos
 		//sample.setPitch( //look, I don't know
 	return sample;
 }
+sf::Sound& AnimSet::StartSound(unsigned int sampleID, sf::Vector2f Position, unsigned int volume, unsigned int frequency) const {
+	return StartSound(sampleID, Position.x, Position.y, volume, frequency);
+}

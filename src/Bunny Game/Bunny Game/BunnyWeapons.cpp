@@ -2,6 +2,7 @@
 #include "BunnyEffects.h"
 #include "BunnyWeapons.h"
 #include "BunnyObjectList.h"
+#include "BunnyVersionDependentStuff.h"
 
 void Bunny::AddBullet() { //figure out position and angle
 	if (fireType == Weapon::TNT) { //TNT needs to be placed at the same (horizontal) position as the player to allow TNT climbing
@@ -134,17 +135,49 @@ void Bunny::AddBullet(sf::Vector2f position, float targetAngle, bool directlyFro
 			}
 			AddSingleBullet(targetAngle, position, eventID, directlyFromPlayer, speed);
 		}
-	}
-	/*if ( SoundGlobals->soundEnabled && weaponProfile[fireType].sample ) {
-		if (fireType == 7 && (wp->spread != wspNORMALORBBGUN || checkedFireball) && wp->spread != wspBBGUN && !replaceWithShield)
-			PlaySample(position, sCOMMON_RINGGUN, 0, 0);
-		else {
-			int realFireType = fireType;
-			fireType = (replaceWithShield) ? 0 : fireType;
-			AddBulletSounds(playerID, position);
-			fireType = realFireType;
+
+		switch (fireType) {
+		case Weapon::Blaster:
+			if (!powerup) {
+				if (PlayerProperties.CharacterIndex == char2JAZZ)
+					PlaySample(Ammo, GUNJAZZ, position, 0, 22050);
+				else
+					PlaySample(Ammo, GUN1 + (RandFac(255) % 3), position, 0, 22050);
+			} else {
+				if (PlayerProperties.CharacterIndex == char2JAZZ)
+					PlaySample(Ammo, FUMP, position, 0, 22050);
+				else
+					PlaySample(Ammo, FUMP + (RandFac(1) * 3), position);
+			}
+			break;
+		case Weapon::Bouncer:
+			PlaySample(Ammo, BMP1 + (RandFac(255) % 6), position, 0, (PlayerProperties.CharacterIndex == char2JAZZ) ? 11025 : 22050);
+			break;
+		case Weapon::Ice:
+			if (powerup)
+				PlaySample(Ammo, ICEPU1 + RandFac(3), position);
+			else
+				PlaySample(Ammo, ICEGUN + (RandFac(255) % 3), position);
+			break;
+		case Weapon::Seeker:
+			PlaySample(Ammo, MISSILE, position);
+			break;
+		case Weapon::RF:
+			PlaySample(Ammo, LAZRAYS, position);
+			break;
+		case Weapon::Toaster:
+			break;
+		case Weapon::TNT:
+			break;
+		case Weapon::Gun8:
+			PlaySample(Ammo, GUNVELOCITY, position);
+			break;
+		case Weapon::Gun9:
+			PlaySample(Ammo, LASER2 + RandFac(1), position);
+			break;
 		}
-	}*/
+	}
+
 }
 void Bunny::AddSingleBullet(float targetAngle, sf::Vector2f position, EventID eventID, bool directlyFromPlayer, float xSpeed) {
 	bool reduceLifetime = false;
