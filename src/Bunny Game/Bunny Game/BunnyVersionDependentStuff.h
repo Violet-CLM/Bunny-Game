@@ -91,5 +91,6 @@ extern int RabbitAnimIDs[RabbitAnims::LAST];
 
 typedef int GetAnimationIDFunc(int);
 extern GetAnimationIDFunc* GetVersionSpecificAnimationID;
+void PlaySample(float PositionX,float PositionY,unsigned int SetID,unsigned int SampleID,unsigned int Param1=0,unsigned int Param2=0);
 void InitializeRabbitAnimIDs();
 bool IsTSF(bool & isTSF);

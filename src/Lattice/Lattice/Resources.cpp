@@ -1,7 +1,10 @@
+#include <forward_list>
 #include "Windows.h"
 #include "Resources.h"
 #include "Drawing.h"
 #include "Misc.h"
+
+extern "C" { FILE __iob_func[3] = { *stdin,*stdout,*stderr }; } //needed in VS2015 to include flac.lib according to http://stackoverflow.com/questions/30412951/unresolved-external-symbol-imp-fprintf-and-imp-iob-func-sdl2
 
 std::vector<AnimSet*> AnimationSets;
 std::vector<SpriteTreeNode*> SpriteTrees;
@@ -281,8 +284,79 @@ AnimSet::AnimSet(std::ifstream& file)
 	const sf::Uint8* animInfoData = uncompressedData[0].data();
 	const sf::Uint8* frameInfoData = uncompressedData[1].data();
 	const sf::Uint8* imageData = uncompressedData[2].data();
-	//const sf::Uint8* sampleData = uncompressedData[3].data(); //todo
+	const sf::Uint8* sampleData = uncompressedData[3].data();
 	for (int animationID = 0; animationID < AnimationCount; ++animationID)
-		Animations.push_back(Animation(animInfoData, frameInfoData, imageData));
+		Animations.emplace_back(animInfoData, frameInfoData, imageData);
+	for (int sampleID = 0; sampleID < SampleCount; ++sampleID)
+		LoadSample(sampleData);
+}
+void AnimSet::LoadSample(const sf::Uint8*& sampleData) { //based on https://www.jazz2online.com/soundboard/thread.js and https://www.jazz2online.com/jcf/showpost.php?p=472384&postcount=191
+	unsigned int sfxLength = *(unsigned int*)sampleData; sampleData += sizeof(unsigned int);
+	struct {
+		sf::Int8 Magic[4];
+		sf::Uint32 Len;
+		sf::Int8 Format[4];
+		sf::Int8 SubChunk[4];
+		sf::Uint8 Unknowns1[44];
+		sf::Uint16 mul;
+		sf::Uint16 Unknown2;
+		sf::Uint32 length;
+		sf::Uint32 Unknowns3[2];
+		sf::Uint32 rate;
+		sf::Uint64 Unknown4;
+	} RiffInfo;
+	static_assert(sizeof(RiffInfo) == 88, "RiffInfo incorrect size!");
+	memcpy(&RiffInfo, sampleData, sizeof(RiffInfo)); sampleData += sizeof(RiffInfo);
+	//OutputDebugStringF(L"%u", RiffInfo.length);
+
+	if (memcmp(RiffInfo.Magic, "RIFF", 4))
+		ShowErrorMessage(L"Sample Data improperly formatted");
+		
+	auto mul = (RiffInfo.mul & 4) / 4 + 1;
+	auto length = RiffInfo.length;
+	auto rate = RiffInfo.rate;
+	auto time = length / rate;
+	length *= mul;
+
+	std::vector<sf::Uint8> waveHeader = {
+		'R','I','F','F',
+		0,0,0,0,		// 4
+		'W','A','V','E',
+		'f','m','t',' ',
+		16,0,0,0,			// size of the following (16 bytes)
+		1,0,				// PCM format
+		1,0,				// Mono: 1 channel
+		0,0,0,0,		// 24
+		0,0,0,0,		// 28
+		0,0,0,0,		// 32
+		'd','a','t','a',
+		0,0,0,0			// 40
+	};
+	*(sf::Uint32*)(waveHeader.data() + 4) = length+36; //number of bytes remaining in the file after "RIFF" and this four-byte integer: 36 is the length of the remainder of the header (8*4 + 2*2)
+	*(sf::Uint32*)(waveHeader.data() +24) = rate;
+	*(sf::Uint32*)(waveHeader.data() +28) = rate*mul;
+	*(sf::Uint32*)(waveHeader.data() +32) = mul*0x80001;
+	*(sf::Uint32*)(waveHeader.data() +40) = length; //size of the following
+
+	mul <<= 7;
+	while (length--)
+		waveHeader.push_back((*sampleData++ ^ mul));
+	sampleData += (RiffInfo.length & 1); //sampledata arrays are padded out to multiples of two, and we need this pointer to be in the right position in case another sample gets loaded after this one
+
+	Samples.emplace_back();
+	Samples.back().loadFromMemory(waveHeader.data(), waveHeader.size());
 }
 
+std::forward_list<sf::Sound> SoundsPlaying;
+void AnimSet::PlaySample(unsigned int sampleID, unsigned int volume, unsigned int frequency) const {
+	SoundsPlaying.remove_if([](const auto& s) { return s.getStatus() == sf::SoundSource::Status::Stopped; }); //this seems like a practical enough place to put this
+
+	SoundsPlaying.emplace_front(Samples.at(sampleID));
+	sf::Sound& sample = SoundsPlaying.front();
+	//sample.setPosition( //I have no idea where this should go
+	if (volume)
+		sample.setVolume(volume * 1.58730159f);
+	//if (frequency)
+		//sample.setPitch( //look, I don't know
+	sample.play();
+}

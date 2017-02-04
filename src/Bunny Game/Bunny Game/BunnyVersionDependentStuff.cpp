@@ -1,5 +1,6 @@
 #include "BunnyVersionDependentStuff.h"
 #include "BunnyObjectList.h"
+#include "Resources.h"
 #include "Windows.h"
 #include "Misc.h"
 
@@ -28,6 +29,10 @@ int GetVersionSpecificAnimationID_123(int originalAnimID) {
 	return animID;
 }
 GetAnimationIDFunc* GetVersionSpecificAnimationID = GetVersionSpecificAnimationID_124;
+
+void PlaySample(float PositionX, float PositionY, unsigned int SetID, unsigned int SampleID, unsigned int Param1, unsigned int Param2) {
+	AnimationSets[GetVersionSpecificAnimationID(SetID)]->PlaySample(SampleID);
+}
 
 static int ConvertRabbitAnimNumToTSF(int base) { //from JJ2+, written by blur
 	if (base <= 8) {

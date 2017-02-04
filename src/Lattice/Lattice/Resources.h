@@ -3,6 +3,7 @@
 #include <set>
 #include <unordered_map>
 #include <memory>
+#include "SFML/Audio.hpp"
 #include "Files.h"
 #include "Tile.h"
 #include "Constants.h"
@@ -92,9 +93,11 @@ class AnimSet {
 private:
 	char AnimationCount;   // Number of animations in set
 	char SampleCount;      // Number of sound samples in set
+	void LoadSample(const sf::Uint8*&);
 public:
 	std::vector<Animation> Animations;
-	//something with samples
+	std::vector<sf::SoundBuffer> Samples;
+	void PlaySample(unsigned int, unsigned int = 0, unsigned int = 0) const;
 	AnimSet(std::ifstream&);
 };
 
