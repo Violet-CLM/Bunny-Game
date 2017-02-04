@@ -348,15 +348,21 @@ void AnimSet::LoadSample(const sf::Uint8*& sampleData) { //based on https://www.
 }
 
 std::forward_list<sf::Sound> SoundsPlaying;
-void AnimSet::PlaySample(unsigned int sampleID, unsigned int volume, unsigned int frequency) const {
+sf::Sound& AnimSet::StartSound(unsigned int sampleID) const {
 	SoundsPlaying.remove_if([](const auto& s) { return s.getStatus() == sf::SoundSource::Status::Stopped; }); //this seems like a practical enough place to put this
-
+	
 	SoundsPlaying.emplace_front(Samples.at(sampleID));
 	sf::Sound& sample = SoundsPlaying.front();
+	sample.play();
+
+	return sample;
+}
+sf::Sound& AnimSet::StartSound(unsigned int sampleID, float PositionX, float PositionY, unsigned int volume, unsigned int frequency) const {
+	sf::Sound& sample = StartSound(sampleID);
 	//sample.setPosition( //I have no idea where this should go
 	if (volume)
 		sample.setVolume(volume * 1.58730159f);
 	//if (frequency)
 		//sample.setPitch( //look, I don't know
-	sample.play();
+	return sample;
 }

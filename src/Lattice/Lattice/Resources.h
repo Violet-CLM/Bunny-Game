@@ -97,7 +97,8 @@ private:
 public:
 	std::vector<Animation> Animations;
 	std::vector<sf::SoundBuffer> Samples;
-	void PlaySample(unsigned int, unsigned int = 0, unsigned int = 0) const;
+	sf::Sound& StartSound(unsigned int) const;
+	sf::Sound& StartSound(unsigned int, float, float, unsigned int = 0, unsigned int = 0) const;
 	AnimSet(std::ifstream&);
 };
 

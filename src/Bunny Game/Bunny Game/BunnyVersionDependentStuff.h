@@ -1,4 +1,5 @@
 #pragma once
+#include "BunnySamples.h"
 
 extern bool VersionTSF; //this has to be checked in too many random places for it not to be global, unfortunately
 
@@ -90,7 +91,11 @@ namespace RabbitAnims {
 extern int RabbitAnimIDs[RabbitAnims::LAST];
 
 typedef int GetAnimationIDFunc(int);
+
 extern GetAnimationIDFunc* GetVersionSpecificAnimationID;
-void PlaySample(float PositionX,float PositionY,unsigned int SetID,unsigned int SampleID,unsigned int Param1=0,unsigned int Param2=0);
+#define ConvertIDsToEnum(SetID, SampleID) Samples::s ## SetID ## _ ## SampleID
+#define PlaySamplePriority(SetID, SampleID) AnimationSets[GetVersionSpecificAnimationID(AnimSets::SetID)]->StartSound(ConvertIDsToEnum(SetID, SampleID))
+#define PlaySample(SetID, SampleID, ...) AnimationSets[GetVersionSpecificAnimationID(AnimSets::SetID)]->StartSound(ConvertIDsToEnum(SetID, SampleID), __VA_ARGS__)
+
 void InitializeRabbitAnimIDs();
 bool IsTSF(bool & isTSF);

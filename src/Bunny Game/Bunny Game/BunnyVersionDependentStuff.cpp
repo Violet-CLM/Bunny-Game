@@ -30,8 +30,11 @@ int GetVersionSpecificAnimationID_123(int originalAnimID) {
 }
 GetAnimationIDFunc* GetVersionSpecificAnimationID = GetVersionSpecificAnimationID_124;
 
-void PlaySample(float PositionX, float PositionY, unsigned int SetID, unsigned int SampleID, unsigned int Param1, unsigned int Param2) {
-	AnimationSets[GetVersionSpecificAnimationID(SetID)]->PlaySample(SampleID);
+void Macro_PlaySample(unsigned int SetID, unsigned int SampleID) {
+	AnimationSets[GetVersionSpecificAnimationID(SetID)]->StartSound(SampleID);
+}
+void Macro_PlaySample(unsigned int SetID, unsigned int SampleID, float PositionX, float PositionY, unsigned int Param1, unsigned int Param2) {
+	AnimationSets[GetVersionSpecificAnimationID(SetID)]->StartSound(SampleID, PositionX, PositionY, Param1, Param2);
 }
 
 static int ConvertRabbitAnimNumToTSF(int base) { //from JJ2+, written by blur

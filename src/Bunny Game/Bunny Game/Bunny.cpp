@@ -290,9 +290,9 @@ void Bunny::ProcessInputJumpFallStuff() {
 		}
 		else if (platform == 0 || platformType != 4) {
 			if (PlayerProperties.CharacterIndex != char2LORI)
-				PlaySample(PositionX, PositionY, AnimSets::Common, 62, 40, 0); //sCOMMON_JUMP
+				PlaySample(Common, JUMP, PositionX, PositionY, 40);
 			else
-				PlaySample(PositionX, PositionY, AnimSets::LoriSounds, RandFac(3) + 13, 40, 0); //sLORISOUNDS_LORIJUMP
+				PlaySample(LoriSounds, LORIJUMP + RandFac(3), PositionX, PositionY, 40);
 			SpeedY = -10 - (abs(SpeedX) / 4); //jumpSpeed = -10
 		}
 		spring = 0;
