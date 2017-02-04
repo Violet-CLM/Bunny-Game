@@ -218,7 +218,7 @@ bool PlayerBullet::Ricochet()
 
 		//for (t=0;t<8+(int)RandFac(7);t++)
 		//	AddParticleSparks(obj->xpos,obj->ypos,-obj->direction);
-		///PlaySample(obj->xpos,obj->ypos,ricosamps[RandFac(3)],0,0);
+		PlaySampleAtObject(Ammo, BUL1 + RandFac(3));
 
 		ricos += 1;
 		lastRico = 0;
@@ -282,9 +282,8 @@ BlasterBullet::BlasterBullet(ObjectStartPos& objStart, bool poweredUp) : PlayerB
 }
 void BlasterBullet::Move(GameState& gameState) {
 	Event eventAtPixel;
-	if (Counter > lifeTime)
-		Explode();
-	else if (Counter > 0 && gameState.MaskedPixel(int(PositionX), int(PositionY), eventAtPixel) && (eventAtPixel.ID != EventIDs::RICOCHET || !Ricochet())) {
+	if ((Counter > lifeTime) || (Counter > 0 && gameState.MaskedPixel(int(PositionX), int(PositionY), eventAtPixel) && (eventAtPixel.ID != EventIDs::RICOCHET || !Ricochet()))) {
+		PlaySample(Common, EXPSM1, PositionX,PositionY, 80); //separate from Explode because blaster bullets don't make a sound when they die from hitting an enemy
 		Explode();
 	} else {
 		++Counter;
@@ -347,7 +346,7 @@ void BouncerBullet::Move(GameState& gameState) {
 		sample += 1;
 	}
 	if (sample)
-		;//PlaySample(PositionX,PositionY,sCOMMON_BLOKPLOP,40,0); //todo sample
+		PlaySample(Common, BLOKPLOP, PositionX,PositionY, 40);
 
 	if (Counter++ > lifeTime || bounces > 16) {
 		//lighttype=0;
@@ -406,7 +405,7 @@ void BouncerBulletPU::Move(GameState& gameState) {
 	}
 
 	if (sample)
-		;//PlaySample(PositionX,PositionY,sCOMMON_BLOKPLOP,0,0);
+		PlaySampleAtObject(Common, BLOKPLOP);
 
 	if (Counter++ > lifeTime || bounces > 16) {
 		//lighttype=0;
@@ -554,7 +553,7 @@ void TNTBullet::Behave(GameState& gameState) {
 
 			//obj->channel=PlayLoopSample(obj->xpos,obj->ypos,obj->var1,0,0,obj->channel);
 		} else if (Counter == 20) {
-			//PlaySample(obj->xpos,obj->ypos,sCOMMON_EXPL_TNT,128,0);
+			PlaySample(Common,EXPL_TNT, PositionX,PositionY, 128);
 
 			Explosion::AddExplosion(*this, 0, 77);
 			DoBlast(96*96, true);
@@ -616,7 +615,7 @@ void RFBullet::Explode() {
 	//if ((obj->load==aPLAYERBULLETP5) && parEnableLighting && !parLowDetail)
 		//AddHalo(obj->xpos,obj->ypos);
 
-	//PlaySample(obj->xpos,obj->ypos,sAMMO_BOEM1,128,0);
+	PlaySample(Ammo,BOEM1, PositionX,PositionY, 128);
 
 	PlayerBullet::Explode(); //use standard killanim/deleting code
 }

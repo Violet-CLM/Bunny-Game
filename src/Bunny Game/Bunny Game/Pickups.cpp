@@ -45,8 +45,8 @@ void Pickup::Behave(GameState& gameState)
 		SpeedY += (false/*underwater*/) ? 0.03125f : 0.125f;
 
 		if (gameState.MaskedPixel(int(PositionX + px), int(PositionY + py))) {
-			//if ((SpeedY>4*65536) && ((obj->load==aSILVERCOIN) || (obj->load==aGOLDCOIN)))
-				//PlaySample(PositionX,PositionY,sCOMMON_COIN,0,0);
+			if (SpeedY > 4.f && (AnimID == 84 || AnimID == 37)) //silver or gold coin
+				PlaySampleAtObject(Common, COIN);
 
 			SpeedY /= -2;
 
@@ -145,13 +145,13 @@ void FullEnergy::Collected(Bunny& play) const
 	//don't use regular Pickup::Sample property, instead do a switch based on the player's character:
 	switch (play.PlayerProperties.CharacterIndex) {
 	case char2JAZZ:
-		PlaySample(JazzSounds, JUMMY, PositionX,PositionY);
+		PlaySampleAtObject(JazzSounds, JUMMY);
 		break;
 	case char2SPAZ:
-		PlaySample(SpazSounds, HAPPY, PositionX,PositionY);
+		PlaySampleAtObject(SpazSounds, HAPPY);
 		break;
 	default:
-		PlaySample(Common, EAT1 + RandFac(3), PositionX,PositionY);
+		PlaySampleAtObject(Common, EAT1 + RandFac(3));
 		break;
 	}
 }
