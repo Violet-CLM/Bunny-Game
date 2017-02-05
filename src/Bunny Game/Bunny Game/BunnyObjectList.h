@@ -272,7 +272,4 @@ namespace EventIDs {
 	};
 }
 
-ObjectList* GetObjectList();
-PreloadedAnimationsList GetDefaultAnimList();
-ObjectCollisionTestFunction ObjectsShouldCollide;
-void ShouldObjectsBeActive(Level&);
+void GetDefaultAnimList(PreloadedAnimationsList&);

@@ -1,5 +1,5 @@
 #include "Pickups.h"
-#include "Game.h"
+#include "Lattice.h"
 #include "BunnyMisc.h"
 #include "BunnyEffects.h"
 #include "BunnyWeapons.h"

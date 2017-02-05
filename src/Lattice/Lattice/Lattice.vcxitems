@@ -18,7 +18,8 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)Drawing.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Event.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Files.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)Game.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Lattice.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)LatticeHooks.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Layer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Level.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Misc.h" />
@@ -33,7 +34,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)Drawing.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Event.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Files.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)Game.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Lattice.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Layer.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Level.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Misc.cpp" />

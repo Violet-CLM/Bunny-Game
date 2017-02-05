@@ -20,3 +20,4 @@ namespace DefaultShaders {
 
 extern std::vector<std::string> ShaderSources;
 extern std::vector<sf::Shader*> Shaders;
+extern unsigned int PaletteLineCount;

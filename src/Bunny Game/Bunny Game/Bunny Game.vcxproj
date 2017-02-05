@@ -170,6 +170,7 @@
   <ItemGroup>
     <ClCompile Include="BunnyEffects.cpp" />
     <ClCompile Include="BunnyHUD.cpp" />
+    <ClCompile Include="BunnyHooks.cpp" />
     <ClCompile Include="BunnyMisc.cpp" />
     <ClCompile Include="BunnyObject.cpp" />
     <ClCompile Include="BunnyObjectList.cpp" />
@@ -179,7 +180,6 @@
     <ClCompile Include="CharStrings.cpp" />
     <ClCompile Include="Diamondus.cpp" />
     <ClCompile Include="Bunny.cpp" />
-    <ClCompile Include="Main.cpp" />
     <ClCompile Include="Pickups.cpp" />
   </ItemGroup>
   <ItemGroup>

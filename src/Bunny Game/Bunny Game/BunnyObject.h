@@ -1,5 +1,5 @@
 #pragma once
-#include "Game.h"
+#include "Lattice.h"
 #include "Level.h"
 #include "Objects.h"
 

@@ -51,10 +51,10 @@ bool Tileset::ReadSpecificFileHeader(std::ifstream& File) {
 	return true;
 }
 Tileset::Tileset(std::wstring& fn) : LevelTileset(fn) {}
-Tileset* Tileset::LoadTileset(std::wstring& Filepath, const char* TileTypes, PaletteTableSetupFunction SetupPaletteTables, unsigned int PaletteLineCount)
+Tileset* Tileset::LoadTileset(std::wstring& Filepath, const char* TileTypes)
 {
 	Tileset* newTileset = new Tileset(Filepath);
-	if (newTileset->Open() && newTileset->ProcessTilesetData(TileTypes, SetupPaletteTables, PaletteLineCount)) {
+	if (newTileset->Open() && newTileset->ProcessTilesetData(TileTypes)) {
 		return newTileset;
 	} else {
 		ShowErrorMessage((Filepath + L" encountered an error").c_str());
@@ -63,10 +63,10 @@ Tileset* Tileset::LoadTileset(std::wstring& Filepath, const char* TileTypes, Pal
 	}
 }
 
-bool Tileset::ProcessTilesetData(const char* TileTypes, PaletteTableSetupFunction SetupPaletteTables, unsigned int PaletteLineCount) //called after Open()
+bool Tileset::ProcessTilesetData(const char* TileTypes) //called after Open()
 {
 	const sf::Uint8* data1Ptr = UncompressedData[0].data();
-	GeneratePaletteTexture(Palette, data1Ptr, SetupPaletteTables, PaletteLineCount);
+	GeneratePaletteTexture(Palette, data1Ptr);
 	data1Ptr += COLORSPERPALETTE * BYTESPER32BITPIXEL;
 	TileCount = *(sf::Uint32*)data1Ptr;
 	data1Ptr += sizeof(sf::Uint32);

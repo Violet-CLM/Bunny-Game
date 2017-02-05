@@ -21,7 +21,6 @@ namespace BunnyShaders {
 }
 
 extern std::vector<std::string> BunnyShaderSources;
-PaletteTableSetupFunction GeneratePaletteTextureBunnyEdition;
 
 class SpriteModeGem : public SpriteMode {
 public:

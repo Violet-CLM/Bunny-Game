@@ -31,3 +31,4 @@ std::vector<std::string> ShaderSources = {
 	}"
 };
 std::vector<sf::Shader*> Shaders;
+unsigned int PaletteLineCount = DefaultPaletteLineNames::LAST;

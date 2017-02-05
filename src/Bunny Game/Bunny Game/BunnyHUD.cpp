@@ -5,9 +5,9 @@
 #include "BunnyWeapons.h"
 #include "Resources.h"
 #include "CharStrings.h"
-#include "Game.h"
+#include "Lattice.h"
 
-void DrawPlayerHUD(VertexCollectionQueue& Sprites, unsigned int GameTicks) {
+void Hook_UpdateHUD(VertexCollectionQueue& Sprites, unsigned int GameTicks) {
 	const struct { //using resolution width >= 400 values
 		const std::vector<AnimFrame>& largerFont = *AnimationSets[GetVersionSpecificAnimationID(AnimSets::Font)]->Animations[2].AnimFrames;
 		const std::vector<AnimFrame>& smallerFont = *AnimationSets[GetVersionSpecificAnimationID(AnimSets::Font)]->Animations[0].AnimFrames;

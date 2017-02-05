@@ -1,3 +1,4 @@
+#include "Lattice.h"
 #include "Objects.h"
 #include "Level.h"
 
@@ -141,7 +142,7 @@ void GameObject::Adopt(GameObject& child) {
 
 GameObject& GameObject::AddObject(EventID eventID, float x, float y, bool parent)
 {
-	GameObject& newObject = HostLevel.ObjectInitializationListPtr->at(eventID).AddObject(HostLevel, HostLevel.GetEvent(int(x / TILEWIDTH), int(y / TILEHEIGHT)), x, y);
+	GameObject& newObject = Lattice::ObjectInitializationList->at(eventID).AddObject(HostLevel, HostLevel.GetEvent(int(x / TILEWIDTH), int(y / TILEHEIGHT)), x, y);
 	if (parent)
 		Adopt(newObject);
 	return newObject;

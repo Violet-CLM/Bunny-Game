@@ -165,7 +165,7 @@ public:
 	void AppendRotatedSprite(const SpriteMode&, int, int, const AnimFrame&, float, float=1.f,float=1.f);
 };
 
-void GeneratePaletteTexture(sf::Texture&, const sf::Uint8*, PaletteTableSetupFunction, unsigned int);
+void GeneratePaletteTexture(sf::Texture&, const sf::Uint8*);
 void GenerateTilesetTextures(sf::Texture**, const char*, const sf::Uint32*, const sf::Uint8*, unsigned int);
 
 void InitPopulateTextureArrays();

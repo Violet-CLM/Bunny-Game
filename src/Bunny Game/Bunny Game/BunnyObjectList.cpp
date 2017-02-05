@@ -8,12 +8,13 @@
 #include "BunnyVersionDependentStuff.h"
 
 static ObjectList ObjectInitializationList;
+
 #define Obj(a, b, c, ...) {EventIDs::a, {GetVersionSpecificAnimationID(AnimSets::b), [](ObjectStartPos& objStart){ return (GameObject*)(new c(__VA_ARGS__)); }, EventIDs::a >= 33 || EventIDs::a == EventIDs::JAZZSTART}}
 #define ObjT(a, b, c) Obj(a, b, c, objStart)
 #define ObjTC(a, b, c, ...) Obj(a, b, c, objStart, __VA_ARGS__)
-ObjectList* GetObjectList() {
+const ObjectList& Hook_GetObjectList() {
 	Pickup::ExplosionSetID = GetVersionSpecificAnimationID(AnimSets::Pickups);
-	return &(ObjectInitializationList = {
+	return ObjectInitializationList = {
 		ObjT(JAZZSTART, Jazz, Bunny),//todo
 
 		ObjT(EXPLOSION, Ammo, Explosion),
@@ -99,33 +100,15 @@ ObjectList* GetObjectList() {
 		ObjTC(EXTRATIME, Pickups, Pickup, 87),
 
 		ObjT(BUMBEE, BumBee, Bee),
-	});
+	};
 }
 
-PreloadedAnimationsList GetDefaultAnimList() {
+void GetDefaultAnimList(PreloadedAnimationsList& animList) {
 	std::vector<int> retval = {AnimSets::Ammo, AnimSets::Bird, AnimSets::Common, AnimSets::Faces, AnimSets::Font, AnimSets::Jazz, AnimSets::JazzSounds, AnimSets::MenuSounds, AnimSets::Pickups, AnimSets::Rush, AnimSets::Spaz, AnimSets::Spaz2, AnimSets::SpazSounds, AnimSets::Spring};
 	if (VersionTSF) {
 		const static std::array<int, 3> TSFAnimSetIDs = {AnimSets::Lori, AnimSets::Lori2, AnimSets::LoriSounds};
 		retval.insert(retval.end(), TSFAnimSetIDs.begin(), TSFAnimSetIDs.end());
 	}
 	std::transform(retval.begin(), retval.end(), retval.begin(),  [](int a) { return GetVersionSpecificAnimationID(a); });
-	return PreloadedAnimationsList(retval.begin(), retval.end());
-}
-
-bool ObjectsShouldCollide(const GameObject& a, const GameObject& b) {
-	if ((a.ObjectType == BunnyObjectType::Player || a.ObjectType == BunnyObjectType::PlayerBullet) && (b.ObjectType == BunnyObjectType::Pickup || b.ObjectType == BunnyObjectType::Interactive))
-		return true;
-	if (a.ObjectType == BunnyObjectType::Player && b.ObjectType == BunnyObjectType::EnemyBullet)
-		return true;
-	//todo
-	return false;
-}
-
-void ShouldObjectsBeActive(Level& level) {
-	level.ForEachEvent([&level](Event& ev, int xTile, int yTile) {
-		if (!ev.Active && !ev.Difficulty /* ev.ID >= EventIDs::GUN3AMMO3*/ && ObjectInitializationList.count(ev.ID) && ObjectInitializationList[ev.ID].CreateObjectFromEventMap) { //todo better difficulty check
-			ObjectInitializationList[ev.ID].AddObject(level, ev, float(xTile * TILEWIDTH + (TILEWIDTH/2)), float(yTile * TILEHEIGHT + (TILEHEIGHT/2)));
-			ev.Active = true;
-		}
-	});
+	animList = PreloadedAnimationsList(retval.begin(), retval.end());
 }

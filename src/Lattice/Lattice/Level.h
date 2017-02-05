@@ -12,7 +12,7 @@
 #include "Objects.h"
 
 class GameObject;
-class KeyStates;
+struct KeyStates;
 class Level : public LevelTileset, public sf::Drawable {
 	friend class GameState;
 	friend class GameObject;
@@ -60,7 +60,6 @@ private:
 
 public:
 	Tileset* TilesetPtr;
-	const ObjectList* ObjectInitializationListPtr;
 	std::wstring NextLevel;
 	std::wstring Music;
 
@@ -70,22 +69,22 @@ public:
 	std::forward_list<std::unique_ptr<GameObject>> Objects;
 	unsigned int GameTicks;
 
-	static Level* LoadLevel(std::wstring&, PreloadedAnimationsList&, ObjectList&, PaletteTableSetupFunction, unsigned int);
-	bool ProcessLevelData(PreloadedAnimationsList, ObjectList&, PaletteTableSetupFunction, unsigned int);
+	static Level* LoadLevel(std::wstring&);
+	bool ProcessLevelData();
 
 	Event& GetEvent(unsigned int, unsigned int);
 	void ForEachEvent(std::function<void(Event&, int, int)>);
 	Tile GetRealTile(Tile) const;
 
-	void Update(ObjectActivityFunction&, ObjectCollisionTestFunction&, HUDUpdateFunction&, KeyStates&);
+	void Update(const KeyStates&);
 };
 
 class GameState {
 private:
 	Level& Lev;
 public:
-	const KeyStates& Keys;
 	const unsigned int& GameTicks;
+	const KeyStates& Keys;
 	GameState(Level& l, const KeyStates& k) : Lev(l), Keys(k), GameTicks(l.GameTicks) {}
 
 	void SetCamera(float, float);

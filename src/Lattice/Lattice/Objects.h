@@ -83,8 +83,6 @@ protected:
 };
 
 typedef GameObject* (*ObjectInitializationFunc)(ObjectStartPos&);
-typedef bool ObjectCollisionTestFunction(const GameObject&, const GameObject&);
-typedef void HUDUpdateFunction(VertexCollectionQueue&, unsigned int);
 
 class ObjectInitialization {
 public:

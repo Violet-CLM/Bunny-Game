@@ -1,8 +1,10 @@
 #include <array>
+#include "Lattice.h"
 #include "Drawing.h"
 #include "Misc.h"
 #include "Windows.h"
 #include "Resources.h"
+#include "LatticeHooks.h"
 
 sf::Texture* PaletteTexture;
 
@@ -11,7 +13,7 @@ quad FullScreenQuad;
 
 //#define PALLINEHEIGHT (1.f/float(pallineNUMBEROFPALLINES)) //texture positions in GLSL are not 0-255 (or 0-63 or whatever) but 0.0 to 1.0. This is therefore the height of a single line in the "tables" texture, and e.g. (float(pallineBRIGHTNESS) * PALLINEHEIGHT) points to line pallineBRIGHTNESS in GLSL coordinates
 //#define TOPALLINE(A) (float(A) * PALLINEHEIGHT) //a macro for the above location purpose, to be used while writing shaders
-void GeneratePaletteTexture(sf::Texture& tex, const sf::Uint8* palette, PaletteTableSetupFunction SetupPaletteTables, unsigned int PaletteLineCount)
+void GeneratePaletteTexture(sf::Texture& tex, const sf::Uint8* palette)
 {
 	const sf::Color* const paletteColors = (sf::Color*)palette;
 	
@@ -27,7 +29,7 @@ void GeneratePaletteTexture(sf::Texture& tex, const sf::Uint8* palette, PaletteT
 		buffer[i].r = i;
 	tex.update((sf::Uint8*)buffer.data(), COLORSPERPALETTE, 1, 0, DefaultPaletteLineNames::XPosToIndex);
 
-	SetupPaletteTables(tex, paletteColors, buffer);
+	Hook_SetupPaletteTables(tex, paletteColors, buffer);
 
 	for (auto& shader : Shaders)
 		shader->setParameter("tables", tex); //cannot be used more than once...

@@ -4,7 +4,8 @@
 #include "Tileset.h"
 #include "Misc.h"
 #include "Resources.h"
-#include "Game.h"
+#include "Lattice.h"
+#include "LatticeHooks.h"
 
 std::wstring Level::LevelHeader::GetLevelName()
 {
@@ -71,10 +72,10 @@ void Level::ForEachEvent(std::function<void(Event&, int, int)> func)
 			func(ev, i % WidthTiles, i / WidthTiles);
 	}
 }
-Level* Level::LoadLevel(std::wstring& Filepath, PreloadedAnimationsList& anims, ObjectList& objs, PaletteTableSetupFunction SetupPaletteTables, unsigned int PaletteLineCount)
+Level* Level::LoadLevel(std::wstring& Filepath)
 {
 	Level* newLevel = new Level(Filepath);
-	if (newLevel->Open() && newLevel->ProcessLevelData(anims, objs, SetupPaletteTables, PaletteLineCount)) {
+	if (newLevel->Open() && newLevel->ProcessLevelData()) {
 		return newLevel;
 	} else {
 		ShowErrorMessage((Filepath + L" encountered an error").c_str());
@@ -83,7 +84,7 @@ Level* Level::LoadLevel(std::wstring& Filepath, PreloadedAnimationsList& anims, 
 	}
 }
 
-bool Level::ProcessLevelData(PreloadedAnimationsList defaultAnimList, ObjectList& objectInitializationList, PaletteTableSetupFunction SetupPaletteTables, unsigned int PaletteLineCount) //called after Open()
+bool Level::ProcessLevelData() //called after Open()
 {
 	const char* data1Ptr = (const char*)&UncompressedData[0][11]; //skip over a bunch of useless values
 	Word* data3Ptr = (Word*)UncompressedData[2].data();
@@ -130,7 +131,7 @@ bool Level::ProcessLevelData(PreloadedAnimationsList defaultAnimList, ObjectList
 	const size_t folderCutoffPoint = Filepath.find_last_of(L"\\");
 	if (folderCutoffPoint < Filepath.length())
 		tilesetFilename = Filepath.substr(0, folderCutoffPoint) + L"\\" + tilesetFilename;
-	TilesetPtr = Tileset::LoadTileset(tilesetFilename, TileTypes, SetupPaletteTables, PaletteLineCount);
+	TilesetPtr = Tileset::LoadTileset(tilesetFilename, TileTypes);
 	if (TilesetPtr == nullptr)
 		return false;
 
@@ -158,10 +159,12 @@ bool Level::ProcessLevelData(PreloadedAnimationsList defaultAnimList, ObjectList
 
 	UncompressedData[0].resize(0); UncompressedData[0].shrink_to_fit(); //this section is no longer needed
 
-	ObjectInitializationListPtr = &objectInitializationList;
-	ForEachEvent([&defaultAnimList, &objectInitializationList](Event& ev, int, int) { //find additional animations to load depending on which objects (enemies, etc.) are in the level
-		if (objectInitializationList.count(ev.ID))
-			defaultAnimList.insert(objectInitializationList[ev.ID].AnimSetID);
+	PreloadedAnimationsList defaultAnimList;
+	Hook_LevelLoad(*this, defaultAnimList);
+
+	ForEachEvent([&defaultAnimList](Event& ev, int, int) { //find additional animations to load depending on which objects (enemies, etc.) are in the level
+		if (Lattice::ObjectInitializationList->count(ev.ID))
+			defaultAnimList.insert(Lattice::ObjectInitializationList->at(ev.ID).AnimSetID);
 	});
 	AnimFile::ReadAnims(std::wstring(L"Anims.j2a"), defaultAnimList);
 
@@ -193,7 +196,7 @@ void Level::UpdateAnimatedTiles() {
 		++animTileID;
 	}
 }
-void Level::Update(ObjectActivityFunction& updateActiveObjects, ObjectCollisionTestFunction& collideObjects, HUDUpdateFunction& updateHUD, KeyStates& keys)
+void Level::Update(const KeyStates& keys)
 {
 	++GameTicks;
 
@@ -202,7 +205,7 @@ void Level::Update(ObjectActivityFunction& updateActiveObjects, ObjectCollisionT
 	for (int layerID = LEVEL_LAYERCOUNT - 1; layerID >= 0; --layerID)
 		Layers[layerID].Collections.resize(0);
 
-	updateActiveObjects(*this);
+	Hook_ActivateObjects(*this);
 	GameState gameState(*this, keys);
 
 	Objects.remove_if([](auto& p) { return p->Active == false; });
@@ -215,7 +218,7 @@ void Level::Update(ObjectActivityFunction& updateActiveObjects, ObjectCollisionT
 	}
 	for (auto& it : Objects)
 		for (auto& it2 : Objects)
-			if (collideObjects(*it, *it2) && it->CollidesWith(*it2)) {
+			if (Hook_CollideObjects(*it, *it2) && it->CollidesWith(*it2)) {
 				it2->HitBy(*it);
 			}
 
@@ -223,7 +226,7 @@ void Level::Update(ObjectActivityFunction& updateActiveObjects, ObjectCollisionT
 		Layers[layerID].Update(GameTicks, AnimOffset, Camera);
 
 	HUD.Collections.resize(0);
-	updateHUD(HUD, GameTicks);
+	Hook_UpdateHUD(HUD, GameTicks);
 }
 
 bool GameState::MaskedPixel(int x, int y) const {
