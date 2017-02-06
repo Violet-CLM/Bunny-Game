@@ -43,6 +43,7 @@ private:
 
 	bool ForceUpdate;
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+	bool DrawTileToVertexArrays(VertexVector* vertices,unsigned int x,unsigned int y) const; //returns true if tile is animated
 
 public:
 	Layer();
@@ -58,5 +59,9 @@ public:
 	unsigned int MaskedHLine(int, int, int) const;
 	unsigned int MaskedVLine(int, int, int) const;
 
-	void Update(unsigned int, unsigned int, sf::Vector2f);
+	std::vector<sf::Texture> AdditionalTextures;
+	bool Get_IsTextured() const { return IsTextured; }
+	void MakeTexture(sf::RenderTexture&) const;
+
+	void Update(unsigned int, sf::Vector2f);
 };

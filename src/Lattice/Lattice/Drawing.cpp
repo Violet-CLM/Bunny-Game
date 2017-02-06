@@ -170,8 +170,8 @@ void VertexCollectionQueue::AppendResizedSprite(const SpriteMode& mode, int x, i
 		repositionedQuad.flipVertically();
 	repositionedQuad.setDimensions(scaleX * sprite.Width, scaleY * sprite.Height);
 	repositionedQuad.positionPositionAt(
-		x + scaleX * (!flippedX ? sprite.HotspotX : (1 - sprite.HotspotX - sprite.Width)),
-		y + scaleY * (!flippedY ? sprite.HotspotY : (1 - sprite.HotspotY - sprite.Height))
+		x + int(scaleX * (!flippedX ? sprite.HotspotX : (1 - sprite.HotspotX - sprite.Width))),
+		y + int(scaleY * (!flippedY ? sprite.HotspotY : (1 - sprite.HotspotY - sprite.Height)))
 	);
 	AppendQuad(repositionedQuad, sprite.Texture, mode);
 }

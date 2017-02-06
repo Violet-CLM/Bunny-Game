@@ -3,6 +3,8 @@
 #include "BunnyObjectList.h"
 #include "BunnyObject.h"
 #include "BunnyShaders.h"
+#include "Windows.h"
+#include "Misc.h"
 
 static PreloadedAnimationsList DefaultAnimationsList;
 
@@ -24,8 +26,26 @@ void Hook_ActivateObjects(Level& level) {
 	});
 }
 
-void Hook_LevelLoad(Level&, PreloadedAnimationsList& animList) {
+void Hook_LevelLoad(Level& level, PreloadedAnimationsList& animList) {
 	animList = DefaultAnimationsList;
+
+	for (unsigned int layerID = 0; layerID < LEVEL_LAYERCOUNT; ++layerID) { //generate texture from layer 8's tilemap for use in textured background/s
+		if (level.Layers[layerID].Get_IsTextured()) { //at least one layer is supposed to be drawn as textured
+			Layer& backgroundLayer = level.Layers[LEVEL_LAYERCOUNT-1];
+			sf::RenderTexture textureImage;
+			if (textureImage.create(8*TILEWIDTH, 8*TILEHEIGHT)) {
+				if (backgroundLayer.Width == 8 && backgroundLayer.Height == 8) //else we get into undefined territory mode imo
+					backgroundLayer.MakeTexture(textureImage);
+				backgroundLayer.AdditionalTextures.emplace_back(textureImage.getTexture());
+				sf::Texture& texture = backgroundLayer.AdditionalTextures.back();
+				texture.setRepeated(true);
+			} else { //I have no idea why this might happen but from time to time I decide to write some error-checking
+				backgroundLayer.AdditionalTextures.pop_back();
+				ShowErrorMessage(L"Failed to create textured background texture!");
+			}
+			break;
+		}
+	}
 }
 
 bool Hook_Init() {

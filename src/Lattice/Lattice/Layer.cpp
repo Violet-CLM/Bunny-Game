@@ -192,7 +192,34 @@ unsigned int Layer::MaskedVLine(int x, int y, int length) const //fractionally e
 	return 0;
 }
 
-void Layer::Update(unsigned int gameTicks, unsigned int animOffset, sf::Vector2f camera)
+
+bool Layer::DrawTileToVertexArrays(VertexVector* vertices, unsigned int x, unsigned int y) const {
+	int tileX = x, tileY = y;
+	if (IsWidthTiled) { //this stuff can probably be optimized a bit by checking at some higher level?
+		if (tileX >= RealWidth)
+			tileX %= RealWidth;
+		else while (tileX < 0)
+			tileX += RealWidth;
+	}
+	else if (tileX < 0 || tileX >= RealWidth)
+		return false;
+	if (IsHeightTiled) {
+		if (tileY >= Height)
+			tileY %= Height;
+		else while (tileY < 0)
+			tileY += Height;
+	}
+	else if (tileY < 0 || tileY >= Height)
+		return false;
+	const Tile tile = GetTile(tileX, tileY);
+	if (tile.ID == 0)
+		return false;
+	quad tileQuad(LevelPtr->QuadsPerTile, tile);
+	tileQuad.positionPositionAt(x * TILEWIDTH, y * TILEHEIGHT);
+	tileQuad.appendTo(vertices[tileQuad.TextureID]);
+	return tile.ID >= LevelPtr->AnimOffset;
+}
+void Layer::Update(unsigned int gameTicks, sf::Vector2f camera)
 {
 	if (!IsUsed)
 		return;
@@ -221,33 +248,8 @@ void Layer::Update(unsigned int gameTicks, unsigned int animOffset, sf::Vector2f
 		int startTileX = int(PositionX / TILEWIDTH);
 		int startTileY = int(PositionY / TILEWIDTH);
 		for (int x = -EXTRA_TILES_TO_RENDER_TO_VERTEX_ARRAY; x < (WINDOW_WIDTH_TILES + EXTRA_TILES_TO_RENDER_TO_VERTEX_ARRAY + 1); ++x)
-			for (int y = -EXTRA_TILES_TO_RENDER_TO_VERTEX_ARRAY; y < (WINDOW_HEIGHT_TILES + EXTRA_TILES_TO_RENDER_TO_VERTEX_ARRAY + 1); ++y) {
-				int tileX = startTileX + x, tileY = startTileY + y;
-				if (IsWidthTiled) { //this stuff can probably be optimized a bit by checking at some higher level?
-					if (tileX >= RealWidth)
-						tileX %= RealWidth;
-					else while (tileX < 0)
-						tileX += RealWidth;
-				}
-				else if (tileX < 0 || tileX >= RealWidth)
-					continue;
-				if (IsHeightTiled) {
-					if (tileY >= Height)
-						tileY %= Height;
-					else while (tileY < 0)
-						tileY += Height;
-				}
-				else if (tileY < 0 || tileY >= Height)
-					continue;
-				const Tile tile = GetTile(tileX, tileY);
-				if (tile.ID == 0)
-					continue;
-				if (tile.ID >= animOffset)
-					ForceUpdate = true;
-				quad tileQuad(LevelPtr->QuadsPerTile, tile);
-				tileQuad.positionPositionAt((startTileX + x) * TILEWIDTH, (startTileY + y) * TILEHEIGHT);
-				tileQuad.appendTo(Vertices[tileQuad.TextureID]);
-			}
+			for (int y = -EXTRA_TILES_TO_RENDER_TO_VERTEX_ARRAY; y < (WINDOW_HEIGHT_TILES + EXTRA_TILES_TO_RENDER_TO_VERTEX_ARRAY + 1); ++y)
+				ForceUpdate |= DrawTileToVertexArrays(Vertices, startTileX + x, startTileY + y);
 	}
 }
 
@@ -261,4 +263,19 @@ void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const
 		target.draw(Vertices[i].data(), Vertices[i].size(), sf::Quads, states);
 	}
 	VertexCollectionQueue::draw(target, states);
+}
+
+void Layer::MakeTexture(sf::RenderTexture& textureImage) const {
+	if (WidthPixels == textureImage.getSize().x && HeightPixels == textureImage.getSize().y) { //layer is big enough to support creating a textured background from... if not, the texture will be left fully black
+		VertexVector vertices[NUMBEROFTILESETTEXTURES]; //don't reuse Layer::Vertices, in case this layer needs to get drawn soon
+
+		for (unsigned int x = 0; x < Width; ++x)
+			for (unsigned int y = 0; y < Height; ++y)
+				DrawTileToVertexArrays(vertices, x,y);
+
+		for (int i = 0; i < NUMBEROFTILESETTEXTURES; ++i)
+			if (!vertices[i].empty())
+				textureImage.draw(vertices[i].data(), vertices[i].size(), sf::PrimitiveType::Quads, LevelPtr->TilesetPtr->TileImages[i]);
+	}
+	textureImage.display();
 }

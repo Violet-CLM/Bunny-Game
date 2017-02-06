@@ -223,7 +223,7 @@ void Level::Update(const KeyStates& keys)
 			}
 
 	for (int layerID = LEVEL_LAYERCOUNT - 1; layerID >= 0; --layerID)
-		Layers[layerID].Update(GameTicks, AnimOffset, Camera);
+		Layers[layerID].Update(GameTicks, Camera);
 
 	HUD.Collections.resize(0);
 	Hook_UpdateHUD(HUD, GameTicks);

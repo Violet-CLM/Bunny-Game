@@ -35,7 +35,7 @@ private:
 	static_assert(sizeof(LevelHeader) == 222, "LevelHeader incorrect size!");
 
 
-	sf::Uint16 AnimCount, AnimOffset;
+	sf::Uint16 AnimCount;
 
 	unsigned int WidthTiles;
 	unsigned int WidthPixels;
@@ -47,7 +47,6 @@ private:
 	char TileTypes[MAX_TILES];
 	std::vector<Tile> AnimatedTileFrames;
 	std::vector<AnimatedTile> AnimatedTiles;
-	Layer Layers[LEVEL_LAYERCOUNT];
 	void UpdateAnimatedTiles();
 
 	unsigned int SpecificFileTypeHeaderSize() override;
@@ -64,7 +63,8 @@ public:
 	std::wstring Music;
 
 	quad QuadsPerTile[MAX_TILES]; //todo wrap this more
-
+	Layer Layers[LEVEL_LAYERCOUNT];
+	sf::Uint16 AnimOffset;
 
 	std::forward_list<std::unique_ptr<GameObject>> Objects;
 	unsigned int GameTicks;
