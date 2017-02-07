@@ -1,19 +1,56 @@
 #include "BunnyShaders.h"
+#include "Layer.h"
 #include "Misc.h"
 
-std::vector<std::string> BunnyShaderSources = {
-		//BunnyShaders::Gem
-	"uniform sampler2D texture;\
-	uniform sampler2D tables;\
-	uniform float param;\
-	\
-	void main(void)\
-	{\
-		vec4 index = texture2D(texture, gl_TexCoord[0].xy);\
-		vec4 pixel = texture2D(tables, vec2(mod(index.r, 0.5), param)); \
-		gl_FragColor = vec4(pixel.r, pixel.g, pixel.b, index.a * 0.75);\
-	}"
-};
+quad fullScreenQuad;
+sf::RenderStates WarpHorizonRenderStates, TunnelRenderStates, MenuBGRenderStates, AddAmbientLightingRenderStates, ClearAmbientLightingBufferRenderStates;
+
+std::array<std::string, BunnyShaders::LAST - 1 - BunnyShaders::FIRST> BunnyShaderSources;
+void WriteBunnyShaders() {
+	BunnyShaderSources = {
+	//BunnyShaders::Gem
+		"uniform sampler2D texture;\
+		uniform sampler2D tables;\
+		uniform float param;\
+		\
+		void main(void)\
+		{\
+			vec4 index = texture2D(texture, gl_TexCoord[0].xy);\
+			vec4 pixel = texture2D(tables, vec2(mod(index.r, 0.5), param)); \
+			gl_FragColor = vec4(pixel.r, pixel.g, pixel.b, index.a * 0.75);\
+		}",
+	//BunnyShaders::WarpHorizon
+		sprintf_z(
+			"uniform sampler2D texture256;\
+			uniform sampler2D tables;\
+			uniform vec4 fadeColor;\
+			uniform vec2 offset;\
+			\
+			void main(void)\
+			{\
+				float distanceFromVerticalCenter = gl_FragCoord.y - %f;\
+				float v109 = 60.0 / (abs(distanceFromVerticalCenter) + 8.0);\
+				gl_FragColor = mix(\
+					texture2D(tables, vec2(\
+						texture2D(texture256, vec2(\
+							offset.x + (v109 * (gl_FragCoord.x - %f)) / 256.0,\
+							offset.y + (v109 * distanceFromVerticalCenter / 8.0)\
+						)).r,\
+						0\
+					)),\
+					fadeColor,\
+					texture2D(tables, vec2(\
+						abs(distanceFromVerticalCenter) / %f, %f\
+					)).r\
+				);\
+			}", float(WINDOW_HEIGHT_PIXELS/2), float(WINDOW_WIDTH_PIXELS/2), float(WINDOW_HEIGHT_PIXELS/2), TOPALLINE(BunnyPaletteLineNames::TBGFadeIntensity)), //non-LUT version of fade intensity, for speed comparison at some point: "max(1.0 - (distanceProportionalToScreenSize * distanceProportionalToScreenSize * 9.625), 0.0)"
+	};
+
+
+	fullScreenQuad.setDimensions(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS);
+	const sf::BlendMode colorFromSourceAlphaFromDestination(sf::BlendMode::One, sf::BlendMode::Zero, sf::BlendMode::Add, sf::BlendMode::Zero, sf::BlendMode::One, sf::BlendMode::Add);
+	WarpHorizonRenderStates.blendMode = colorFromSourceAlphaFromDestination;
+}
 
 void Hook_SetupPaletteTables(sf::Texture& tex, const sf::Color* const paletteColors, std::array<sf::Color, COLORSPERPALETTE>& buffer) {
 	//Based on the code for generating 16-bit gem color LUTs, which reads indices 0,4,8,12,16 (and ONLY those indices) from the 8-bit LUTs and creates 128-color-long LUTs consisting of four smooth gradients among those five endpoints.
@@ -24,8 +61,9 @@ void Hook_SetupPaletteTables(sf::Texture& tex, const sf::Color* const paletteCol
 		95, 92, 88, 15, 15
 	};
 	const int* gemPaletteIndexPointer = gemPaletteStopColors;
+	sf::Color* DestLUTEntry;
 	for (unsigned int gemColorIndex = 0; gemColorIndex < 4; ++gemColorIndex, ++gemPaletteIndexPointer) {
-		sf::Color* DestLUTEntry = buffer.data();
+		DestLUTEntry = buffer.data();
 		for (unsigned int gemGradientPosition = 0; gemGradientPosition < 4; ++gemGradientPosition) {
 			sf::Color firstColor = paletteColors[*gemPaletteIndexPointer];
 			sf::Color secondColor = paletteColors[*++gemPaletteIndexPointer];
@@ -46,4 +84,23 @@ void Hook_SetupPaletteTables(sf::Texture& tex, const sf::Color* const paletteCol
 		}
 		tex.update((sf::Uint8*)buffer.data(), COLORSPERPALETTE, 1, 0, BunnyPaletteLineNames::Gem + gemColorIndex);
 	}
+
+	DestLUTEntry = buffer.data();
+	for (int i = 255; i >= 0; --i, ++DestLUTEntry) { //recreating sub_45E0E0
+		const unsigned __int64 v5 = abs(i - 256) << 7;
+		DestLUTEntry->r = ~std::min((unsigned int)((4928LL * v5 * v5) >> 33), 255u);
+	}
+	tex.update((sf::Uint8*)buffer.data(), 256, 1, 0, BunnyPaletteLineNames::TBGFadeIntensity);
+}
+
+bool Hook_ShouldTexturedLayerBeUpdated(unsigned int) {
+	Shaders[BunnyShaders::WarpHorizon]->setParameter("offset", sf::Vector2f( //todo
+		0,//((LevelGlobals->layerAutoSpeedX[layerID] * *renderFrame) + layerPersonalXPosition[localPlayerID][layerToDrawPositionFrom]) / float(256 * FIXMUL),
+		0//((LevelGlobals->layerAutoSpeedY[layerID] * *renderFrame) + layerPersonalYPosition[localPlayerID][layerToDrawPositionFrom]) / float(256 * FIXMUL)
+	));
+	return false;
+}
+bool Hook_ShouldTexturedLayerBeRendered(const Layer&, sf::RenderTarget& target, sf::RenderStates, unsigned int) {
+	target.draw(fullScreenQuad.vertices, 4, sf::Quads, WarpHorizonRenderStates);
+	return false;
 }

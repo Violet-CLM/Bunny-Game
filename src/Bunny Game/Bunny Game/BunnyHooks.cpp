@@ -34,13 +34,15 @@ void Hook_LevelLoad(Level& level, PreloadedAnimationsList& animList) {
 			Layer& backgroundLayer = level.Layers[LEVEL_LAYERCOUNT-1];
 			sf::RenderTexture textureImage;
 			if (textureImage.create(8*TILEWIDTH, 8*TILEHEIGHT)) {
-				if (backgroundLayer.Width == 8 && backgroundLayer.Height == 8) //else we get into undefined territory mode imo
-					backgroundLayer.MakeTexture(textureImage);
+				backgroundLayer.MakeTexture(textureImage);
 				backgroundLayer.AdditionalTextures.emplace_back(textureImage.getTexture());
 				sf::Texture& texture = backgroundLayer.AdditionalTextures.back();
 				texture.setRepeated(true);
+				texture.setSmooth(true);
+				Shaders[BunnyShaders::WarpHorizon]->setParameter("texture256", texture);
+				Shaders[BunnyShaders::WarpHorizon]->setParameter("fadeColor", backgroundLayer.FadeColor);
+				WarpHorizonRenderStates.shader = Shaders[BunnyShaders::WarpHorizon]; //doesn't really need to be set every time a level loads, oh well
 			} else { //I have no idea why this might happen but from time to time I decide to write some error-checking
-				backgroundLayer.AdditionalTextures.pop_back();
 				ShowErrorMessage(L"Failed to create textured background texture!");
 			}
 			break;
@@ -55,6 +57,7 @@ bool Hook_Init() {
 
 	GetDefaultAnimList(DefaultAnimationsList);
 
+	WriteBunnyShaders(); //fill in BunnyShaderSources
 	ShaderSources.insert(ShaderSources.end(), BunnyShaderSources.begin(), BunnyShaderSources.end());
 	PaletteLineCount = BunnyPaletteLineNames::LAST;
 

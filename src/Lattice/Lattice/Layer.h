@@ -19,7 +19,6 @@ private:
 	//sf::Uint32 PersonalXInternalOffset[MAXLOCALPLAYERS]; sf::Uint32 PersonalYInternalOffset[MAXLOCALPLAYERS];
 	//sf::Uint32 DrawVerticalPixelOffset; //Range: 0 to 31. //Jerry
 	//sf::Uint32 DrawWordPixelOffset; //Range: -127 to 0. //Jerry
-	//TbgFadeColor FadeColor;
 	bool IsTextured;
 	sf::Uint8 TextureMode;
 	bool ParallaxStars;
@@ -62,6 +61,7 @@ public:
 	std::vector<sf::Texture> AdditionalTextures;
 	bool Get_IsTextured() const { return IsTextured; }
 	void MakeTexture(sf::RenderTexture&) const;
+	sf::Color FadeColor;
 
 	void Update(unsigned int, sf::Vector2f);
 };

@@ -6,6 +6,7 @@
 #include "Constants.h"
 
 class Level;
+struct Layer;
 class GameObject;
 class VertexCollectionQueue;
 
@@ -18,3 +19,5 @@ const ObjectList& Hook_GetObjectList();
 bool Hook_CollideObjects(const GameObject&, const GameObject&);
 void Hook_UpdateHUD(VertexCollectionQueue&, unsigned int);
 void Hook_LevelLoad(Level&, PreloadedAnimationsList&);
+bool Hook_ShouldTexturedLayerBeUpdated(unsigned int);
+bool Hook_ShouldTexturedLayerBeRendered(const Layer&, sf::RenderTarget&, sf::RenderStates, unsigned int);

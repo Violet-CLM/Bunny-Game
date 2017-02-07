@@ -3,6 +3,7 @@
 #include "Misc.h"
 #include "Layer.h"
 #include "Level.h"
+#include "LatticeHooks.h"
 
 Layer::Layer()
 {
@@ -47,7 +48,8 @@ Layer::Layer(Level* level, const char* data1Ptr, Word* data3Ptr, const WordID*& 
 	data1Ptr += sizeof(sf::Uint32) * LEVEL_LAYERCOUNT; //LayerAutoYSpeed
 	TextureMode = data1Ptr[layerID];
 	data1Ptr += sizeof(sf::Uint8) * LEVEL_LAYERCOUNT; //LayerTextureMode
-	//FadeColor = *(TbgFadeColor*)(data1Ptr + 3 * layerID);
+	//FadeColor = sf::Color(*(sf::Uint32*)(&data1Ptr[3 * layerID]));
+	FadeColor.a = 0xFFu;
 
 	//OutputDebugStringF(L"%d, %d", Width, Height);
 
@@ -239,6 +241,9 @@ void Layer::Update(unsigned int gameTicks, sf::Vector2f camera)
 		PositionY += int(200 - WINDOW_HEIGHT_PIXELS);
 	setPosition(roundf(-PositionX), roundf(-PositionY)); //sub-pixel repositioning leads to tearing
 
+	if (IsTextured && !Hook_ShouldTexturedLayerBeUpdated(TextureMode))
+		return;
+
 	if (ForceUpdate || abs(PositionX - LastPositionX) >= EXTRA_TILES_TO_RENDER_TO_VERTEX_ARRAY * TILEWIDTH || abs(PositionY - LastPositionY) >= EXTRA_TILES_TO_RENDER_TO_VERTEX_ARRAY * TILEHEIGHT) {
 		ForceUpdate = false;
 		LastPositionX = PositionX;
@@ -257,10 +262,13 @@ void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	if (!IsUsed)
 		return;
+
 	states.transform = getTransform();
-	for (int i = 0; i < NUMBEROFTILESETTEXTURES; ++i) if (!Vertices[i].empty()) {
-		states.texture = LevelPtr->TilesetPtr->TileImages[i];
-		target.draw(Vertices[i].data(), Vertices[i].size(), sf::Quads, states);
+	if (!IsTextured || Hook_ShouldTexturedLayerBeRendered(*this, target, states, TextureMode)) {
+		for (int i = 0; i < NUMBEROFTILESETTEXTURES; ++i) if (!Vertices[i].empty()) {
+			states.texture = LevelPtr->TilesetPtr->TileImages[i];
+			target.draw(Vertices[i].data(), Vertices[i].size(), sf::Quads, states);
+		}
 	}
 	VertexCollectionQueue::draw(target, states);
 }
@@ -269,8 +277,8 @@ void Layer::MakeTexture(sf::RenderTexture& textureImage) const {
 	if (WidthPixels == textureImage.getSize().x && HeightPixels == textureImage.getSize().y) { //layer is big enough to support creating a textured background from... if not, the texture will be left fully black
 		VertexVector vertices[NUMBEROFTILESETTEXTURES]; //don't reuse Layer::Vertices, in case this layer needs to get drawn soon
 
-		for (unsigned int x = 0; x < Width; ++x)
-			for (unsigned int y = 0; y < Height; ++y)
+		for (int x = 0; x < Width; ++x)
+			for (int y = 0; y < Height; ++y)
 				DrawTileToVertexArrays(vertices, x,y);
 
 		for (int i = 0; i < NUMBEROFTILESETTEXTURES; ++i)

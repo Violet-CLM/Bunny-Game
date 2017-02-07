@@ -11,8 +11,6 @@ sf::Texture* PaletteTexture;
 quad PossibleQuadOrientations[2 * 2 * 2];
 quad FullScreenQuad;
 
-//#define PALLINEHEIGHT (1.f/float(pallineNUMBEROFPALLINES)) //texture positions in GLSL are not 0-255 (or 0-63 or whatever) but 0.0 to 1.0. This is therefore the height of a single line in the "tables" texture, and e.g. (float(pallineBRIGHTNESS) * PALLINEHEIGHT) points to line pallineBRIGHTNESS in GLSL coordinates
-//#define TOPALLINE(A) (float(A) * PALLINEHEIGHT) //a macro for the above location purpose, to be used while writing shaders
 void GeneratePaletteTexture(sf::Texture& tex, const sf::Uint8* palette)
 {
 	const sf::Color* const paletteColors = (sf::Color*)palette;
