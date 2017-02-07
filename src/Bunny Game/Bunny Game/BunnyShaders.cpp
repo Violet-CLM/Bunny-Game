@@ -3,7 +3,7 @@
 #include "Misc.h"
 
 quad fullScreenQuad;
-sf::RenderStates WarpHorizonRenderStates, TunnelRenderStates, MenuBGRenderStates, AddAmbientLightingRenderStates, ClearAmbientLightingBufferRenderStates;
+sf::RenderStates WarpHorizonRenderStates;
 
 std::array<std::string, BunnyShaders::LAST - 1 - BunnyShaders::FIRST> BunnyShaderSources;
 void WriteBunnyShaders() {
@@ -49,7 +49,7 @@ void WriteBunnyShaders() {
 
 	fullScreenQuad.setDimensions(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS);
 	const sf::BlendMode colorFromSourceAlphaFromDestination(sf::BlendMode::One, sf::BlendMode::Zero, sf::BlendMode::Add, sf::BlendMode::Zero, sf::BlendMode::One, sf::BlendMode::Add);
-	WarpHorizonRenderStates.blendMode = colorFromSourceAlphaFromDestination;
+	WarpHorizonRenderStates.blendMode = colorFromSourceAlphaFromDestination;;
 }
 
 void Hook_SetupPaletteTables(sf::Texture& tex, const sf::Color* const paletteColors, std::array<sf::Color, COLORSPERPALETTE>& buffer) {
@@ -94,7 +94,7 @@ void Hook_SetupPaletteTables(sf::Texture& tex, const sf::Color* const paletteCol
 }
 
 bool Hook_ShouldTexturedLayerBeUpdated(unsigned int) {
-	Shaders[BunnyShaders::WarpHorizon]->setParameter("offset", sf::Vector2f( //todo
+	Shaders[BunnyShaders::WarpHorizon]->setUniform("offset", sf::Vector2f( //todo
 		0,//((LevelGlobals->layerAutoSpeedX[layerID] * *renderFrame) + layerPersonalXPosition[localPlayerID][layerToDrawPositionFrom]) / float(256 * FIXMUL),
 		0//((LevelGlobals->layerAutoSpeedY[layerID] * *renderFrame) + layerPersonalYPosition[localPlayerID][layerToDrawPositionFrom]) / float(256 * FIXMUL)
 	));

@@ -30,7 +30,7 @@ void GeneratePaletteTexture(sf::Texture& tex, const sf::Uint8* palette)
 	Hook_SetupPaletteTables(tex, paletteColors, buffer);
 
 	for (auto& shader : Shaders)
-		shader->setParameter("tables", tex); //cannot be used more than once...
+		shader->setUniform("tables", tex); //cannot be used more than once...
 }
 
 void GenerateTilesetTextures(sf::Texture** TileImages, const char* TileTypes, const sf::Uint32* ImageAddresses, const sf::Uint8* Images, unsigned int TileCount)
@@ -86,7 +86,7 @@ void InitCreateShaders(std::vector<sf::Shader*>& shaders, const std::vector<std:
 			sf::Shader* shader = new sf::Shader();
 			if (shader->loadFromMemory(shaderSource, sf::Shader::Fragment)) {
 				if (shaderSource.find("uniform sampler2D texture") != std::string::npos)
-					shader->setParameter("texture", sf::Shader::CurrentTexture);
+					shader->setUniform("texture", sf::Shader::CurrentTexture);
 			} else
 				ShowErrorMessage((L"Error compiling shader: " + std::wstring(shaderSource.begin(), shaderSource.end())).c_str());
 			shaders.push_back(shader);
@@ -119,7 +119,7 @@ bool VertexCollection::Matches(const sf::Texture* const otherTexture, const Spri
 
 sf::Shader* SpriteMode::GetShader() const
 {
-	Shader->setParameter("param", ParamAsFloat);
+	Shader->setUniform("param", ParamAsFloat);
 	return Shader;
 }
 

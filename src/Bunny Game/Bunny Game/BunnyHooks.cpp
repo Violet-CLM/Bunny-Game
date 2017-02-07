@@ -39,9 +39,9 @@ void Hook_LevelLoad(Level& level, PreloadedAnimationsList& animList) {
 				sf::Texture& texture = backgroundLayer.AdditionalTextures.back();
 				texture.setRepeated(true);
 				texture.setSmooth(true);
-				Shaders[BunnyShaders::WarpHorizon]->setParameter("texture256", texture);
-				Shaders[BunnyShaders::WarpHorizon]->setParameter("fadeColor", backgroundLayer.FadeColor);
-				WarpHorizonRenderStates.shader = Shaders[BunnyShaders::WarpHorizon]; //doesn't really need to be set every time a level loads, oh well
+				Shaders[BunnyShaders::WarpHorizon]->setUniform("texture256", texture);
+				//Shaders[BunnyShaders::WarpHorizon]->setUniform("fadeColor", sf::Glsl::Vec4(sf::Color::Magenta));
+				WarpHorizonRenderStates.shader = Shaders[BunnyShaders::WarpHorizon];
 			} else { //I have no idea why this might happen but from time to time I decide to write some error-checking
 				ShowErrorMessage(L"Failed to create textured background texture!");
 			}

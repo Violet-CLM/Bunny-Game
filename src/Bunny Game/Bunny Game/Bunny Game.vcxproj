@@ -125,7 +125,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>SFML_STATIC;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\SFML-2.3.2\include;..\..\Lattice\Lattice</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\SFML-Source\SFML-2.4.1\include;..\..\Lattice\Lattice</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
@@ -135,7 +135,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <PerUserRedirection>true</PerUserRedirection>
-      <AdditionalLibraryDirectories>C:\Program Files (x86)\SFML-Source\SFML-2.3.2\lib\Release;C:\Program Files (x86)\SFML-Source\SFML-2.3.2\extlibs\libs-msvc\x86;..\..\Lattice\Lattice</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\SFML-Source\SFML-2.4.1\build\lib\RelWithDebInfo;C:\Program Files (x86)\SFML-Source\SFML-2.4.1\extlibs\libs-msvc-universal\x86;..\..\Lattice\Lattice</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-main.lib;sfml-graphics-s.lib;sfml-audio-s.lib;sfml-window-s.lib;sfml-system-s.lib;opengl32.lib;freetype.lib;jpeg.lib;winmm.lib;gdi32.lib;lib/zdll.lib;openal32.lib;flac.lib;vorbisenc.lib;vorbisfile.lib;vorbis.lib;ogg.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>notelemetry.obj %(AdditionalOptions)</AdditionalOptions>
     </Link>
