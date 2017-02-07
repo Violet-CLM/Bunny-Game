@@ -48,8 +48,7 @@ Layer::Layer(Level* level, const char* data1Ptr, Word* data3Ptr, const WordID*& 
 	data1Ptr += sizeof(sf::Uint32) * LEVEL_LAYERCOUNT; //LayerAutoYSpeed
 	TextureMode = data1Ptr[layerID];
 	data1Ptr += sizeof(sf::Uint8) * LEVEL_LAYERCOUNT; //LayerTextureMode
-	//FadeColor = sf::Color(*(sf::Uint32*)(&data1Ptr[3 * layerID]));
-	FadeColor.a = 0xFFu;
+	FadeColor = sf::Color(*(sf::Uint32*)(&data1Ptr[3 * layerID]) | 0xFF000000u);
 
 	//OutputDebugStringF(L"%d, %d", Width, Height);
 

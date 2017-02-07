@@ -49,7 +49,7 @@ void WriteBunnyShaders() {
 
 	fullScreenQuad.setDimensions(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS);
 	const sf::BlendMode colorFromSourceAlphaFromDestination(sf::BlendMode::One, sf::BlendMode::Zero, sf::BlendMode::Add, sf::BlendMode::Zero, sf::BlendMode::One, sf::BlendMode::Add);
-	WarpHorizonRenderStates.blendMode = colorFromSourceAlphaFromDestination;;
+	WarpHorizonRenderStates.blendMode = colorFromSourceAlphaFromDestination;
 }
 
 void Hook_SetupPaletteTables(sf::Texture& tex, const sf::Color* const paletteColors, std::array<sf::Color, COLORSPERPALETTE>& buffer) {
