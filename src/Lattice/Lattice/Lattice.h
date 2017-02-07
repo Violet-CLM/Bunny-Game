@@ -5,7 +5,8 @@
 #define FPS_MAX 60
 extern int FPS;
 
-struct KeyStates {
+class KeyStates {
+friend class Lattice;
 	bool Previous[sf::Keyboard::KeyCount];
 	bool Current[sf::Keyboard::KeyCount];
 
@@ -13,9 +14,11 @@ struct KeyStates {
 		memcpy(Previous, Current, sizeof(Current));
 	}
 	void SetKey(sf::Keyboard::Key key, bool setTo) {
+		if (key <= sf::Keyboard::Unknown) return;
 		Current[key] = setTo;
 		Previous[key] = !setTo;
 	}
+public:
 	bool Key(sf::Keyboard::Key key) const {
 		return Current[key];
 	}

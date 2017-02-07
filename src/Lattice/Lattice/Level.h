@@ -12,7 +12,7 @@
 #include "Objects.h"
 
 class GameObject;
-struct KeyStates;
+class KeyStates;
 class Level : public LevelTileset, public sf::Drawable {
 	friend class GameState;
 	friend class GameObject;
