@@ -160,13 +160,15 @@ bool Level::ProcessLevelData() //called after Open()
 	UncompressedData[0].resize(0); UncompressedData[0].shrink_to_fit(); //this section is no longer needed
 
 	PreloadedAnimationsList defaultAnimList;
-	Hook_LevelLoad(*this, defaultAnimList);
+	Hook_GetAnimationList(*this, defaultAnimList);
 
 	ForEachEvent([&defaultAnimList](Event& ev, int, int) { //find additional animations to load depending on which objects (enemies, etc.) are in the level
 		if (Lattice::ObjectInitializationList->count(ev.ID))
 			defaultAnimList.insert(Lattice::ObjectInitializationList->at(ev.ID).AnimSetID);
 	});
 	AnimFile::ReadAnims(std::wstring(L"Anims.j2a"), defaultAnimList);
+
+	Hook_LevelLoad(*this);
 
 	return true;
 }

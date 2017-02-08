@@ -9,14 +9,12 @@
 
 static ObjectList ObjectInitializationList;
 
-#define Obj(a, b, c, ...) {EventIDs::a, {GetVersionSpecificAnimationID(AnimSets::b), [](ObjectStartPos& objStart){ return (GameObject*)(new c(__VA_ARGS__)); }, EventIDs::a >= 33 || EventIDs::a == EventIDs::JAZZSTART}}
+#define Obj(a, b, c, ...) {EventIDs::a, {GetVersionSpecificAnimationID(AnimSets::b), [](ObjectStartPos& objStart){ return (GameObject*)(new c(__VA_ARGS__)); }, EventIDs::a >= 33}}
 #define ObjT(a, b, c) Obj(a, b, c, objStart)
 #define ObjTC(a, b, c, ...) Obj(a, b, c, objStart, __VA_ARGS__)
 const ObjectList& Hook_GetObjectList() {
 	Pickup::ExplosionSetID = GetVersionSpecificAnimationID(AnimSets::Pickups);
 	return ObjectInitializationList = {
-		ObjT(JAZZSTART, Jazz, Bunny),//todo
-
 		ObjT(EXPLOSION, Ammo, Explosion),
 
 		ObjTC(GUN2AMMO3, Ammo, AmmoPickup, Weapon::Bouncer),

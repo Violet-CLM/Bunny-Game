@@ -3,6 +3,7 @@
 #include "BunnyObjectList.h"
 #include "BunnyObject.h"
 #include "BunnyShaders.h"
+#include "Bunny.h"
 #include "Windows.h"
 #include "Misc.h"
 
@@ -26,10 +27,47 @@ void Hook_ActivateObjects(Level& level) {
 	});
 }
 
-void Hook_LevelLoad(Level& level, PreloadedAnimationsList& animList) {
+void Hook_GetAnimationList(Level&, PreloadedAnimationsList& animList) {
 	animList = DefaultAnimationsList;
+}
+void Hook_LevelLoad(Level& level) {
+	{ //place one (1) player character
+		EventID soughtEventID = EventIDs::JAZZSTART;
+		std::vector<sf::Vector2i> StartPositions;
+		auto FindStartPositions = [&level, &StartPositions, &soughtEventID](Event& ev,int xTile,int yTile) -> void {
+			if (ev.ID == soughtEventID)
+				StartPositions.emplace_back(xTile, yTile);
+		};
+		level.ForEachEvent(FindStartPositions);
+		if (StartPositions.empty()) {
+			soughtEventID = EventIDs::SPAZSTART; //not quite how this should work obviously but it'll do for now... todo
+			level.ForEachEvent(FindStartPositions);
+			if (StartPositions.empty()) {
+				soughtEventID = EventIDs::MPSTART;
+				level.ForEachEvent(FindStartPositions);
+				if (StartPositions.empty())
+					ShowErrorMessage(L"No start positions found!");
+			}
+		}
+		const auto bunnyStartPosition = StartPositions[0]; //should probably be randomly chosen, not the first one... todo
+		level.Objects.emplace_front( //wow, this is really wordy, needs more shortcuts
+			new Bunny(
+				ObjectStartPos(
+					level,
+					level.GetEvent(
+						bunnyStartPosition.x,
+						bunnyStartPosition.y)
+					,
+					float(bunnyStartPosition.x * TILEWIDTH + 15),
+					float(bunnyStartPosition.y * TILEHEIGHT + 15),
+					AnimationSets[GetVersionSpecificAnimationID(AnimSets::Jazz)]
+				)
+			)
+		);
+	}
 
-	for (unsigned int layerID = 0; layerID < LEVEL_LAYERCOUNT; ++layerID) { //generate texture from layer 8's tilemap for use in textured background/s
+	//generate texture from layer 8's tilemap for use in textured background/s
+	for (unsigned int layerID = 0; layerID < LEVEL_LAYERCOUNT; ++layerID) {
 		if (level.Layers[layerID].Get_IsTextured()) { //at least one layer is supposed to be drawn as textured
 			Layer& backgroundLayer = level.Layers[LEVEL_LAYERCOUNT-1];
 			static sf::RenderTexture textureImage; //Some graphics cards (e.g. mine) crash when a RenderTexture goes out of scope, so this has to be static and carefully reused across levels

@@ -18,6 +18,7 @@ void Hook_ActivateObjects(Level&);
 const ObjectList& Hook_GetObjectList();
 bool Hook_CollideObjects(const GameObject&, const GameObject&);
 void Hook_UpdateHUD(VertexCollectionQueue&, unsigned int);
-void Hook_LevelLoad(Level&, PreloadedAnimationsList&);
+void Hook_GetAnimationList(Level&, PreloadedAnimationsList&);
+void Hook_LevelLoad(Level&);
 bool Hook_ShouldTexturedLayerBeUpdated(unsigned int);
 bool Hook_ShouldTexturedLayerBeRendered(const Layer&, sf::RenderTarget&, sf::RenderStates, unsigned int);
