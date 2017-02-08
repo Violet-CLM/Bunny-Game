@@ -41,7 +41,11 @@ void Hook_LevelLoad(Level& level, PreloadedAnimationsList& animList) {
 				//texture.setSmooth(true); //doesn't look good on all textures, unfortunately
 				Shaders[BunnyShaders::WarpHorizon]->setUniform("texture256", texture);
 				Shaders[BunnyShaders::WarpHorizon]->setUniform("fadeColor", sf::Glsl::Vec4(backgroundLayer.FadeColor));
+				Shaders[BunnyShaders::Tunnel]->setUniform("texture256", texture);
+				Shaders[BunnyShaders::Tunnel]->setUniform("fadeColor", sf::Glsl::Vec4(backgroundLayer.FadeColor));
+				Shaders[BunnyShaders::Tunnel]->setUniform("spiral", backgroundLayer.ParallaxStars ? 0.25f : 0.0f);
 				WarpHorizonRenderStates.shader = Shaders[BunnyShaders::WarpHorizon];
+				TunnelRenderStates.shader = Shaders[BunnyShaders::Tunnel];
 			} else { //I have no idea why this might happen but from time to time I decide to write some error-checking
 				ShowErrorMessage(L"Failed to create textured background texture!");
 			}

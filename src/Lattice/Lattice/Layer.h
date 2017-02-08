@@ -21,7 +21,6 @@ private:
 	//sf::Uint32 DrawWordPixelOffset; //Range: -127 to 0. //Jerry
 	bool IsTextured;
 	sf::Uint8 TextureMode;
-	bool ParallaxStars;
 	bool IsHeightTiled;
 	bool IsWidthTiled;
 	bool LimitVisibleRegion;
@@ -64,6 +63,7 @@ public:
 	bool Get_IsTextured() const { return IsTextured; }
 	void MakeTexture(sf::RenderTexture&) const;
 	sf::Color FadeColor;
+	bool ParallaxStars;
 
 	void Update(unsigned int, sf::Vector2f);
 };

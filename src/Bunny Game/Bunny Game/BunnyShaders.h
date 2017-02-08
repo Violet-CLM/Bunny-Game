@@ -20,7 +20,7 @@ namespace BunnyPaletteLineNames {
 namespace BunnyShaders {
 	enum {
 		FIRST = DefaultShaders::LAST - 1,
-		Gem, WarpHorizon,
+		Gem, WarpHorizon, Tunnel,
 		LAST
 	};
 }
@@ -28,7 +28,7 @@ namespace BunnyShaders {
 extern std::array<std::string, BunnyShaders::LAST - 1 - BunnyShaders::FIRST> BunnyShaderSources;
 void WriteBunnyShaders();
 
-extern sf::RenderStates WarpHorizonRenderStates;
+extern sf::RenderStates WarpHorizonRenderStates, TunnelRenderStates;
 
 class SpriteModeGem : public SpriteMode {
 public:

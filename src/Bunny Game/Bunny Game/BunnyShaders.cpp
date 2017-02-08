@@ -3,7 +3,7 @@
 #include "Layer.h"
 #include "Misc.h"
 
-sf::RenderStates WarpHorizonRenderStates;
+sf::RenderStates WarpHorizonRenderStates, TunnelRenderStates;
 
 std::array<std::string, BunnyShaders::LAST - 1 - BunnyShaders::FIRST> BunnyShaderSources;
 void WriteBunnyShaders() {
@@ -44,11 +44,37 @@ void WriteBunnyShaders() {
 					)).r\
 				);\
 			}", float(WINDOW_HEIGHT_PIXELS/2), float(WINDOW_WIDTH_PIXELS/2), float(WINDOW_HEIGHT_PIXELS/2), TOPALLINE(BunnyPaletteLineNames::TBGFadeIntensity)), //non-LUT version of fade intensity, for speed comparison at some point: "max(1.0 - (distanceProportionalToScreenSize * distanceProportionalToScreenSize * 9.625), 0.0)"
+	//BunnyShaders::Tunnel
+		sprintf_z("uniform sampler2D texture256;\
+		uniform sampler2D tables;\
+		uniform vec4 fadeColor;\
+		uniform vec2 offset;\
+		uniform float spiral;\
+		\
+		void main(void)\
+		{\
+			float relative_x = (%f - gl_FragCoord.x);\
+			float relative_y = (gl_FragCoord.y - %f);\
+			float depth = 64.0 / (relative_x * relative_x + relative_y * relative_y) * (%f - gl_FragCoord.y);\
+			float spiralAngleDepth = spiral * depth;\
+			gl_FragColor = mix(\
+				texture2D(tables, vec2(\
+					texture2D(texture256, vec2(\
+						atan(relative_x, relative_y) / 6.28318531 + 0.5 + offset.x + (spiralAngleDepth * spiralAngleDepth),\
+						depth + offset.y\
+					)).r,\
+					0\
+				)),\
+				fadeColor,\
+				clamp(depth / 4.0, 0.0, 1.0)\
+			);\
+		}", float(WINDOW_WIDTH_PIXELS/2), float(WINDOW_HEIGHT_PIXELS/2), float(WINDOW_HEIGHT_PIXELS + WINDOW_HEIGHT_PIXELS/2)),
 	};
 
 
 	const sf::BlendMode colorFromSourceAlphaFromDestination(sf::BlendMode::One, sf::BlendMode::Zero, sf::BlendMode::Add, sf::BlendMode::Zero, sf::BlendMode::One, sf::BlendMode::Add);
 	WarpHorizonRenderStates.blendMode = colorFromSourceAlphaFromDestination;
+	TunnelRenderStates.blendMode = colorFromSourceAlphaFromDestination;
 }
 
 void Hook_SetupPaletteTables(sf::Texture& tex, const sf::Color* const paletteColors, std::array<sf::Color, COLORSPERPALETTE>& buffer) {
@@ -95,14 +121,16 @@ void Hook_SetupPaletteTables(sf::Texture& tex, const sf::Color* const paletteCol
 bool Hook_ShouldTexturedLayerBeUpdated(unsigned int) {
 	return false;
 }
-bool Hook_ShouldTexturedLayerBeRendered(const Layer& layer, sf::RenderTarget& target, sf::RenderStates, unsigned int) {
+bool Hook_ShouldTexturedLayerBeRendered(const Layer& layer, sf::RenderTarget& target, sf::RenderStates, unsigned int textureMode) {
 	const auto renderFrame = Lattice::GetFramesElapsed();
 	const auto layerPosition = (&layer)[-3].getPosition(); //layer 5
 	const auto layerSpeeds = layer.GetAutoSpeed();
-	Shaders[BunnyShaders::WarpHorizon]->setUniform("offset", sf::Vector2f(
-		((layerSpeeds.x * renderFrame) - layerPosition.x) / (8*TILEWIDTH),
+	const bool isTunnel = textureMode & 1;
+	const float horizontalDiver = (8 * TILEWIDTH) << (isTunnel << 1);
+	Shaders[!isTunnel ? BunnyShaders::WarpHorizon : BunnyShaders::Tunnel]->setUniform("offset", sf::Vector2f(
+		((layerSpeeds.x * renderFrame) - layerPosition.x) / horizontalDiver,
 		((layerSpeeds.y * renderFrame) - layerPosition.y) / (8*TILEWIDTH)
 	));
-	target.draw(FullScreenQuad.vertices, 4, sf::Quads, WarpHorizonRenderStates);
+	target.draw(FullScreenQuad.vertices, 4, sf::Quads, !isTunnel ? WarpHorizonRenderStates : TunnelRenderStates);
 	return false;
 }
