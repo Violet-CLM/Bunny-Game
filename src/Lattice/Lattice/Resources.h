@@ -69,7 +69,7 @@ private:
 
 	void AssignTextureCoordinates(const SpriteCoordinateRectangle* const textureCoordinates);
 public:
-	void AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates, const std::vector<sf::Texture*>&);
+	void AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates, std::vector<sf::Texture>&);
 
 	AnimFrame(const sf::Uint8*&, const sf::Uint8* const);
 	static bool SortBySize(const AnimFrame* a, const AnimFrame* b) { return a->Area > b->Area; }
@@ -126,13 +126,15 @@ class SpriteManager {
 		SpriteCoordinateRectangle* placeSprite(const unsigned int width, const unsigned int height);
 	};
 	std::vector<SpriteTreeNode*> SpriteTrees;
-	std::vector<sf::Texture*> SpriteTextures;
+	std::vector<sf::Texture> SpriteTextures;
 	std::vector<AnimFrame*> SpriteTexturesSortedBySize;
 
 public:
 	void AddFrame(AnimFrame&);
 	void CreateAndAssignTextures();
 	void Clear();
+	
+	~SpriteManager();
 };
 
 //AnimFrame SpritePropertyList[MAXFRAMES];

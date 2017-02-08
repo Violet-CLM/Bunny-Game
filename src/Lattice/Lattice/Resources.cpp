@@ -97,10 +97,10 @@ void AnimFrame::AssignTextureCoordinates(const SpriteCoordinateRectangle* const 
 	Quad.vertices[3].texCoords = sf::Vector2<float>(float(textureCoordinates->left), float(textureCoordinates->top + textureCoordinates->height));
 }
 
-void AnimFrame::AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates, const std::vector<sf::Texture*>& SpriteTextures) {
+void AnimFrame::AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates, std::vector<sf::Texture>& SpriteTextures) {
 	AssignTextureCoordinates(textureCoordinates);
 
-	(Texture = SpriteTextures[Quad.TextureID = t])->update(
+	(Texture = &SpriteTextures[Quad.TextureID = t])->update(
 		(sf::Uint8*)Image.data(),
 		textureCoordinates->width,
 		textureCoordinates->height,
@@ -347,9 +347,8 @@ void SpriteManager::CreateAndAssignTextures() {
 
 		for (unsigned int textureID = 0; ; ++textureID) {
 			while (SpriteTextures.size() <= textureID) { //SpriteTextures and SpriteTrees should always be the same size
-				sf::Texture* newTexture = new sf::Texture();
-				newTexture->create(hardwareMaximumTextureSize, hardwareMaximumTextureSize);
-				SpriteTextures.push_back(newTexture);
+				SpriteTextures.emplace_back();
+				SpriteTextures.back().create(hardwareMaximumTextureSize, hardwareMaximumTextureSize);
 
 				SpriteTreeNode* newNode = new SpriteTreeNode;
 				newNode->rectangle = SpriteCoordinateRectangle(0, 0, hardwareMaximumTextureSize, hardwareMaximumTextureSize);
@@ -369,10 +368,14 @@ void SpriteManager::CreateAndAssignTextures() {
 }
 
 void SpriteManager::Clear() {
-	for (unsigned int textureID = 0; textureID < SpriteTrees.size(); ++textureID) {
-		delete SpriteTrees[textureID]; //deletes its branches recursively
-		SpriteTrees[textureID] = nullptr;
-	}
+	for (unsigned int textureID = 0; textureID < SpriteTrees.size(); ++textureID)
+		if (SpriteTrees[textureID] != nullptr) { //don't worry about whether deleting nullptrs is fully defined
+			delete SpriteTrees[textureID]; //deletes its branches recursively
+			SpriteTrees[textureID] = nullptr;
+		}
 	
 	//SpriteTextures[0]->copyToImage().saveToFile("C:\\Games\\Jazz2\\SpriteTexture.png");
+}
+SpriteManager::~SpriteManager() {
+	Clear();
 }
