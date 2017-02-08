@@ -13,7 +13,6 @@
 #define EXTRA_TILES_TO_RENDER_TO_VERTEX_ARRAY 5
 
 typedef std::vector<sf::Vertex> VertexVector; //basically an sf::VertexArray but with all the methods exposed
-typedef sf::Rect<unsigned int> SpriteCoordinateRectangle;
 
 #define TILESETDIMENSION 1024
 #define TILESETDIMENSIONINTILES (TILESETDIMENSION/TILEWIDTH)

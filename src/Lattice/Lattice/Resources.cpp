@@ -7,8 +7,6 @@
 extern "C" { FILE __iob_func[3] = { *stdin,*stdout,*stderr }; } //needed in VS2015 to include flac.lib according to http://stackoverflow.com/questions/30412951/unresolved-external-symbol-imp-fprintf-and-imp-iob-func-sdl2
 
 std::vector<AnimSet*> AnimationSets;
-std::vector<SpriteTreeNode*> SpriteTrees;
-std::vector<sf::Texture*> SpriteTextures;
 
 bool AnimFile::AnimFileHeader::Matches()
 {
@@ -51,8 +49,8 @@ bool AnimFile::ReadSpecificFileHeader(std::ifstream& File) {
 	SetAddresses.resize(headerPart1.SetCount);
 	return true;
 }
-AnimFile::AnimFile(std::wstring& fn, PreloadedAnimationsList& setIDs) : JazzFile(fn), AnimSetIDs(setIDs) {}
-bool AnimFile::ReadAnims(std::wstring& Filepath, PreloadedAnimationsList& setIDs)
+AnimFile::AnimFile(std::wstring& fn, const PreloadedAnimationsList& setIDs) : JazzFile(fn), AnimSetIDs(setIDs) {}
+bool AnimFile::ReadAnims(std::wstring& Filepath, const PreloadedAnimationsList& setIDs, SpriteManager& manager)
 {
 	AnimFile newAnimFile(Filepath, setIDs);
 	if (!newAnimFile.Open()) {
@@ -60,48 +58,13 @@ bool AnimFile::ReadAnims(std::wstring& Filepath, PreloadedAnimationsList& setIDs
 		return false;
 	}
 	
-
-	std::vector<AnimFrame*> SpriteTexturesSortedBySize;
 	for (const auto& it : AnimationSets) //find ALL animframes, regardless of their parent animations
 		if (it != nullptr)
 			for (const auto& jt : it->Animations)
 				for (auto& kt : *jt.AnimFrames)
-					SpriteTexturesSortedBySize.push_back(&kt);
-	std::sort(SpriteTexturesSortedBySize.begin(), SpriteTexturesSortedBySize.end(), AnimFrame::SortBySize);
-
-	unsigned int hardwareMaximumTextureSize = sf::Texture::getMaximumSize(); //todo move somewhere else?
-	for (auto& it : SpriteTexturesSortedBySize) {
-		if (!it->SmallerThan(hardwareMaximumTextureSize))
-			continue;
-
-		for (unsigned int textureID = 0; ; ++textureID) {
-			while (SpriteTextures.size() <= textureID) { //SpriteTextures and SpriteTrees should always be the same size
-				sf::Texture* newTexture = new sf::Texture();
-				newTexture->create(hardwareMaximumTextureSize, hardwareMaximumTextureSize);
-				SpriteTextures.push_back(newTexture);
-
-				SpriteTreeNode* newNode = new SpriteTreeNode;
-				newNode->rectangle = SpriteCoordinateRectangle(0, 0, hardwareMaximumTextureSize, hardwareMaximumTextureSize);
-				SpriteTrees.push_back(newNode);
-			}
-
-			if (SpriteTrees[textureID] == nullptr)
-				continue;
-
-			SpriteCoordinateRectangle* textureCoordinates = SpriteTrees[textureID]->placeSprite(it->Width, it->Height);
-			if (textureCoordinates != nullptr) {
-				it->AssignTextureDetails(textureID, textureCoordinates);
-				break;
-			}
-		}
-	}
-
-	for (unsigned int textureID = 0; textureID < SpriteTrees.size(); ++textureID) {
-		delete SpriteTrees[textureID]; //deletes its branches recursively
-		SpriteTrees[textureID] = nullptr;
-	}
-	
-	//SpriteTextures[0]->copyToImage().saveToFile("C:\\Games\\Jazz2\\SpriteTexture.png");
+					manager.AddFrame(kt);
+	manager.CreateAndAssignTextures();
+	manager.Clear();
 
 	return true;
 }
@@ -134,7 +97,7 @@ void AnimFrame::AssignTextureCoordinates(const SpriteCoordinateRectangle* const 
 	Quad.vertices[3].texCoords = sf::Vector2<float>(float(textureCoordinates->left), float(textureCoordinates->top + textureCoordinates->height));
 }
 
-void AnimFrame::AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates) {
+void AnimFrame::AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates, const std::vector<sf::Texture*>& SpriteTextures) {
 	AssignTextureCoordinates(textureCoordinates);
 
 	(Texture = SpriteTextures[Quad.TextureID = t])->update(
@@ -148,7 +111,7 @@ void AnimFrame::AssignTextureDetails(unsigned int t, const SpriteCoordinateRecta
 }
 
 
-SpriteCoordinateRectangle * SpriteTreeNode::placeSprite(const unsigned int width, const unsigned int height) {
+SpriteCoordinateRectangle * SpriteManager::SpriteTreeNode::placeSprite(const unsigned int width, const unsigned int height) {
 	//packing algorithm described at http://www.blackpawn.com/texts/lightmaps/default.html, because djazz used it for that wacky sprites-rotating-around-mouse-cursor thing in JS and that means it's proven to work
 	if (firstChild != nullptr) {
 		SpriteCoordinateRectangle* leftResult = firstChild->placeSprite(width, height);
@@ -368,4 +331,48 @@ sf::Sound& AnimSet::StartSound(unsigned int sampleID, float PositionX, float Pos
 }
 sf::Sound& AnimSet::StartSound(unsigned int sampleID, sf::Vector2f Position, unsigned int volume, unsigned int frequency) const {
 	return StartSound(sampleID, Position.x, Position.y, volume, frequency);
+}
+
+void SpriteManager::AddFrame(AnimFrame& newFrame) {
+	SpriteTexturesSortedBySize.push_back(&newFrame);
+}
+
+void SpriteManager::CreateAndAssignTextures() {
+	std::sort(SpriteTexturesSortedBySize.begin(), SpriteTexturesSortedBySize.end(), AnimFrame::SortBySize);
+
+	unsigned int hardwareMaximumTextureSize = sf::Texture::getMaximumSize(); //todo move somewhere else?
+	for (auto& it : SpriteTexturesSortedBySize) {
+		if (!it->SmallerThan(hardwareMaximumTextureSize))
+			continue;
+
+		for (unsigned int textureID = 0; ; ++textureID) {
+			while (SpriteTextures.size() <= textureID) { //SpriteTextures and SpriteTrees should always be the same size
+				sf::Texture* newTexture = new sf::Texture();
+				newTexture->create(hardwareMaximumTextureSize, hardwareMaximumTextureSize);
+				SpriteTextures.push_back(newTexture);
+
+				SpriteTreeNode* newNode = new SpriteTreeNode;
+				newNode->rectangle = SpriteCoordinateRectangle(0, 0, hardwareMaximumTextureSize, hardwareMaximumTextureSize);
+				SpriteTrees.push_back(newNode);
+			}
+
+			if (SpriteTrees[textureID] == nullptr)
+				continue;
+
+			SpriteCoordinateRectangle* textureCoordinates = SpriteTrees[textureID]->placeSprite(it->Width, it->Height);
+			if (textureCoordinates != nullptr) {
+				it->AssignTextureDetails(textureID, textureCoordinates, SpriteTextures);
+				break;
+			}
+		}
+	}
+}
+
+void SpriteManager::Clear() {
+	for (unsigned int textureID = 0; textureID < SpriteTrees.size(); ++textureID) {
+		delete SpriteTrees[textureID]; //deletes its branches recursively
+		SpriteTrees[textureID] = nullptr;
+	}
+	
+	//SpriteTextures[0]->copyToImage().saveToFile("C:\\Games\\Jazz2\\SpriteTexture.png");
 }

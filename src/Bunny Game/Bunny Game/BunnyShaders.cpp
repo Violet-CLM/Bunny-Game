@@ -126,7 +126,7 @@ bool Hook_ShouldTexturedLayerBeRendered(const Layer& layer, sf::RenderTarget& ta
 	const auto layerPosition = (&layer)[-3].getPosition(); //layer 5
 	const auto layerSpeeds = layer.GetAutoSpeed();
 	const bool isTunnel = textureMode & 1;
-	const float horizontalDiver = (8 * TILEWIDTH) << (isTunnel << 1);
+	const float horizontalDiver = float((8 * TILEWIDTH) << (isTunnel << 1));
 	Shaders[!isTunnel ? BunnyShaders::WarpHorizon : BunnyShaders::Tunnel]->setUniform("offset", sf::Vector2f(
 		((layerSpeeds.x * renderFrame) - layerPosition.x) / horizontalDiver,
 		((layerSpeeds.y * renderFrame) - layerPosition.y) / (8*TILEWIDTH)

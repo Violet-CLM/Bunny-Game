@@ -166,7 +166,7 @@ bool Level::ProcessLevelData() //called after Open()
 		if (Lattice::ObjectInitializationList->count(ev.ID))
 			defaultAnimList.insert(Lattice::ObjectInitializationList->at(ev.ID).AnimSetID);
 	});
-	AnimFile::ReadAnims(std::wstring(L"Anims.j2a"), defaultAnimList);
+	AnimFile::ReadAnims(std::wstring(L"Anims.j2a"), defaultAnimList, spriteManager);
 
 	Hook_LevelLoad(*this);
 

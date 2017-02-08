@@ -9,6 +9,9 @@
 #include "Constants.h"
 #include "Layer.h"
 
+class SpriteManager;
+typedef sf::Rect<unsigned int> SpriteCoordinateRectangle;
+
 class AnimFile : public JazzFile {
 	const static sf::Uint32 ProperHeaderSignature = 0x00BEBA00;
 private:
@@ -33,13 +36,13 @@ private:
 	unsigned int SpecificFileTypeHeaderSize() override;
 	bool ReadSpecificFileHeader(std::ifstream&) override;
 	bool ReadStream(std::ifstream&) override;
-	AnimFile(std::wstring&, PreloadedAnimationsList&);
+	AnimFile(std::wstring&, const PreloadedAnimationsList&);
 
-	PreloadedAnimationsList& AnimSetIDs;
+	const PreloadedAnimationsList& AnimSetIDs;
 	std::vector<unsigned int> SetAddresses;
 public:
 
-	static bool ReadAnims(std::wstring& Filepath, PreloadedAnimationsList&);
+	static bool ReadAnims(std::wstring& Filepath, const PreloadedAnimationsList&, SpriteManager&);
 };
 
 class VertexCollectionQueue;
@@ -66,7 +69,7 @@ private:
 
 	void AssignTextureCoordinates(const SpriteCoordinateRectangle* const textureCoordinates);
 public:
-	void AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates);
+	void AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates, const std::vector<sf::Texture*>&);
 
 	AnimFrame(const sf::Uint8*&, const sf::Uint8* const);
 	static bool SortBySize(const AnimFrame* a, const AnimFrame* b) { return a->Area > b->Area; }
@@ -103,24 +106,35 @@ public:
 	AnimSet(std::ifstream&);
 };
 
-struct SpriteTreeNode {
-	SpriteTreeNode* firstChild;
-	union {
-		SpriteTreeNode* secondChild;
-		bool used;
-	};
-	SpriteCoordinateRectangle rectangle;
+class SpriteManager {
+	struct SpriteTreeNode {
+		SpriteTreeNode* firstChild;
+		union {
+			SpriteTreeNode* secondChild;
+			bool used;
+		};
+		SpriteCoordinateRectangle rectangle;
 
-	SpriteTreeNode() : firstChild(nullptr), secondChild(nullptr) {}
-	~SpriteTreeNode() {
-		if (firstChild != nullptr) {
-			delete firstChild;
-			delete secondChild;
+		SpriteTreeNode() : firstChild(nullptr), secondChild(nullptr) {}
+		~SpriteTreeNode() {
+			if (firstChild != nullptr) {
+				delete firstChild;
+				delete secondChild;
+			}
 		}
-	}
 
-	SpriteCoordinateRectangle* placeSprite(const unsigned int width, const unsigned int height);
+		SpriteCoordinateRectangle* placeSprite(const unsigned int width, const unsigned int height);
+	};
+	std::vector<SpriteTreeNode*> SpriteTrees;
+	std::vector<sf::Texture*> SpriteTextures;
+	std::vector<AnimFrame*> SpriteTexturesSortedBySize;
+
+public:
+	void AddFrame(AnimFrame&);
+	void CreateAndAssignTextures();
+	void Clear();
 };
+
 //AnimFrame SpritePropertyList[MAXFRAMES];
 //std::unordered_map<unsigned int, AnimFrame> LightingProperties;
 

@@ -49,6 +49,8 @@ private:
 	std::vector<AnimatedTile> AnimatedTiles;
 	void UpdateAnimatedTiles();
 
+	SpriteManager spriteManager;
+
 	unsigned int SpecificFileTypeHeaderSize() override;
 	bool ReadSpecificFileHeader(std::ifstream&) override;
 	Level(std::wstring&);
