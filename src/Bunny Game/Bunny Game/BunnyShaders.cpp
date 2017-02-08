@@ -1,8 +1,8 @@
 #include "BunnyShaders.h"
+#include "Lattice.h"
 #include "Layer.h"
 #include "Misc.h"
 
-quad fullScreenQuad;
 sf::RenderStates WarpHorizonRenderStates;
 
 std::array<std::string, BunnyShaders::LAST - 1 - BunnyShaders::FIRST> BunnyShaderSources;
@@ -34,7 +34,7 @@ void WriteBunnyShaders() {
 					texture2D(tables, vec2(\
 						texture2D(texture256, vec2(\
 							offset.x + (v109 * (gl_FragCoord.x - %f)) / 256.0,\
-							offset.y + (v109 * distanceFromVerticalCenter / 8.0)\
+							offset.y + (v109 * distanceFromVerticalCenter / -8.0)\
 						)).r,\
 						0\
 					)),\
@@ -47,7 +47,6 @@ void WriteBunnyShaders() {
 	};
 
 
-	fullScreenQuad.setDimensions(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS);
 	const sf::BlendMode colorFromSourceAlphaFromDestination(sf::BlendMode::One, sf::BlendMode::Zero, sf::BlendMode::Add, sf::BlendMode::Zero, sf::BlendMode::One, sf::BlendMode::Add);
 	WarpHorizonRenderStates.blendMode = colorFromSourceAlphaFromDestination;
 }
@@ -94,13 +93,16 @@ void Hook_SetupPaletteTables(sf::Texture& tex, const sf::Color* const paletteCol
 }
 
 bool Hook_ShouldTexturedLayerBeUpdated(unsigned int) {
-	Shaders[BunnyShaders::WarpHorizon]->setUniform("offset", sf::Vector2f( //todo
-		0,//((LevelGlobals->layerAutoSpeedX[layerID] * *renderFrame) + layerPersonalXPosition[localPlayerID][layerToDrawPositionFrom]) / float(256 * FIXMUL),
-		0//((LevelGlobals->layerAutoSpeedY[layerID] * *renderFrame) + layerPersonalYPosition[localPlayerID][layerToDrawPositionFrom]) / float(256 * FIXMUL)
-	));
 	return false;
 }
-bool Hook_ShouldTexturedLayerBeRendered(const Layer&, sf::RenderTarget& target, sf::RenderStates, unsigned int) {
-	target.draw(fullScreenQuad.vertices, 4, sf::Quads, WarpHorizonRenderStates);
+bool Hook_ShouldTexturedLayerBeRendered(const Layer& layer, sf::RenderTarget& target, sf::RenderStates, unsigned int) {
+	const auto renderFrame = Lattice::GetFramesElapsed();
+	const auto layerPosition = (&layer)[-3].getPosition(); //layer 5
+	const auto layerSpeeds = layer.GetAutoSpeed();
+	Shaders[BunnyShaders::WarpHorizon]->setUniform("offset", sf::Vector2f(
+		((layerSpeeds.x * renderFrame) - layerPosition.x) / (8*TILEWIDTH),
+		((layerSpeeds.y * renderFrame) - layerPosition.y) / (8*TILEWIDTH)
+	));
+	target.draw(FullScreenQuad.vertices, 4, sf::Quads, WarpHorizonRenderStates);
 	return false;
 }

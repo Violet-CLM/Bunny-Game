@@ -38,11 +38,14 @@ class Lattice {
 	Level* CurrentLevel; //todo
 	KeyStates Keys;
 
+	static unsigned int RenderFrame;
+
 	void LoadLevel(std::wstring&);
 	bool ProcessInput();
 	void Update();
 	void Render(double);
 public:
 	static const ObjectList* ObjectInitializationList;
+	static unsigned int GetFramesElapsed();
 	Lattice(sf::RenderWindow&, std::wstring&, const ObjectList&);
 };

@@ -9,6 +9,9 @@
 
 const ObjectList* Lattice::ObjectInitializationList = nullptr;
 
+unsigned int Lattice::RenderFrame = 0;
+unsigned int Lattice::GetFramesElapsed() { return RenderFrame; }
+
 void Lattice::LoadLevel(std::wstring& Filepath)
 {
 	CurrentLevel = Level::LoadLevel(Filepath);
@@ -40,6 +43,7 @@ void Lattice::Update()
 
 void Lattice::Render(double leftoverTimeElapsed)
 {
+	++RenderFrame;
 	Window->clear();
 	Window->draw(*CurrentLevel, SpriteMode::Paletted.GetShader());
 	Window->display();
@@ -51,6 +55,7 @@ void Lattice::Render(double leftoverTimeElapsed)
 }
 
 	
+
 Lattice::Lattice(sf::RenderWindow& window, std::wstring& Filepath, const ObjectList& objectList) : Window(&window)
 {
 	Window = &window;
@@ -87,6 +92,7 @@ int main(int argc, char *argv[])
 {
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS), "Error Loading Level", sf::Style::Titlebar | sf::Style::Close);
 	window.setFramerateLimit(FPS_MAX); //solves all problems now and forever
+	FullScreenQuad.setDimensions(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS);
 
 	if (!Hook_Init())
 		return -1;

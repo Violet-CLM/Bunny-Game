@@ -50,6 +50,8 @@ public:
 
 	sf::Int32 Width; sf::Int32 RealWidth; sf::Int32 RoundedWidth; sf::Int32 WidthPixels;
 	sf::Int32 Height; sf::Int32 HeightPixels;
+	sf::Vector2f GetSpeed() const;
+	sf::Vector2f GetAutoSpeed() const;
 
 	Tile SetTile(int x, int y, Tile nu);
 	Tile GetTile(int x, int y) const;

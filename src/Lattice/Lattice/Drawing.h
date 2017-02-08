@@ -5,6 +5,8 @@
 #include "Shaders.h"
 #include "Constants.h"
 
+struct quad;
+extern quad PossibleQuadOrientations[];
 struct quad {
 	sf::Vertex vertices[4];
 	int TextureID;
@@ -21,8 +23,6 @@ struct quad {
 	}
 
 	quad(const quad& tileQuad, int tileOrientation, unsigned int quadrant = 4) {
-		extern quad PossibleQuadOrientations[];
-
 		this->operator=(tileQuad);
 		if (tileOrientation) { //no reason to vacuously alter the vertices for non-flipped, non-rotated tiles
 			quad* const positions = &PossibleQuadOrientations[tileOrientation];
@@ -120,6 +120,7 @@ struct quad {
 		}
 	}
 };
+extern quad FullScreenQuad;
 
 struct SpriteMode {
 protected:

@@ -48,7 +48,7 @@ Layer::Layer(Level* level, const char* data1Ptr, Word* data3Ptr, const WordID*& 
 	data1Ptr += sizeof(sf::Uint32) * LEVEL_LAYERCOUNT; //LayerAutoYSpeed
 	TextureMode = data1Ptr[layerID];
 	data1Ptr += sizeof(sf::Uint8) * LEVEL_LAYERCOUNT; //LayerTextureMode
-	FadeColor = sf::Color(*(sf::Uint32*)(&data1Ptr[3 * layerID]) | 0xFF000000u);
+	FadeColor = sf::Color(data1Ptr[3 * layerID + 0], data1Ptr[3 * layerID + 1], data1Ptr[3 * layerID + 2], 0xFFu);
 
 	//OutputDebugStringF(L"%d, %d", Width, Height);
 
@@ -87,6 +87,13 @@ Layer::Layer(Level* level, const char* data1Ptr, Word* data3Ptr, const WordID*& 
 		AngelEcho("ANGELSCRIPT: Too many sf::Uints in tile cache, errors may occur");
 	}
 	*/
+}
+
+sf::Vector2f Layer::GetSpeed() const {
+	return sf::Vector2f(SpeedX, SpeedY);
+}
+sf::Vector2f Layer::GetAutoSpeed() const {
+	return sf::Vector2f(AutoSpeedX, AutoSpeedY);
 }
 
 Tile Layer::SetTile(int x, int y, Tile nu)
