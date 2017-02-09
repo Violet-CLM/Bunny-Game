@@ -256,8 +256,10 @@ void PlayerBullet::Aim(float targetAngle, float xSpeed, float pxSpeedNew, bool r
 }
 void PlayerBullet::Explode()
 {
-	AddExplosion(0, killAnimID);
-	//todo transfer lighttype
+	Explosion explosion = AddExplosion(0, killAnimID);
+	explosion.LightType = LightType;
+	explosion.LightIntensity = LightIntensity;
+	explosion.LightRadius = LightRadius;
 	Delete();
 }
 void PlayerBullet::Draw(Layer* layers) const {
@@ -267,6 +269,8 @@ void PlayerBullet::Draw(Layer* layers) const {
 		else
 			layers[SPRITELAYER].AppendRotatedSprite(SpriteMode::Paletted, int(PositionX), int(PositionY), GetFrame(), atan2((SpeedX < 0) ? SpeedY : -SpeedY, abs(SpeedX)), float(DirectionX));
 	}
+	if (LightType != LightType::None)
+		DrawObjectToLightBuffer(*this);
 }
 
 
@@ -278,7 +282,10 @@ BlasterBullet::BlasterBullet(ObjectStartPos& objStart, bool poweredUp) : PlayerB
 	killAnimID = 80;
 	damage = 1 + poweredUp;
 	lifeTime = AISPEED / 2 - poweredUp*5;
-	//obj->lighttype = 2 - poweredUp;
+	if (poweredUp)
+		MakePoint1();
+	else
+		MakePoint2();
 }
 void BlasterBullet::Move(GameState& gameState) {
 	Event eventAtPixel;
@@ -311,7 +318,7 @@ BouncerBullet::BouncerBullet(ObjectStartPos& objStart) : PlayerBullet(objStart, 
 	killAnimID = 4;
 	damage = 1;
 	lifeTime = AISPEED * 3 / 2;
-	//obj->lighttype = 2;
+	MakePoint2();
 }
 void BouncerBullet::Move(GameState& gameState) {
 	PositionX += SpeedX + pxSpeed;
@@ -349,7 +356,7 @@ void BouncerBullet::Move(GameState& gameState) {
 		PlaySample(Common, BLOKPLOP, sf::Vector2f(PositionX,PositionY), 40);
 
 	if (Counter++ > lifeTime || bounces > 16) {
-		//lighttype=0;
+		LightType = LightType::None;
 		Explode();
 	};
 	
@@ -365,7 +372,7 @@ BouncerBulletPU::BouncerBulletPU(ObjectStartPos& objStart) : PlayerBullet(objSta
 	AccelerationY = 0.0915527344f;	//
 	killAnimID = 4;					//
 	lifeTime = AISPEED * 3 / 2;		//
-	//obj->lighttype = 2;			//
+	MakePoint2();					//
 	damage = 2;
 }
 void BouncerBulletPU::Move(GameState& gameState) {
@@ -408,7 +415,7 @@ void BouncerBulletPU::Move(GameState& gameState) {
 		PlaySampleAtObject(Common, BLOKPLOP);
 
 	if (Counter++ > lifeTime || bounces > 16) {
-		//lighttype=0;
+		LightType = LightType::None;
 		Explode();
 	};
 	
@@ -421,8 +428,8 @@ PepperSprayBullet::PepperSprayBullet(ObjectStartPos& start, bool poweredUp) : Pl
 	SpeedX = 1;
 	killAnimID = 10;
 	damage = 1 + poweredUp;
-	//if (poweredUp)
-		//obj->lighttype = 2;
+	if (poweredUp)
+		MakePoint2();
 }
 void PepperSprayBullet::Move(GameState& gameState) {
 	if (!adjustedSpeedsPostAiming) {
@@ -435,9 +442,8 @@ void PepperSprayBullet::Move(GameState& gameState) {
 	ApproachZeroByUnit(pxSpeed, 0.125f);
 
 	if (++Counter > (AISPEED - 16) || gameState.MaskedPixel(int(PositionX), int(PositionY))) { //54 is hardcoded: shooting "up" does not reduce pepper spray's lifetime
+		MakePoint1();
 		Explode();
-		//light=2;
-		//lighttype=1;
 	}
 }
 
@@ -500,7 +506,7 @@ void ToasterBullet::Move(GameState& gameState) {
 		if ((Counter & 7) == 0 && ++FrameID >= GetFrameCount())
 			Delete();
 		else if (++Counter >= CounterMustBeAtLeastThisHighToDrawBullet)
-			;//lightType = 1;
+			MakePoint1();
 		else //in early moments, adjust PositionY to follow shooter's
 			PositionY = Parent->PositionY - DistanceFromParentY;
 	}
@@ -509,8 +515,7 @@ void ToasterBullet::Move(GameState& gameState) {
 TNTBullet::TNTBullet(ObjectStartPos& start) : Interactive(start, false) {
 	AnimID = 59;
 	CollisionShapes.emplace_back(11);
-
-	//lightType = 1;
+	MakePoint1();
 }
 bool TNTBullet::Hurt(unsigned int, bool fromBullet) {
 	if (fromBullet) {
@@ -558,12 +563,12 @@ void TNTBullet::Behave(GameState& gameState) {
 			AddExplosion(0, 77);
 			DoBlast(96*96, true);
 				
-			//obj->lighttype=5;
-			light=18;
+			MakeBright(18);
 		} else {
-			if (--light < 2) 
+			MakeBright(--light);
+			if (light < 2) 
 				Delete();
-		}	//light
+		}
 	}
 }
 void TNTBullet::Draw(Layer* layers) const {
@@ -583,7 +588,7 @@ RFBullet::RFBullet(ObjectStartPos& start, bool poweredUp) : PlayerBullet(start, 
 	killAnimID = 3;
 	damage = 2;
 	lifeTime = poweredUp ? 35 : 40;
-	//obj->lighttype=2;
+	MakePoint2();
 }
 void RFBullet::Move(GameState& gameState) {
 	Event eventAtPixel;
@@ -640,7 +645,7 @@ SeekerBullet::SeekerBullet(ObjectStartPos& start, bool poweredUp) : PlayerBullet
 	killAnimID = 5;
 	damage = 2 + poweredUp;
 	lifeTime = 2 * AISPEED;
-	//obj->lighttype=2;
+	MakePoint2();
 }
 void SeekerBullet::Move(GameState& gameState) {
 	if (!Started) {

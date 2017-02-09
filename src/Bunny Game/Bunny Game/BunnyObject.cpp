@@ -10,6 +10,8 @@ void BunnyObject::DrawNormally(Layer* layers, const SpriteMode& mode) const {
 
 void BunnyObject::Draw(Layer* layers) const {
 	DrawNormally(layers);
+	if (LightType != LightType::None)
+		DrawObjectToLightBuffer(*this);
 }
 
 //helper function for DoBlastBase
@@ -18,9 +20,7 @@ static float GetAdjustedBlastSpeed(float d, float limit) {
 	LimitTo(d, limit);
 	return d;
 }
-#include "windows.h"
-#include "Misc.h"
-void BunnyObject::DoBlast(int forceRadius, bool doFullBlast) { //used by TNT, RFs, and Bomb
+void BunnyObject::DoBlast(int forceRadius, bool doFullBlast) { //used by TNT, RFs, Seekers (when hitting an object), and Bomb
 	if (Parent != nullptr) {
 		const GameObject* const creator = Parent;
 		if (creator->ObjectType == BunnyObjectType::Player && static_cast<const Bunny*>(creator)->IsHurt())

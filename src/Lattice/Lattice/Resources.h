@@ -72,7 +72,9 @@ private:
 	void AssignTextureCoordinates(const SpriteCoordinateRectangle* const textureCoordinates);
 public:
 	void AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates, std::vector<sf::Texture>&);
+	sf::Uint32* CreateImage(unsigned int w, unsigned int h);
 
+	AnimFrame(){}
 	AnimFrame(const sf::Uint8*&, const sf::Uint8* const);
 	static bool SortBySize(const AnimFrame* a, const AnimFrame* b) { return a->Area > b->Area; }
 	bool SmallerThan(unsigned int) const;
@@ -134,6 +136,7 @@ friend class GameObject;
 public:
 	void AddFrame(AnimFrame&);
 	void CreateAndAssignTextures();
+	void CreateAndAssignTextureForSingleFrame(AnimFrame&);
 	void Clear();
 
 	AnimFrame& GetFrame(int, int, int) const;

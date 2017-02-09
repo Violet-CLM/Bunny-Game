@@ -107,6 +107,13 @@ void AnimFrame::AssignTextureDetails(unsigned int t, const SpriteCoordinateRecta
 	Image.resize(0); Image.shrink_to_fit();
 }
 
+sf::Uint32* AnimFrame::CreateImage(unsigned int w, unsigned int h)
+{
+	Area = (Width = w) * (Height = h);
+	Image.resize(Area);
+	return Image.data();
+}
+
 
 SpriteCoordinateRectangle * SpriteManager::SpriteTreeNode::placeSprite(const unsigned int width, const unsigned int height) {
 	//packing algorithm described at http://www.blackpawn.com/texts/lightmaps/default.html, because djazz used it for that wacky sprites-rotating-around-mouse-cursor thing in JS and that means it's proven to work
@@ -319,12 +326,15 @@ void SpriteManager::AddFrame(AnimFrame& newFrame) {
 }
 
 void SpriteManager::CreateAndAssignTextures() {
+	if (SpriteTexturesSortedBySize.empty())
+		return;
+
 	std::sort(SpriteTexturesSortedBySize.begin(), SpriteTexturesSortedBySize.end(), AnimFrame::SortBySize);
 
-	unsigned int hardwareMaximumTextureSize = sf::Texture::getMaximumSize(); //todo move somewhere else?
+	const unsigned int hardwareMaximumTextureSize = sf::Texture::getMaximumSize(); //todo move somewhere else?
 	for (auto& it : SpriteTexturesSortedBySize) {
 		if (!it->SmallerThan(hardwareMaximumTextureSize))
-			continue;
+			continue; //fail silently?
 
 		for (unsigned int textureID = 0; ; ++textureID) {
 			while (SpriteTextures.size() <= textureID) { //SpriteTextures and SpriteTrees should always be the same size
@@ -336,7 +346,7 @@ void SpriteManager::CreateAndAssignTextures() {
 				SpriteTrees.push_back(newNode);
 			}
 
-			if (SpriteTrees[textureID] == nullptr)
+			if (SpriteTrees[textureID] == nullptr) //this one's already been deleted
 				continue;
 
 			SpriteCoordinateRectangle* textureCoordinates = SpriteTrees[textureID]->placeSprite(it->Width, it->Height);
@@ -345,7 +355,15 @@ void SpriteManager::CreateAndAssignTextures() {
 				break;
 			}
 		}
+
 	}
+	SpriteTexturesSortedBySize.resize(0);
+}
+
+void SpriteManager::CreateAndAssignTextureForSingleFrame(AnimFrame& frame) {
+	AddFrame(frame);
+	CreateAndAssignTextures();
+	//SpriteTextures[0].copyToImage().saveToFile("C:\\Games\\Jazz2\\LightingTexture.png");
 }
 
 void SpriteManager::Clear() {

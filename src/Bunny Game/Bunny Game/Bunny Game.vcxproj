@@ -180,6 +180,7 @@
     <ClCompile Include="CharStrings.cpp" />
     <ClCompile Include="Diamondus.cpp" />
     <ClCompile Include="Bunny.cpp" />
+    <ClCompile Include="Lighting.cpp" />
     <ClCompile Include="Pickups.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -194,6 +195,7 @@
     <ClInclude Include="CharStrings.h" />
     <ClInclude Include="Diamondus.h" />
     <ClInclude Include="Bunny.h" />
+    <ClInclude Include="Lighting.h" />
     <ClInclude Include="Pickups.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
