@@ -216,7 +216,8 @@ void Level::Update(const KeyStates& keys)
 	UpdateAnimatedTiles(); //or do I want this in draw instead?
 
 	for (int layerID = LEVEL_LAYERCOUNT - 1; layerID >= 0; --layerID)
-		Layers[layerID].Collections.resize(0);
+		Layers[layerID].Clear();
+	Hook_ClearSpriteQueues();
 
 	Hook_ActivateObjects(*this);
 	GameState gameState(*this, keys);
@@ -238,8 +239,7 @@ void Level::Update(const KeyStates& keys)
 	for (int layerID = LEVEL_LAYERCOUNT - 1; layerID >= 0; --layerID)
 		Layers[layerID].Update(GameTicks, Camera);
 
-	HUD.Collections.resize(0);
-	Hook_UpdateHUD(*this, GameTicks);
+	Hook_LevelMain(*this, GameTicks);
 }
 
 bool GameState::MaskedPixel(int x, int y) const {

@@ -2,7 +2,7 @@
 #include "Lattice.h"
 #include "Level.h"
 #include "Objects.h"
-#include "Lighting.h"
+#include "PostProcessing.h"
 
 namespace BunnyObjectType {
 	enum {

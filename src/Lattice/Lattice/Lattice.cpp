@@ -45,7 +45,8 @@ void Lattice::Render(double leftoverTimeElapsed)
 {
 	++RenderFrame;
 	Window->clear();
-	Window->draw(*CurrentLevel, SpriteMode::Paletted.GetShader());
+	VideoBuffer.draw(*CurrentLevel, Shaders[DefaultShaders::Paletted]);
+	Hook_DrawToWindow(VideoBuffer, *Window);
 	Window->display();
 	
 #ifdef SHOW_FPS
@@ -60,6 +61,9 @@ Lattice::Lattice(sf::RenderWindow& window, std::wstring& Filepath, const ObjectL
 {
 	Window = &window;
 	ObjectInitializationList = &objectList;
+	VideoBuffer.create(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS);
+	VideoBuffer.clear();
+
 	if (!Filepath.empty()) {
 		LoadLevel(Filepath);
 	}

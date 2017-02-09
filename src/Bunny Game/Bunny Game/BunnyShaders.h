@@ -20,7 +20,7 @@ namespace BunnyPaletteLineNames {
 namespace BunnyShaders {
 	enum {
 		FIRST = DefaultShaders::LAST - 1,
-		Gem, WarpHorizon, Tunnel,
+		Gem, WarpHorizon, Tunnel, AmbientLighting,
 		LAST
 	};
 }

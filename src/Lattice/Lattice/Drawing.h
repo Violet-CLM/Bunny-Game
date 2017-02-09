@@ -127,15 +127,16 @@ protected:
 	sf::Shader* Shader;
 	float ParamAsFloat;
 	sf::Uint8 Param;
+	sf::BlendMode BlendMode;
 public:
-	SpriteMode() : Shader(nullptr), ParamAsFloat(0), Param(0) {}
-	SpriteMode(sf::Shader* s, sf::Uint8 p) : Shader(s), Param(p) {
+	SpriteMode() : Shader(nullptr), ParamAsFloat(0), Param(0), BlendMode(sf::BlendAlpha) {}
+	SpriteMode(sf::Shader* s, sf::Uint8 p, sf::BlendMode b = sf::BlendAlpha) : Shader(s), Param(p), BlendMode(b) {
 		ParamAsFloat = p / 256.0f;
 	}
 	bool operator==(const SpriteMode& other) const {
-		return other.Shader == Shader && other.Param == Param;
+		return other.Shader == Shader && other.Param == Param && other.BlendMode == BlendMode;
 	}
-	virtual sf::Shader* GetShader() const;
+	void Apply(sf::RenderStates&) const;
 
 	static SpriteMode Normal, Paletted;
 };
@@ -153,17 +154,19 @@ public:
 	bool Matches(const sf::Texture* const, const SpriteMode&) const; //todo more options
 };
 class VertexCollectionQueue : public sf::Drawable {
+private:
+	std::vector<VertexCollection> Collections;
 protected:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 public:
-	std::vector<VertexCollection> Collections;
-
 	void AppendQuad(quad&, sf::Texture*, const SpriteMode&);
 	void AppendSprite(const SpriteMode&, int, int, const AnimFrame&, bool = false, bool = false);
 	void AppendRectangle(const SpriteMode&, int, int, int, int, sf::Uint8);
 	void AppendPixel(const SpriteMode&, int, int, sf::Uint8);
 	void AppendResizedSprite(const SpriteMode&, int, int, const AnimFrame&, float,float);
 	void AppendRotatedSprite(const SpriteMode&, int, int, const AnimFrame&, float, float=1.f,float=1.f);
+
+	void Clear();
 };
 
 void GeneratePaletteTexture(sf::Texture&, const sf::Uint8*);

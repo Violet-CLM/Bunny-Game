@@ -92,12 +92,13 @@ void InitCreateShaders(std::vector<sf::Shader*>& shaders, const std::vector<std:
 			shaders.push_back(shader);
 		}
 	}
+	Hook_InitAfterShadersConstructed();
 }
 
 void VertexCollection::draw(sf::RenderTarget & target, sf::RenderStates states) const
 {
 	states.texture = Texture;
-	states.shader = Mode.GetShader();
+	Mode.Apply(states);
 	target.draw(Vertices.data(), Vertices.size(), sf::Quads, states);
 }
 void VertexCollectionQueue::draw(sf::RenderTarget & target, sf::RenderStates states) const
@@ -117,10 +118,11 @@ bool VertexCollection::Matches(const sf::Texture* const otherTexture, const Spri
 	return Texture == otherTexture && Mode == otherMode;
 }
 
-sf::Shader* SpriteMode::GetShader() const
+void SpriteMode::Apply(sf::RenderStates& states) const
 {
 	Shader->setUniform("param", ParamAsFloat);
-	return Shader;
+	states.shader = Shader;
+	states.blendMode = BlendMode;
 }
 
 void VertexCollectionQueue::AppendQuad(quad& q, sf::Texture* texture, const SpriteMode& spriteMode)
@@ -214,4 +216,8 @@ void VertexCollectionQueue::AppendRotatedSprite(const SpriteMode& mode, int x, i
 
 	repositionedQuad.positionPositionAt(x, y);
 	AppendQuad(repositionedQuad, sprite.Texture, mode);
+}
+
+void VertexCollectionQueue::Clear() {
+	Collections.resize(0);
 }

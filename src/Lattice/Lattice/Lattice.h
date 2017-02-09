@@ -35,6 +35,7 @@ class Lattice {
 	int FPS;
 #endif
 	sf::RenderWindow* Window;
+	sf::RenderTexture VideoBuffer;
 	Level* CurrentLevel; //todo
 	KeyStates Keys;
 

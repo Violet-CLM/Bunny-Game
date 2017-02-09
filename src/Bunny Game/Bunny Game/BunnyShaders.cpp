@@ -34,7 +34,7 @@ void WriteBunnyShaders() {
 					texture2D(tables, vec2(\
 						texture2D(texture256, vec2(\
 							offset.x + (v109 * (gl_FragCoord.x - %f)) / 256.0,\
-							offset.y + (v109 * distanceFromVerticalCenter / -8.0)\
+							offset.y + (v109 * distanceFromVerticalCenter / 8.0)\
 						)).r,\
 						0\
 					)),\
@@ -69,6 +69,23 @@ void WriteBunnyShaders() {
 				clamp(depth / 4.0, 0.0, 1.0)\
 			);\
 		}", float(WINDOW_WIDTH_PIXELS/2), float(WINDOW_HEIGHT_PIXELS/2), float(WINDOW_HEIGHT_PIXELS + WINDOW_HEIGHT_PIXELS/2)),
+	//BunnyShaders::AmbientLighting
+		"uniform sampler2D texture;\
+		uniform sampler2D lightBuffer;\
+		uniform vec4 dark;\
+		\
+		void main(void)\
+		{\
+			vec4 color = texture2D(texture, gl_TexCoord[0].xy);\
+			vec4 light = texture2D(lightBuffer, gl_TexCoord[0].xy);\
+			float lightIntensity = light.r * 4.0;\
+			if (lightIntensity <= 1.0) {\
+				gl_FragColor = mix(dark, color, lightIntensity); \
+			} else {\
+				float smallerIntensity = lightIntensity - 1.0;\
+				gl_FragColor = (color * lightIntensity) + (smallerIntensity * smallerIntensity); \
+			}\
+		}"
 	};
 
 

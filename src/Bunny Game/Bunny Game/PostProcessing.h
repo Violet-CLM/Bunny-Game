@@ -1,5 +1,6 @@
 #pragma once
 #include "SFML/Config.hpp"
+#include "SFML/Graphics.hpp"
 
 typedef sf::Uint8 LightParam;
 const LightParam NormalIntensity = 64;
@@ -10,3 +11,5 @@ enum LightType {
 
 class BunnyObject;
 bool DrawObjectToLightBuffer(const BunnyObject&);
+
+void InitLighting();
