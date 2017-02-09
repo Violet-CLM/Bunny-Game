@@ -12,11 +12,11 @@ class ObjectStartPos {
 	friend class GameObject;
 private:
 	float OriginX, OriginY;
-	const AnimSet* Set;
+	int SetID;
 	Level& HostLevel;
 	Event& HostEvent;
 public:
-	ObjectStartPos(Level& L, Event& E, float X, float Y, const AnimSet* S) : HostLevel(L), HostEvent(E), OriginX(X), OriginY(Y), Set(S) {}
+	ObjectStartPos(Level& L, Event& E, float X, float Y, int S) : HostLevel(L), HostEvent(E), OriginX(X), OriginY(Y), SetID(S) {}
 };
 
 struct ObjectCollisionShape {
@@ -50,9 +50,6 @@ public:
 	GameObject(ObjectStartPos& objStart);
 
 	float OriginX, OriginY;
-private:
-	Level& HostLevel;
-public:
 	const AnimSet* Set;
 	unsigned int AnimID, FrameID;
 	bool Active;
@@ -65,8 +62,8 @@ public:
 	GameObject& AddObject(EventID, float, float, bool=false);
 	void Adopt(GameObject&);
 protected:
+	Level& HostLevel;
 	Event& HostEvent;
-	std::forward_list<std::unique_ptr<GameObject>>& HostLevelObjectList;
 	std::vector<ObjectCollisionShape> CollisionShapes;
 
 	GameObject* Parent;

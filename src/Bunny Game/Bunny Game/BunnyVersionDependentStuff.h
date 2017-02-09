@@ -94,9 +94,9 @@ typedef int GetAnimationIDFunc(int);
 
 extern GetAnimationIDFunc* GetVersionSpecificAnimationID;
 #define ConvertIDsToEnum(SetID, SampleID) Samples::s ## SetID ## _ ## SampleID
-#define PlaySamplePriority(SetID, SampleID) AnimationSets[GetVersionSpecificAnimationID(AnimSets::SetID)]->StartSound(ConvertIDsToEnum(SetID, SampleID))
-#define PlaySample(SetID, SampleID, ...) AnimationSets[GetVersionSpecificAnimationID(AnimSets::SetID)]->StartSound(ConvertIDsToEnum(SetID, SampleID), __VA_ARGS__)
-#define PlaySampleAtObject(SetID, SampleID) PlaySample(SetID, SampleID, PositionX, PositionY)
+#define PlaySamplePriority(SetID, SampleID) HostLevel.StartSound(GetVersionSpecificAnimationID(AnimSets::SetID), ConvertIDsToEnum(SetID, SampleID))
+#define PlaySample(SetID, SampleID, ...) HostLevel.StartSound(GetVersionSpecificAnimationID(AnimSets::SetID), ConvertIDsToEnum(SetID, SampleID), __VA_ARGS__)
+#define PlaySampleAtObject(SetID, SampleID) PlaySample(SetID, SampleID, sf::Vector2f(PositionX, PositionY))
 
 void InitializeRabbitAnimIDs();
 bool IsTSF(bool & isTSF);

@@ -256,7 +256,7 @@ void PlayerBullet::Aim(float targetAngle, float xSpeed, float pxSpeedNew, bool r
 }
 void PlayerBullet::Explode()
 {
-	Explosion::AddExplosion(*this, 0, killAnimID);
+	AddExplosion(0, killAnimID);
 	//todo transfer lighttype
 	Delete();
 }
@@ -283,7 +283,7 @@ BlasterBullet::BlasterBullet(ObjectStartPos& objStart, bool poweredUp) : PlayerB
 void BlasterBullet::Move(GameState& gameState) {
 	Event eventAtPixel;
 	if ((Counter > lifeTime) || (Counter > 0 && gameState.MaskedPixel(int(PositionX), int(PositionY), eventAtPixel) && (eventAtPixel.ID != EventIDs::RICOCHET || !Ricochet()))) {
-		PlaySample(Common, EXPSM1, PositionX,PositionY, 80); //separate from Explode because blaster bullets don't make a sound when they die from hitting an enemy
+		PlaySample(Common, EXPSM1, sf::Vector2f(PositionX,PositionY), 80); //separate from Explode because blaster bullets don't make a sound when they die from hitting an enemy
 		Explode();
 	} else {
 		++Counter;
@@ -346,7 +346,7 @@ void BouncerBullet::Move(GameState& gameState) {
 		sample += 1;
 	}
 	if (sample)
-		PlaySample(Common, BLOKPLOP, PositionX,PositionY, 40);
+		PlaySample(Common, BLOKPLOP, sf::Vector2f(PositionX,PositionY), 40);
 
 	if (Counter++ > lifeTime || bounces > 16) {
 		//lighttype=0;
@@ -529,7 +529,7 @@ void TNTBullet::Behave(GameState& gameState) {
 			DetermineFrame(FrameID + 1);
 
 		//check for near objects!
-			for (const auto& it : HostLevelObjectList) {
+			for (const auto& it : HostLevel.Objects) {
 				if (it->ObjectType == BunnyObjectType::Interactive && static_cast<const Interactive&>(*it.get()).TriggersTNT) {
 					const auto dx = PositionX - it->PositionX;
 					if (dx > -64 && dx < 64) {
@@ -553,9 +553,9 @@ void TNTBullet::Behave(GameState& gameState) {
 
 			//obj->channel=PlayLoopSample(obj->xpos,obj->ypos,obj->var1,0,0,obj->channel);
 		} else if (Counter == 20) {
-			PlaySample(Common,EXPL_TNT, PositionX,PositionY, 128);
+			PlaySample(Common,EXPL_TNT, sf::Vector2f(PositionX,PositionY), 128);
 
-			Explosion::AddExplosion(*this, 0, 77);
+			AddExplosion(0, 77);
 			DoBlast(96*96, true);
 				
 			//obj->lighttype=5;
@@ -605,7 +605,7 @@ void RFBullet::Move(GameState& gameState) {
 			//if (obj->ypos>level.waterlevel)
 			//	AddObject(obj->xpos,obj->ypos,aBUBBLE,0);
 			//else
-				Explosion::AddExplosion(*this, 0, 71);; //smoke particle
+				AddExplosion(0, 71);; //smoke particle
 		}
 	}
 }
@@ -615,7 +615,7 @@ void RFBullet::Explode() {
 	//if ((obj->load==aPLAYERBULLETP5) && parEnableLighting && !parLowDetail)
 		//AddHalo(obj->xpos,obj->ypos);
 
-	PlaySample(Ammo,BOEM1, PositionX,PositionY, 128);
+	PlaySample(Ammo,BOEM1, sf::Vector2f(PositionX,PositionY), 128);
 
 	PlayerBullet::Explode(); //use standard killanim/deleting code
 }
@@ -652,7 +652,7 @@ void SeekerBullet::Move(GameState& gameState) {
 	if (Parent == nullptr) { //no current target; try to find one!
 		float mindist = 256*256;
 		GameObject* target = nullptr;
-		for (auto& it : HostLevelObjectList) {
+		for (auto& it : HostLevel.Objects) {
 			if (it->ObjectType == BunnyObjectType::Interactive && static_cast<const Interactive&>(*it.get()).IsEnemy) {
 				const auto dx = PositionX - it->PositionX;
 				const auto dy = PositionY - it->PositionY;

@@ -81,7 +81,7 @@ public:
 	enum AttackTypes {
 		NotAttacking, Buttstomp, SugarRush, SpecialAttack, RunThroughFrozenEnemy
 	};
-	Bunny(ObjectStartPos& objStart);
+	Bunny(ObjectStartPos& objStart, int);
 
 	void EatFood();
 	bool Hurt(unsigned int = 1);

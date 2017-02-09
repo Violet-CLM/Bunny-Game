@@ -6,7 +6,4 @@ class Explosion : public BunnyObject {
 
 	using BunnyObject::BunnyObject;
 	void Behave(GameState&) override;
-
-public:
-	static Explosion& AddExplosion(GameObject&, int, int, bool=false);
 };

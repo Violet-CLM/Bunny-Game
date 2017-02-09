@@ -10,6 +10,7 @@
 #include "Layer.h"
 
 class SpriteManager;
+class AnimSet;
 typedef sf::Rect<unsigned int> SpriteCoordinateRectangle;
 
 class AnimFile : public JazzFile {
@@ -36,9 +37,10 @@ private:
 	unsigned int SpecificFileTypeHeaderSize() override;
 	bool ReadSpecificFileHeader(std::ifstream&) override;
 	bool ReadStream(std::ifstream&) override;
-	AnimFile(std::wstring&, const PreloadedAnimationsList&);
+	AnimFile(std::wstring&, const PreloadedAnimationsList&, std::vector<AnimSet>&);
 
 	const PreloadedAnimationsList& AnimSetIDs;
+	std::vector<AnimSet>& AnimationSets;
 	std::vector<unsigned int> SetAddresses;
 public:
 
@@ -77,9 +79,6 @@ public:
 
 	void MovePositionToGunSpotX(float&, bool) const;
 	void MovePositionToGunSpotY(float&, bool) const;
-
-	static AnimFrame& Get(int, int, int);
-	static AnimFrame& GetLimited(int, int, int); //frameID is moduloed to fit
 };
 class Animation {
 private:
@@ -102,11 +101,13 @@ public:
 	std::vector<sf::SoundBuffer> Samples;
 	sf::Sound& StartSound(unsigned int) const;
 	sf::Sound& StartSound(unsigned int, sf::Vector2f, unsigned int = 0, unsigned int = 0) const;
-	sf::Sound& StartSound(unsigned int, float, float, unsigned int = 0, unsigned int = 0) const;
-	AnimSet(std::ifstream&);
+	void LoadFromFile(std::ifstream&);
 };
 
 class SpriteManager {
+friend class Level;
+friend class AnimFile;
+friend class GameObject;
 	struct SpriteTreeNode {
 		SpriteTreeNode* firstChild;
 		union {
@@ -128,16 +129,18 @@ class SpriteManager {
 	std::vector<SpriteTreeNode*> SpriteTrees;
 	std::vector<sf::Texture> SpriteTextures;
 	std::vector<AnimFrame*> SpriteTexturesSortedBySize;
+	std::vector<AnimSet> AnimationSets;
 
 public:
 	void AddFrame(AnimFrame&);
 	void CreateAndAssignTextures();
 	void Clear();
+
+	AnimFrame& GetFrame(int, int, int) const;
+	AnimFrame& GetFrameLimited(int, int, int) const; //frameID is moduloed to fit
 	
 	~SpriteManager();
 };
 
 //AnimFrame SpritePropertyList[MAXFRAMES];
 //std::unordered_map<unsigned int, AnimFrame> LightingProperties;
-
-extern std::vector<AnimSet*> AnimationSets;

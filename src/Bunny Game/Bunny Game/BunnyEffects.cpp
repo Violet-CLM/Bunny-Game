@@ -8,10 +8,10 @@ void Explosion::Behave(GameState& gameState)
 		Delete();
 }
 
-Explosion& Explosion::AddExplosion(GameObject& parent, int setID, int animID, bool makeChild)
+Explosion& BunnyObject::AddExplosion(int setID, int animID, bool makeChild)
 {
-	Explosion& newExplosion = static_cast<Explosion&>(parent.AddObject(EventIDs::EXPLOSION, parent.PositionX, parent.PositionY, makeChild));
-	newExplosion.Set = AnimationSets[setID];
+	Explosion& newExplosion = static_cast<Explosion&>(AddObject(EventIDs::EXPLOSION, PositionX, PositionY, makeChild));
+	newExplosion.Set = &HostLevel.GetAnimSet(setID);
 	newExplosion.AnimID = animID;
 	return newExplosion;
 }

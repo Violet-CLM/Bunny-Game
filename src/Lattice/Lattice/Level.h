@@ -49,14 +49,11 @@ private:
 	std::vector<AnimatedTile> AnimatedTiles;
 	void UpdateAnimatedTiles();
 
-	SpriteManager spriteManager;
-
 	unsigned int SpecificFileTypeHeaderSize() override;
 	bool ReadSpecificFileHeader(std::ifstream&) override;
 	Level(std::wstring&);
 
 	sf::Vector2f Camera;
-	VertexCollectionQueue HUD;
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 public:
@@ -67,7 +64,9 @@ public:
 	quad QuadsPerTile[MAX_TILES]; //todo wrap this more
 	Layer Layers[LEVEL_LAYERCOUNT];
 	sf::Uint16 AnimOffset;
-
+	
+	VertexCollectionQueue HUD;
+	SpriteManager spriteManager;
 	std::forward_list<std::unique_ptr<GameObject>> Objects;
 	unsigned int GameTicks;
 
@@ -77,6 +76,10 @@ public:
 	Event& GetEvent(unsigned int, unsigned int);
 	void ForEachEvent(std::function<void(Event&, int, int)>);
 	Tile GetRealTile(Tile) const;
+	const AnimSet& GetAnimSet(int) const;
+	
+	sf::Sound& StartSound(unsigned int, unsigned int) const;
+	sf::Sound& StartSound(unsigned int, unsigned int, sf::Vector2f, unsigned int = 0, unsigned int = 0) const;
 
 	void Update(const KeyStates&);
 };

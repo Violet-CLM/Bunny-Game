@@ -50,6 +50,8 @@ void Hook_LevelLoad(Level& level) {
 			}
 		}
 		const auto bunnyStartPosition = StartPositions[0]; //should probably be randomly chosen, not the first one... todo
+		const static int AnimSetsAssociatedWithEachRabbit[] = {AnimSets::Jazz, AnimSets::Spaz, AnimSets::Lori};
+		const int characterID = RandFac(255) % (2 + VersionTSF);
 		level.Objects.emplace_front( //wow, this is really wordy, needs more shortcuts
 			new Bunny(
 				ObjectStartPos(
@@ -60,8 +62,9 @@ void Hook_LevelLoad(Level& level) {
 					,
 					float(bunnyStartPosition.x * TILEWIDTH + 15),
 					float(bunnyStartPosition.y * TILEHEIGHT + 15),
-					AnimationSets[GetVersionSpecificAnimationID(AnimSets::Jazz)]
-				)
+					GetVersionSpecificAnimationID(AnimSetsAssociatedWithEachRabbit[characterID])
+				),
+				characterID
 			)
 		);
 	}

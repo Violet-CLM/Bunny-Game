@@ -68,13 +68,13 @@ void Pickup::HitBy(GameObject& other)
 {
 	if (other.ObjectType == BunnyObjectType::Player) {
 		if (TimeTillCollectable == 0) {
-			Explosion::AddExplosion(*this, ExplosionSetID, 86);
+			AddExplosion(ExplosionSetID, 86);
 			Collected(static_cast<Bunny&>(other));
 			if (Sample) {
 				//if (Sample == Samples::sCommon_PICKUP1)
 					//PickupSample(PositionX, PositionY); //todo
 				//else
-					AnimationSets[AnimSets::Common]->StartSound(Sample, PositionX, PositionY); //almost all pickup samples are in Common, which helpfully is the same number in both 1.23 and TSF
+					HostLevel.StartSound(AnimSets::Common, Sample, sf::Vector2f(PositionX, PositionY)); //almost all pickup samples are in Common, which helpfully is the same number in both 1.23 and TSF
 			}
 			//todo points
 			Delete();

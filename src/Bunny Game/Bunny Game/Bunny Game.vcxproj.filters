@@ -110,9 +110,6 @@
     <ClInclude Include="BunnyEffects.h">
       <Filter>Header Files\Behaviors\Common</Filter>
     </ClInclude>
-    <ClInclude Include="BunnyHUD.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BunnyWeapons.h">
       <Filter>Header Files</Filter>
     </ClInclude>

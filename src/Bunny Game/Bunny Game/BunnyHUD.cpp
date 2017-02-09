@@ -1,4 +1,3 @@
-#include "BunnyHUD.h"
 #include "BunnyObjectList.h"
 #include "Bunny.h"
 #include "BunnyVersionDependentStuff.h"
@@ -7,14 +6,18 @@
 #include "CharStrings.h"
 #include "Lattice.h"
 
-void Hook_UpdateHUD(VertexCollectionQueue& Sprites, unsigned int GameTicks) {
-	const struct { //using resolution width >= 400 values
-		const std::vector<AnimFrame>& largerFont = *AnimationSets[GetVersionSpecificAnimationID(AnimSets::Font)]->Animations[2].AnimFrames;
-		const std::vector<AnimFrame>& smallerFont = *AnimationSets[GetVersionSpecificAnimationID(AnimSets::Font)]->Animations[0].AnimFrames;
+void Hook_UpdateHUD(Level& level, unsigned int GameTicks) {
+	VertexCollectionQueue& Sprites = level.HUD;
+	const AnimSet& fontSet = level.GetAnimSet(GetVersionSpecificAnimationID(AnimSets::Font));
+	const struct hm_t { //using resolution width >= 400 values
+		const std::vector<AnimFrame>& largerFont;
+		const std::vector<AnimFrame>& smallerFont;
 		unsigned int lineHeightShift = 1;
 		unsigned int lineHeight = 10;
-	} hm; //recreating this struct makes it easier to paste in JJ2+ code
-	const std::vector<AnimFrame>& smallFont = *AnimationSets[GetVersionSpecificAnimationID(AnimSets::Font)]->Animations[1].AnimFrames;
+		hm_t(const AnimSet& set) : largerFont(*set.Animations[2].AnimFrames), smallerFont(*set.Animations[0].AnimFrames) {}
+	} hm(fontSet); //recreating this struct makes it easier to paste in JJ2+ code
+	const std::vector<AnimFrame>& smallFont = *fontSet.Animations[1].AnimFrames;
+
 	char buffer[16];
 
 	const auto& play = Players[0]; //no splitscreen support at present
@@ -39,13 +42,13 @@ void Hook_UpdateHUD(VertexCollectionQueue& Sprites, unsigned int GameTicks) {
 		}
 
 		{ //health
-			const AnimFrame& HeartFrame = AnimFrame::Get(GetVersionSpecificAnimationID(AnimSets::Pickups), 41, 0);
+			const AnimFrame& HeartFrame = level.spriteManager.GetFrame(GetVersionSpecificAnimationID(AnimSets::Pickups), 41, 0);
 			for (int i = playerObject.Health - 1; i >= 0; --i)
 				Sprites.AppendSprite(SpriteMode::Paletted, WINDOW_WIDTH_PIXELS - 12 - i*16, 8, HeartFrame);
 		}
 		
 		{ //lives
-			Sprites.AppendSprite(SpriteMode::Paletted, 0, WINDOW_HEIGHT_PIXELS, AnimFrame::GetLimited(GetVersionSpecificAnimationID(AnimSets::Faces), 3 + playerObject.PlayerProperties.CharacterIndex, GameTicks / 6));
+			Sprites.AppendSprite(SpriteMode::Paletted, 0, WINDOW_HEIGHT_PIXELS, level.spriteManager.GetFrameLimited(GetVersionSpecificAnimationID(AnimSets::Faces), 3 + playerObject.PlayerProperties.CharacterIndex, GameTicks / 6));
 			sprintf_s(buffer, "x%u", playerObject.PlayerProperties.Lives);
 			WriteText(Sprites, 32, WINDOW_HEIGHT_PIXELS - hm.lineHeight - 4, buffer, hm.smallerFont);
 		}
@@ -67,7 +70,7 @@ void Hook_UpdateHUD(VertexCollectionQueue& Sprites, unsigned int GameTicks) {
 					animID = 18; //wrong, todo
 					break;
 			}
-			Sprites.AppendSprite(SpriteMode::Paletted, ammo_xPos - 8, ammo_yPos, AnimFrame::GetLimited(AnimSets::Ammo, animID, GameTicks >> 2));
+			Sprites.AppendSprite(SpriteMode::Paletted, ammo_xPos - 8, ammo_yPos, level.spriteManager.GetFrameLimited(AnimSets::Ammo, animID, GameTicks >> 2));
 		
 			if (ammoID == 0) {
 				sprintf_s(buffer, "x^");

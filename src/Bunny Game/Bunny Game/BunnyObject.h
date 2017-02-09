@@ -10,6 +10,7 @@ namespace BunnyObjectType {
 	};
 }
 
+class Explosion;
 class BunnyObject : public GameObject { //put deactivates, etc. code in here
 	using GameObject::GameObject;
 protected:
@@ -17,6 +18,7 @@ protected:
 	void Draw(Layer*) const override;
 	void DoBlast(int, bool=false);
 	int DirectionX, DirectionY;
+	Explosion& AddExplosion(int setID, int animID, bool makeChild = false);
 };
 class Interactive : public BunnyObject {
 protected:

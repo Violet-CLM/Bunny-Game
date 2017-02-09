@@ -185,6 +185,17 @@ Tile Level::GetRealTile(Tile inputTile) const
 	return inputTile;
 }
 
+const AnimSet& Level::GetAnimSet(int setID) const {
+	return spriteManager.AnimationSets[setID];
+}
+
+sf::Sound & Level::StartSound(unsigned int setID, unsigned int sampleID) const {
+	return GetAnimSet(setID).StartSound(sampleID);
+}
+sf::Sound & Level::StartSound(unsigned int setID, unsigned int sampleID, sf::Vector2f Position, unsigned int volume, unsigned int frequency) const {
+	return GetAnimSet(setID).StartSound(sampleID, Position, volume, frequency);
+}
+
 void Level::UpdateAnimatedTiles() {
 	int animTileID = AnimOffset;
 	const auto time = getCurrentTime();
@@ -228,7 +239,7 @@ void Level::Update(const KeyStates& keys)
 		Layers[layerID].Update(GameTicks, Camera);
 
 	HUD.Collections.resize(0);
-	Hook_UpdateHUD(HUD, GameTicks);
+	Hook_UpdateHUD(*this, GameTicks);
 }
 
 bool GameState::MaskedPixel(int x, int y) const {

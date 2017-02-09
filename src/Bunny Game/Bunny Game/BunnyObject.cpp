@@ -29,7 +29,7 @@ void BunnyObject::DoBlast(int forceRadius, bool doFullBlast) { //used by TNT, RF
 	
 	TNTBullet* nearestTNT = nullptr;
 	int nearestTNTDistance = forceRadius;
-	for (auto& it : HostLevelObjectList) {
+	for (auto& it : HostLevel.Objects) {
 		const bool otherObjectIsPlayer = it->ObjectType == BunnyObjectType::Player;
 		bool otherObjectIsPickup = false;
 		if (otherObjectIsPlayer || (doFullBlast && (it->ObjectType == BunnyObjectType::Interactive || (otherObjectIsPickup = (it->ObjectType == BunnyObjectType::Pickup))))) {

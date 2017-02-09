@@ -6,8 +6,6 @@
 
 extern "C" { FILE __iob_func[3] = { *stdin,*stdout,*stderr }; } //needed in VS2015 to include flac.lib according to http://stackoverflow.com/questions/30412951/unresolved-external-symbol-imp-fprintf-and-imp-iob-func-sdl2
 
-std::vector<AnimSet*> AnimationSets;
-
 bool AnimFile::AnimFileHeader::Matches()
 {
 	if (memcmp(Magic, "ALIB", FILE_HEADER_MAGICLENGTH)) {
@@ -49,20 +47,19 @@ bool AnimFile::ReadSpecificFileHeader(std::ifstream& File) {
 	SetAddresses.resize(headerPart1.SetCount);
 	return true;
 }
-AnimFile::AnimFile(std::wstring& fn, const PreloadedAnimationsList& setIDs) : JazzFile(fn), AnimSetIDs(setIDs) {}
+AnimFile::AnimFile(std::wstring& fn, const PreloadedAnimationsList& setIDs, std::vector<AnimSet>& animSets) : AnimationSets(animSets), JazzFile(fn), AnimSetIDs(setIDs) {}
 bool AnimFile::ReadAnims(std::wstring& Filepath, const PreloadedAnimationsList& setIDs, SpriteManager& manager)
 {
-	AnimFile newAnimFile(Filepath, setIDs);
+	AnimFile newAnimFile(Filepath, setIDs, manager.AnimationSets);
 	if (!newAnimFile.Open()) {
 		ShowErrorMessage((Filepath + L" encountered an error").c_str());
 		return false;
 	}
 	
-	for (const auto& it : AnimationSets) //find ALL animframes, regardless of their parent animations
-		if (it != nullptr)
-			for (const auto& jt : it->Animations)
-				for (auto& kt : *jt.AnimFrames)
-					manager.AddFrame(kt);
+	for (const auto& it : manager.AnimationSets) //find ALL animframes, regardless of their parent animations
+		for (const auto& jt : it.Animations)
+			for (auto& kt : *jt.AnimFrames)
+				manager.AddFrame(kt);
 	manager.CreateAndAssignTextures();
 	manager.Clear();
 
@@ -77,11 +74,11 @@ bool AnimFile::ReadStream(std::ifstream& file) {
 	else {
 		file.read((char*)SetAddresses.data(), sizeof(unsigned int) * SetAddresses.size());
 		for (const auto it : AnimSetIDs) {
-			//OutputDebugStringF(L"%d", *it);
+			//OutputDebugStringF(L"%d", it);
 			if (AnimationSets.size() < size_t(1 + it))
 				AnimationSets.resize(1 + it);
 			file.seekg(SetAddresses[it], std::ios_base::beg);
-			AnimationSets[it] = new AnimSet(file);
+			AnimationSets[it].LoadFromFile(file);
 		}
 
 		return true;
@@ -201,19 +198,6 @@ void AnimFrame::MovePositionToGunSpotY(float& y, bool yFlipped) const {
 	else
 		y += GunspotY - HotspotY;
 }
-AnimFrame& AnimFrame::Get(int setID, int animID, int frameID)
-{
-	return (*AnimationSets[setID]->Animations[animID].AnimFrames)[frameID];
-}
-AnimFrame& AnimFrame::GetLimited(int setID, int animID, int frameID)
-{
-	auto& animFrames = *AnimationSets[setID]->Animations[animID].AnimFrames;
-	if (animFrames.size() == 0)
-		frameID = 0;
-	else
-		frameID %= animFrames.size();
-	return animFrames[frameID];
-}
 Animation::Animation(const sf::Uint8*& animInfoData, const sf::Uint8*& frameInfoData, const sf::Uint8* const imageData)
 {
 	memcpy((char*)this, animInfoData, NumberOfBytesToReadFromFile);
@@ -223,7 +207,7 @@ Animation::Animation(const sf::Uint8*& animInfoData, const sf::Uint8*& frameInfo
 	for (int frameID = 0; frameID < FrameCount; ++frameID)
 		AnimFrames->emplace_back(frameInfoData, imageData);
 }
-AnimSet::AnimSet(std::ifstream& file)
+void AnimSet::LoadFromFile(std::ifstream& file)
 {
 	char subfileHeader[FILE_HEADER_MAGICLENGTH];
 	file.read(subfileHeader, FILE_HEADER_MAGICLENGTH);
@@ -320,7 +304,7 @@ sf::Sound& AnimSet::StartSound(unsigned int sampleID) const {
 
 	return sample;
 }
-sf::Sound& AnimSet::StartSound(unsigned int sampleID, float PositionX, float PositionY, unsigned int volume, unsigned int frequency) const {
+sf::Sound& AnimSet::StartSound(unsigned int sampleID, sf::Vector2f Position, unsigned int volume, unsigned int frequency) const {
 	sf::Sound& sample = StartSound(sampleID);
 	//sample.setPosition( //I have no idea where this should go
 	if (volume)
@@ -328,9 +312,6 @@ sf::Sound& AnimSet::StartSound(unsigned int sampleID, float PositionX, float Pos
 	//if (frequency)
 		//sample.setPitch( //look, I don't know
 	return sample;
-}
-sf::Sound& AnimSet::StartSound(unsigned int sampleID, sf::Vector2f Position, unsigned int volume, unsigned int frequency) const {
-	return StartSound(sampleID, Position.x, Position.y, volume, frequency);
 }
 
 void SpriteManager::AddFrame(AnimFrame& newFrame) {
@@ -378,4 +359,16 @@ void SpriteManager::Clear() {
 }
 SpriteManager::~SpriteManager() {
 	Clear();
+}
+
+AnimFrame& SpriteManager::GetFrame(int setID, int animID, int frameID) const {
+	return (*AnimationSets[setID].Animations[animID].AnimFrames)[frameID];
+}
+AnimFrame& SpriteManager::GetFrameLimited(int setID, int animID, int frameID) const {
+	auto& animFrames = *AnimationSets[setID].Animations[animID].AnimFrames;
+	if (animFrames.size() == 0)
+		frameID = 0;
+	else
+		frameID %= animFrames.size();
+	return animFrames[frameID];
 }
