@@ -14,6 +14,10 @@ void BunnyObject::Draw(Layer* layers) const {
 		DrawObjectToLightBuffer(*this);
 }
 
+void BunnyObject::Behave(GameState &) {
+	//todo deactivation?
+}
+
 //helper function for DoBlastBase
 static float GetAdjustedBlastSpeed(float d, float limit) {
 	d /= 2;

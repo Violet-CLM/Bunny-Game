@@ -7,3 +7,9 @@ class Explosion : public BunnyObject {
 	using BunnyObject::BunnyObject;
 	void Behave(GameState&) override;
 };
+
+class SteadyLight : public BunnyObject {
+	void Draw(Layer*) const override { DrawObjectToLightBuffer(*this); }
+public:
+	SteadyLight(ObjectStartPos& objStart) : BunnyObject(objStart) { MakeNormal(20); }
+};

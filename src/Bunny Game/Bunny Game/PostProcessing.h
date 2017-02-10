@@ -4,6 +4,7 @@
 
 typedef sf::Uint8 LightParam;
 const LightParam NormalIntensity = 64;
+const float NormalIntensityF = 0.25f;
 enum LightType {
 	None, Point, Normal, Flicker, Ring,
 	LAST

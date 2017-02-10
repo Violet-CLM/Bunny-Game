@@ -110,6 +110,7 @@ void AnimFrame::AssignTextureDetails(unsigned int t, const SpriteCoordinateRecta
 sf::Uint32* AnimFrame::CreateImage(unsigned int w, unsigned int h)
 {
 	Area = (Width = w) * (Height = h);
+	Quad = quad(float(Width), float(Height));
 	Image.resize(Area);
 	return Image.data();
 }

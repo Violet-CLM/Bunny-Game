@@ -97,6 +97,8 @@ const ObjectList& Hook_GetObjectList() {
 		ObjT(STOPWATCH, Pickups, StopWatch),
 		ObjTC(EXTRATIME, Pickups, Pickup, 87),
 
+		ObjT(STEADYLIGHT, Common, SteadyLight),
+
 		ObjT(BUMBEE, BumBee, Bee),
 	};
 }

@@ -11,9 +11,9 @@
 #include "Lattice.h"
 
 typedef unsigned int LightHash;
-typedef void GenerateLightingSprite(sf::Uint32*, LightParam, LightParam);
+typedef void GenerateLightingSprite(sf::Color*, unsigned int, unsigned int);
 
-float AmbientLightingLevel = 0.25f;
+float AmbientLightingLevel = 0.125f;
 
 sf::Transform Layer4Offset;
 SpriteManager EffectSprites;
@@ -35,6 +35,9 @@ void InitLighting() {
 void Hook_ClearSpriteQueues() {
 	HUD.Clear();
 	LightingSprites.Clear();
+	if (AmbientLightingLevel < NormalIntensityF)
+		for (const auto& it : Players)
+			DrawObjectToLightBuffer(*it.Object); //draw players FIRST
 }
 void Hook_LevelMain(Level& level, unsigned int GameTicks) {
 	const AnimSet& fontSet = level.GetAnimSet(GetVersionSpecificAnimationID(AnimSets::Font));
@@ -129,26 +132,129 @@ void Hook_LevelMain(Level& level, unsigned int GameTicks) {
 	Layer4Offset = level.Layers[SPRITELAYER].getTransform();
 }
 
-void GeneratePointLightingSprite(sf::Uint32* buffer, LightParam radius, LightParam brightness) { //the Generate*LightingSprites were originally written by SE for his HD Lighting project
+void GeneratePointLightingSprite(sf::Color* buffer, unsigned int radius, unsigned int brightness) { //the Generate*LightingSprites were originally written by SE for his HD Lighting project
 	const int radiusSquare = radius * radius;
 	const int length = radius * 2 + 1;
 	for (int i = 0; i < length; i++) {
 		const int yDistance = radius - i;
 		for (int j = 0; j < length; j++) {
 			const int xDistance = radius - j;
-			const int distance = int(sqrt(xDistance * xDistance + yDistance * yDistance));
+			const unsigned int distance = unsigned int(sqrt(xDistance * xDistance + yDistance * yDistance));
 			*buffer++ =
 				(distance < radius) ?
-				(std::min(((brightness * (radius - distance)) / radius), 255) | 0xFF000000) :
-				0;
+				sf::Color(std::min(((brightness * (radius - distance)) / radius), 255u), 0,0, 0xFFu) :
+				sf::Color::Transparent;
 		}
 	}
 }
-void GenerateNormalLightingSprite(sf::Uint32* buffer, LightParam radius, LightParam brightness) {
+#define LIGHT32CIRCLEFADESIZE 28
+void GenerateAreaLightingSprite(sf::Color* buffer, unsigned int radius, unsigned int brightness, unsigned int opacity) {
+	const int radiusSquare = radius * radius;
+	const int length = radius * 2 + 1;
+	const int whiteRange = (radius - LIGHT32CIRCLEFADESIZE) * (radius - LIGHT32CIRCLEFADESIZE);
+	const int grayRange = radiusSquare - whiteRange;
+	const sf::Color innerBrightness = sf::Color(brightness, 0, 0, opacity);
+	for (int i = 0; i < length; ++i) {
+		const int yDistance = radius - i;
+		for (int j = 0; j < length; ++j, ++buffer) {
+			const int xDistance = radius - j;
+			const int distanceSquare = xDistance * xDistance + yDistance * yDistance;
+			if (distanceSquare < radiusSquare) {
+				if (distanceSquare < whiteRange)
+					*buffer = innerBrightness;
+				else
+					*buffer = sf::Color(brightness, 0,0, std::min((opacity * (radiusSquare - distanceSquare) / grayRange), 255u));
+			} //else
+				//*buffer = sf::Color::Transparent;
+		}
+	}
+	//Players[0].Object->PlayerProperties.Score = foo;
 }
-void GenerateFlickerLightingSprite(sf::Uint32* buffer, LightParam radius, LightParam brightness) {
+void GenerateNormalLightingSprite(sf::Color* buffer, unsigned int radius, unsigned int brightness) {
+	GenerateAreaLightingSprite(buffer, radius, brightness, 255);
 }
-void GenerateRingLightingSprite(sf::Uint32* buffer, LightParam radius, LightParam brightness) {
+void GenerateBrightLightingSprite(sf::Color* buffer, unsigned int radius, unsigned int brightness) {
+	GenerateAreaLightingSprite(buffer, radius, brightness, 127);
+}
+
+void GenerateFlickerLightingSprite(sf::Color* buffer, unsigned int radius, unsigned int brightness) {
+	const int radiusSquare = radius * radius;
+	const int length = radius * 2 + 1;
+	const int whiteRange = (radius - LIGHT32CIRCLEFADESIZE) * (radius - LIGHT32CIRCLEFADESIZE);
+	const int grayRange = radiusSquare - whiteRange;
+	sf::Color* bufferStart = buffer;
+	//noise
+	const int noiseLength = ((length + 7) / 8);
+	std::vector<sf::Uint8> bufferNoise;
+	for (int i = 0; i < noiseLength * noiseLength; ++i)
+		bufferNoise.push_back((RandFac(7) ? (RandFac(3) << 5) : 0));
+	//despeckle
+	for (int y = 1; y < noiseLength-1; ++y)
+		for (int x = 1; x < noiseLength-1; ++x) {
+				bufferNoise[x + y*noiseLength] = ((
+					bufferNoise[x + y*noiseLength] +
+					bufferNoise[x-1 + y*noiseLength] +
+					bufferNoise[x+1 + y*noiseLength] +
+					bufferNoise[x + (y-1)*noiseLength] +
+					bufferNoise[x + (y+1)*noiseLength]
+				) / 5 + 15) & ~31;
+		}
+	//resize pixels to 8x8
+	for (int i = 0; i < length; ++i) {
+		const int yDistance = radius - i;
+		const int yDistanceDivided = yDistance * yDistance / 200;
+		for (int j = 0; j < length; ++j, ++buffer) {
+			const int xDistance = radius - j;
+			const int distanceSquare = xDistance * xDistance + yDistance * yDistance;
+			if (distanceSquare < radiusSquare) {
+				*buffer = sf::Color(
+					bufferNoise[i / 8 * noiseLength + j / 8] + yDistanceDivided, 0, 0,
+					(distanceSquare < whiteRange) ?
+						63 :
+						63 * (radiusSquare - distanceSquare) / grayRange
+				);
+			} //else
+				//*buffer = sf::Color::Transparent;
+		}
+	}
+	//blur
+	for (int i = 0; i < 6; ++i) { //number of times to blur
+		buffer = bufferStart;
+		for (int y = 0; y < length; ++y) {
+			for (int x = 0; x < length; ++x, ++buffer) {
+				if (y > 1 && x > 1 && y < length-2 && x < length-2 && buffer->a != 0) {
+					const sf::Uint32 oldR = buffer->r;
+					buffer->r = (
+						oldR + oldR + oldR +
+						buffer[-1].r +
+						buffer[1].r +
+						buffer[-length*2-2].r + //sample one pixel away orthogonally and two diagonally, giving a rounded effect
+						buffer[-length].r +
+						buffer[-length*2+2].r +
+						buffer[length*2-2].r +
+						buffer[length].r +
+						buffer[length*2+2].r
+					) / 11;
+				}
+			}
+		}
+	}
+}
+void GenerateRingLightingSprite(sf::Color* buffer, unsigned int radius, unsigned int brightness) {
+	const int length = radius * 2 + 1;
+	const int whiteRange = (radius - 8) * (radius - 8);
+	const int grayRange = (radius * radius) - whiteRange;
+	for (int i = 0; i < length; ++i) {
+		const int yDistance = radius - i;
+		for (int j = 0; j < length; ++j, ++buffer) {
+			const int xDistance = radius - j;
+			const int absoluteDistance = grayRange - abs(whiteRange - (xDistance * xDistance + yDistance * yDistance));
+			if (absoluteDistance > 0) {
+				*buffer = sf::Color(brightness, 0,0, std::min((127 * absoluteDistance / grayRange), 127)); //alpha WAS 255, but that looks too bright
+			} //else
+				//*buffer = sf::Color::Transparent;
+		}
+	}
 }
 
 GenerateLightingSprite* GenerateLightingSpriteFunctions[LightType::LAST] = {
@@ -165,12 +271,12 @@ bool DrawObjectToLightBuffer(const BunnyObject& obj) {
 		frame.HotspotX = frame.HotspotY = -sf::Int16(obj.LightRadius);
 		const unsigned int spriteDimension = obj.LightRadius * 2 + 1;
 		sf::Uint32* buffer = frame.CreateImage(spriteDimension, spriteDimension);
-		GenerateLightingSpriteFunctions[obj.LightType](buffer, obj.LightRadius, brightness);
-		//OutputDebugStringF(L"%u, %u, %u", obj.LightType, obj.LightRadius, brightness);
+		GenerateLightingSpriteFunctions[obj.LightType]((sf::Color*)buffer, obj.LightRadius, brightness);
+		//OutputDebugStringF(L"%u, %u, %u", spriteDimension, obj.LightRadius, brightness);
 		EffectSprites.CreateAndAssignTextureForSingleFrame(frame);
 	}
 
-	LightingSprites.AppendSprite(*LightModeAdd, int(obj.PositionX), int(obj.PositionY), LightingSpriteProperties[hash]); //todo laser lights that draw more than a single sprite
+	LightingSprites.AppendSprite(*((obj.LightType == LightType::Point || obj.LightType == LightType::Ring) ? LightModeAdd : LightModeAlpha), int(obj.PositionX), int(obj.PositionY), LightingSpriteProperties[hash]); //todo laser lights that draw more than a single sprite
 	
 	return true;
 }

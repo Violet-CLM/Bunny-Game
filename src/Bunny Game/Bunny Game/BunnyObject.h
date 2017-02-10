@@ -17,6 +17,7 @@ class BunnyObject : public GameObject { //put deactivates, etc. code in here
 protected:
 	void DrawNormally(Layer*, const SpriteMode& = SpriteMode::Paletted) const;
 	void Draw(Layer*) const override;
+	void Behave(GameState&) override;
 	void DoBlast(int, bool=false);
 	int DirectionX, DirectionY;
 	Explosion& AddExplosion(int setID, int animID, bool makeChild = false);
