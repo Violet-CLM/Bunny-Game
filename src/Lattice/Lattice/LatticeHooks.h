@@ -1,11 +1,14 @@
 #pragma once
 #include <set>
 #include <map>
+#include <stack>
+#include <memory>
 #include "SFML/Config.hpp"
 #include "SFML/Graphics.hpp"
 #include "Constants.h"
 
 class Level;
+class Stage;
 struct Layer;
 class GameObject;
 class VertexCollectionQueue;
@@ -14,6 +17,7 @@ class VertexCollectionQueue;
 
 bool Hook_Init();
 void Hook_InitAfterShadersConstructed();
+void Hook_DetermineInitialStage(std::stack<std::unique_ptr<Stage>>& stages, int argc, char *argv[]);
 void Hook_SetupPaletteTables(sf::Texture&, const sf::Color* const, std::array<sf::Color, COLORSPERPALETTE>&);
 void Hook_ActivateObjects(Level&);
 const ObjectList& Hook_GetObjectList();

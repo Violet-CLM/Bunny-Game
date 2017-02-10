@@ -8,19 +8,14 @@
 #include "Shaders.h"
 
 const ObjectList* Lattice::ObjectInitializationList = nullptr;
+std::stack<std::unique_ptr<Stage>> Lattice::Stages;
+sf::RenderWindow* Lattice::Window;
 
 unsigned int Lattice::RenderFrame = 0;
 unsigned int Lattice::GetFramesElapsed() { return RenderFrame; }
 #ifdef SHOW_FPS
 	int Lattice::FPS;
 #endif
-
-void Lattice::LoadLevel(std::wstring& Filepath)
-{
-	CurrentLevel = Level::LoadLevel(Filepath);
-	if (CurrentLevel != nullptr)
-		Window->setTitle(CurrentLevel->Name);
-}
 
 bool Lattice::ProcessInput()
 {
@@ -40,7 +35,7 @@ bool Lattice::ProcessInput()
 
 void Lattice::Update()
 {
-	CurrentLevel->Update(Keys);
+	Stages.top()->Update(Keys);
 	Keys.Update();
 }
 
@@ -48,7 +43,7 @@ void Lattice::Render(double leftoverTimeElapsed)
 {
 	++RenderFrame;
 	Window->clear();
-	VideoBuffer.draw(*CurrentLevel, Shaders[DefaultShaders::Paletted]);
+	VideoBuffer.draw(*Stages.top(), Shaders[DefaultShaders::Paletted]);
 	Hook_DrawToWindow(VideoBuffer, *Window);
 	Window->display();
 	
@@ -58,25 +53,19 @@ void Lattice::Render(double leftoverTimeElapsed)
 #endif
 }
 
-	
 
-Lattice::Lattice(sf::RenderWindow& window, std::wstring& Filepath, const ObjectList& objectList) : Window(&window)
-{
+void Lattice::SetWindowTitle(const sf::String& title) { Window->setTitle(title); }
+
+Lattice::Lattice(sf::RenderWindow& window, int argc, char *argv[]) {
 	Window = &window;
-	ObjectInitializationList = &objectList;
 	VideoBuffer.create(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS);
 	VideoBuffer.clear();
 
-	if (!Filepath.empty()) {
-		LoadLevel(Filepath);
-	}
-		
-	if (CurrentLevel == nullptr)
-		return;
+	Hook_DetermineInitialStage(Stages, argc, argv);
 
 	double previous = getCurrentTime();
 	double lag = 0.0;
-	while (true)
+	while (!Stages.empty())
 	{
 		const double current = getCurrentTime();
 		const double elapsed = current - previous;
@@ -109,7 +98,7 @@ int main(int argc, char *argv[])
 
 	if (!Hook_Init())
 		return -1;
-	const ObjectList& objectList = Hook_GetObjectList();
+	Lattice::ObjectInitializationList = &Hook_GetObjectList();
 	InitPopulateTextureArrays();
 	InitCreateShaders(Shaders, ShaderSources);
 	SpriteMode::Normal = SpriteMode(Shaders[DefaultShaders::Normal], 0);
@@ -121,14 +110,7 @@ int main(int argc, char *argv[])
 		_wchdir(applicationFilename.substr(applicationFilename.find_last_of(L"/\\")).c_str());
 	}
 
-	std::wstring filename = L"Diam3.j2l";
-	if (argc == 2) {
-		filename = WStringFromCharArray(argv[1]);
-		if (!(filename.length() > 4 && filename.substr(filename.length() - 4, 4) == L".j2l"))
-			filename += L".j2l";
-	}
-
-	Lattice Game(window, filename, objectList);
+	Lattice Game(window, argc, argv);
 
 	//_CrtDumpMemoryLeaks();
 	return 0;

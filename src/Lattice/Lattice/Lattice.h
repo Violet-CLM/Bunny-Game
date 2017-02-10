@@ -1,4 +1,5 @@
 #pragma once
+#include <stack>
 #include "Constants.h"
 #include "Level.h"
 
@@ -30,14 +31,12 @@ public:
 };
 
 class Lattice {
-	sf::RenderWindow* Window;
+	static sf::RenderWindow* Window;
 	sf::RenderTexture VideoBuffer;
-	Level* CurrentLevel; //todo
 	KeyStates Keys;
 
 	static unsigned int RenderFrame;
 
-	void LoadLevel(std::wstring&);
 	bool ProcessInput();
 	void Update();
 	void Render(double);
@@ -48,5 +47,7 @@ public:
 
 	static const ObjectList* ObjectInitializationList;
 	static unsigned int GetFramesElapsed();
-	Lattice(sf::RenderWindow&, std::wstring&, const ObjectList&);
+	static std::stack<std::unique_ptr<Stage>> Stages;
+	static void SetWindowTitle(const sf::String&);
+	Lattice(sf::RenderWindow&, int argc, char *argv[]);
 };

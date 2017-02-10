@@ -11,9 +11,14 @@
 #include "Drawing.h"
 #include "Objects.h"
 
-class GameObject;
 class KeyStates;
-class Level : public LevelTileset, public sf::Drawable {
+class Stage : public sf::Drawable {
+public:
+	virtual void Update(const KeyStates&) = 0;
+};
+
+class GameObject;
+class Level : public LevelTileset, public Stage {
 	friend class GameState;
 	friend class GameObject;
 private:
@@ -65,7 +70,6 @@ public:
 	Layer Layers[LEVEL_LAYERCOUNT];
 	sf::Uint16 AnimOffset;
 	
-	VertexCollectionQueue HUD;
 	SpriteManager spriteManager;
 	std::forward_list<std::unique_ptr<GameObject>> Objects;
 	unsigned int GameTicks;
@@ -81,7 +85,7 @@ public:
 	sf::Sound& StartSound(unsigned int, unsigned int) const;
 	sf::Sound& StartSound(unsigned int, unsigned int, sf::Vector2f, unsigned int = 0, unsigned int = 0) const;
 
-	void Update(const KeyStates&);
+	void Update(const KeyStates&) override;
 };
 
 class GameState {
