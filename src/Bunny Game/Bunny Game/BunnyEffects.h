@@ -13,3 +13,8 @@ class SteadyLight : public BunnyObject {
 public:
 	SteadyLight(ObjectStartPos& objStart) : BunnyObject(objStart) { MakeNormal(20); }
 };
+class FlickerLight : public BunnyObject {
+	void Draw(Layer*) const override;
+public:
+	FlickerLight(ObjectStartPos& objStart) : BunnyObject(objStart) { LightType = LightType::Flicker; LightRadius = 112; }
+};

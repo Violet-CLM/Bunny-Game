@@ -15,3 +15,8 @@ Explosion& BunnyObject::AddExplosion(int setID, int animID, bool makeChild)
 	newExplosion.AnimID = animID;
 	return newExplosion;
 }
+
+void FlickerLight::Draw(Layer *) const {
+	DrawObjectToLightBuffer(*this);
+	//todo sound
+}

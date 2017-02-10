@@ -98,6 +98,7 @@ const ObjectList& Hook_GetObjectList() {
 		ObjTC(EXTRATIME, Pickups, Pickup, 87),
 
 		ObjT(STEADYLIGHT, Common, SteadyLight),
+		ObjT(FLICKERLIGHT, Common, FlickerLight),
 
 		ObjT(BUMBEE, BumBee, Bee),
 	};
