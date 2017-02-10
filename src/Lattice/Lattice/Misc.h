@@ -14,3 +14,4 @@ double getCurrentTime();
 #else
 #define ShowErrorMessage(e) MessageBoxW(nullptr, e, L"Error", MB_ICONEXCLAMATION)
 #endif
+#define ShowErrorMessageF(e, ...) ShowErrorMessage(wsprintf_z(e, __VA_ARGS__).c_str())

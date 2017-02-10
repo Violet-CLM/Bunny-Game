@@ -3,6 +3,7 @@
 #include "BunnyObjectList.h"
 #include "BunnyObject.h"
 #include "BunnyShaders.h"
+#include "BunnyMenu.h"
 #include "Bunny.h"
 #include "PostProcessing.h"
 #include "Windows.h"
@@ -113,13 +114,13 @@ void Hook_InitAfterShadersConstructed() {
 	InitLighting();
 }
 void Hook_DetermineInitialStage(std::stack<std::unique_ptr<Stage>>& stages, int argc, char *argv[]) {
-	std::wstring filename = L"Diam3";
+	std::wstring filename;
 	if (argc == 2)
 		filename = WStringFromCharArray(argv[1]);
-
 	if (!filename.empty()) {
 		Level* CurrentLevel = Level::LoadLevel(filename);
 		if (CurrentLevel != nullptr)
 			stages.emplace(CurrentLevel);
-	}
+	} else
+		stages.emplace(new BunnyMenu());
 }

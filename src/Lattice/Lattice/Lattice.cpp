@@ -99,7 +99,7 @@ Lattice::Lattice(sf::RenderWindow& window, int argc, char *argv[]) {
 
 int main(int argc, char *argv[])
 {
-	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS), "Error Loading Level", sf::Style::Titlebar | sf::Style::Close);
+	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS), "Bunny Game", sf::Style::Titlebar | sf::Style::Close);
 	window.setFramerateLimit(FPS_MAX); //solves all problems now and forever
 
 	FullScreenQuad.setDimensions(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS);

@@ -170,6 +170,7 @@
   <ItemGroup>
     <ClCompile Include="BunnyEffects.cpp" />
     <ClCompile Include="BunnyHooks.cpp" />
+    <ClCompile Include="BunnyMenu.cpp" />
     <ClCompile Include="BunnyMisc.cpp" />
     <ClCompile Include="BunnyObject.cpp" />
     <ClCompile Include="BunnyObjectList.cpp" />
@@ -184,6 +185,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BunnyEffects.h" />
+    <ClInclude Include="BunnyMenu.h" />
     <ClInclude Include="BunnyMisc.h" />
     <ClInclude Include="BunnyObject.h" />
     <ClInclude Include="BunnyObjectList.h" />

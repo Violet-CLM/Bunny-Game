@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)Constants.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Data.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Drawing.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Event.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Files.h" />
@@ -31,6 +32,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)Tileset.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Data.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Drawing.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Event.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Files.cpp" />
