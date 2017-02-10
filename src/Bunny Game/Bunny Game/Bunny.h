@@ -4,6 +4,7 @@
 #include "BunnyWeapons.h"
 
 #define MAXLOCALPLAYERS 1
+#define MAXPLAYERTRACE 20
 
 enum char2Indices { char2JAZZ, char2SPAZ, char2LORI }; //todo better solution elsewhere
 
@@ -46,6 +47,7 @@ class Bunny : public BunnyObject {
 	int playerID, fire, lastFire, lastDownAttack, airBoard, helicopter, helicopterTotal, specialJump, dive, lastDive, hit, DirectionKeyX, DirectionKeyY, warpCounter, frogMorph, bossActive, vPole, swim, stop, stoned, stonedLen, spring, specialMove, slope, runDash, run, lastRun, rolling, quake, platform, ledgeWiggle, lastSpring, lastJump, idleTime, hPole, hang, vine, fixStartX, downAttack, charCurr, beMoved, lastTilePosition, sugarRush, sucked, shieldType, shieldTime, morph, flicker, frameCount, animSpeed, warpFall, warpArea, viewSkipAverage, skid, pushObject, push, lookVP, lookVPAmount, lift, lastPush, lastLookVP, idleTrail, idleExtra, idleAnim, health, fireDirection;
 	bool goUp, goRight, goLeft, goDown, goFarDown, fixAnim, fireHold;
 	Event* LastSuckerTube;
+	sf::Vector2f Trace[MAXPLAYERTRACE]; int TraceStartIndex = 0; unsigned int TraceLength = 0;
 
 	void GetInput(const KeyStates&);		//461C20
 	void ProcessInput();					//435AC0

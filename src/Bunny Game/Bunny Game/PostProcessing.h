@@ -11,6 +11,7 @@ enum LightType {
 };
 
 class BunnyObject;
-bool DrawObjectToLightBuffer(const BunnyObject&);
+void DrawLightToLightBuffer(LightType, LightParam, LightParam, sf::Vector2f);
+void DrawObjectToLightBuffer(const BunnyObject&);
 
 void InitLighting();

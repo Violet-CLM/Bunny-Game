@@ -3234,11 +3234,27 @@ void Bunny::Behave(GameState& gameState)
 	DoZoneDetection(gameState.GetEvent(int(PositionX / TILEWIDTH), int(PositionY / TILEHEIGHT)), gameState.GameTicks);
 	ProcessAction(gameState.GameTicks);
 	AdjustViewpoint(gameState);
+
+	if (--TraceStartIndex < 0) TraceStartIndex = MAXPLAYERTRACE-1;
+	Trace[TraceStartIndex] = sf::Vector2f(PositionX, PositionY);
+	if (gameState.GameTicks & 1) {
+		if ((run || runDash < 0 || SpeedY >= 10 || spring || sugarRush || specialMove > 10) && !hang) {
+			if (TraceLength < MAXPLAYERTRACE)
+				TraceLength += 1;
+		} else {
+			LowerToZero(TraceLength);
+		}
+	}
 }
 void Bunny::Draw(Layer* layers) const {
 	if (!flicker || ((long long)(getCurrentTime()) & 64))
 		DrawNormally(layers);
-	//else invisible
+	if (TraceLength) {
+		const unsigned int summedSpeeds = unsigned int(abs(SpeedX) + abs(SpeedY)) * 2;
+		if (summedSpeeds) //otherwise no point, since this is the minimum intensity
+			for (unsigned int j = 0; j / 2 < (TraceLength + 1) / 2; j += 2)
+				DrawLightToLightBuffer(LightType::Point, 20, std::min(j * 3, summedSpeeds), Trace[(TraceStartIndex + TraceLength - j) % MAXPLAYERTRACE]);
+	}
 }
 
 std::array<Player, MAXLOCALPLAYERS> Players;

@@ -263,22 +263,24 @@ GenerateLightingSprite* GenerateLightingSpriteFunctions[LightType::LAST] = {
 
 //#include "Windows.h"
 //#include "Misc.h"
-bool DrawObjectToLightBuffer(const BunnyObject& obj) {
-	LightParam brightness = (obj.LightType != LightType::Flicker) ? obj.LightIntensity : LightParam(RandFac(255)); //generate at most 255 different possible HD flicker lights and display them basically at random
-	const LightHash hash = (obj.LightRadius << 0) | (brightness << 8) | (obj.LightType << 16);
+void DrawLightToLightBuffer(LightType type, LightParam radius, LightParam brightness, sf::Vector2f position) {
+	if (type == LightType::Flicker) brightness = LightParam(RandFac(255)); //generate at most 255 different possible HD flicker lights and display them basically at random
+	const LightHash hash = (radius << 0) | (brightness << 8) | (type << 16);
 	if (!LightingSpriteProperties.count(hash)) { //this particular lighting image hasn't been predrawn yet, so draw it before rendering it
 		AnimFrame& frame = LightingSpriteProperties[hash];
-		frame.HotspotX = frame.HotspotY = -sf::Int16(obj.LightRadius);
-		const unsigned int spriteDimension = obj.LightRadius * 2 + 1;
+		frame.HotspotX = frame.HotspotY = -sf::Int16(radius);
+		const unsigned int spriteDimension = radius * 2 + 1;
 		sf::Uint32* buffer = frame.CreateImage(spriteDimension, spriteDimension);
-		GenerateLightingSpriteFunctions[obj.LightType]((sf::Color*)buffer, obj.LightRadius, brightness);
+		GenerateLightingSpriteFunctions[type]((sf::Color*)buffer, radius, brightness);
 		//OutputDebugStringF(L"%u, %u, %u", spriteDimension, obj.LightRadius, brightness);
 		EffectSprites.CreateAndAssignTextureForSingleFrame(frame);
 	}
 
-	LightingSprites.AppendSprite(*((obj.LightType == LightType::Point || obj.LightType == LightType::Ring) ? LightModeAdd : LightModeAlpha), int(obj.PositionX), int(obj.PositionY), LightingSpriteProperties[hash]); //todo laser lights that draw more than a single sprite
-	
-	return true;
+	LightingSprites.AppendSprite(*((type == LightType::Point || type == LightType::Ring) ? LightModeAdd : LightModeAlpha), int(position.x), int(position.y), LightingSpriteProperties[hash]); //todo laser lights that draw more than a single sprite
+
+}
+void DrawObjectToLightBuffer(const BunnyObject& obj) {
+	DrawLightToLightBuffer(obj.LightType, obj.LightRadius, obj.LightIntensity, sf::Vector2f(obj.PositionX, obj.PositionY));
 }
 
 void Hook_DrawToWindow(sf::RenderTexture& videoBuffer, sf::RenderWindow& window) {
