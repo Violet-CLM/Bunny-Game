@@ -57,17 +57,10 @@ void Lattice::Render(double leftoverTimeElapsed)
 
 void Lattice::SetWindowTitle(const sf::String& title) { Window->setTitle(title); }
 
-Lattice::Lattice(sf::RenderWindow& window, int argc, char *argv[]) {
-	Window = &window;
-	VideoBuffer.create(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS);
-	VideoBuffer.clear();
-
-	Hook_DetermineInitialStage(Stages, argc, argv);
-
+bool Lattice::Loop() {
 	double previous = getCurrentTime();
 	double lag = 0.0;
-	while (!Stages.empty())
-	{
+	while (!Stages.empty()) {
 		const double current = getCurrentTime();
 		const double elapsed = current - previous;
 		previous = current;
@@ -81,12 +74,22 @@ Lattice::Lattice(sf::RenderWindow& window, int argc, char *argv[]) {
 			Update();
 			if (StageToDelete) { //something in the Update call ended that Stage altogether
 				StageToDelete.reset();
-				continue;
+				return true; //break out of loop, to prevent skipping over a bunch of renderframes, but don't end the application yet
 			}
 			lag -= MS_PER_UPDATE;
 		}
 		Render(lag / MS_PER_UPDATE);
 	}
+	return false;
+}
+Lattice::Lattice(sf::RenderWindow& window, int argc, char *argv[]) {
+	Window = &window;
+	VideoBuffer.create(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS);
+	VideoBuffer.clear();
+
+	Hook_DetermineInitialStage(Stages, argc, argv);
+
+	while (Loop());
 
 	//cleanup
 	StageToDelete.reset();

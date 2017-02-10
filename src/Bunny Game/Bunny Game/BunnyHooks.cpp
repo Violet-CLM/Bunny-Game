@@ -119,9 +119,7 @@ void Hook_DetermineInitialStage(std::stack<std::unique_ptr<Stage>>& stages, int 
 
 	if (!filename.empty()) {
 		Level* CurrentLevel = Level::LoadLevel(filename);
-		if (CurrentLevel != nullptr) {
-			Lattice::SetWindowTitle(CurrentLevel->Name);
+		if (CurrentLevel != nullptr)
 			stages.emplace(CurrentLevel);
-		}
 	}
 }

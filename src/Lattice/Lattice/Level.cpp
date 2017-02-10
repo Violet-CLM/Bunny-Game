@@ -77,6 +77,7 @@ Level* Level::LoadLevel(std::wstring& Filepath)
 		Filepath += L".j2l";
 	Level* newLevel = new Level(Filepath);
 	if (newLevel->Open() && newLevel->ProcessLevelData()) {
+		Lattice::SetWindowTitle(newLevel->Name);
 		return newLevel;
 	} else {
 		ShowErrorMessage((Filepath + L" encountered an error").c_str());

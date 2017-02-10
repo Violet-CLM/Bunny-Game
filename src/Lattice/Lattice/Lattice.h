@@ -43,6 +43,7 @@ friend class Stage;
 	bool ProcessInput();
 	void Update();
 	void Render(double);
+	bool Loop();
 public:
 #ifdef SHOW_FPS
 	static int FPS;
