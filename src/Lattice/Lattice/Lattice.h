@@ -3,7 +3,6 @@
 #include "Level.h"
 
 #define FPS_MAX 60
-extern int FPS;
 
 class KeyStates {
 friend class Lattice;
@@ -31,9 +30,6 @@ public:
 };
 
 class Lattice {
-#ifdef SHOW_FPS
-	int FPS;
-#endif
 	sf::RenderWindow* Window;
 	sf::RenderTexture VideoBuffer;
 	Level* CurrentLevel; //todo
@@ -46,6 +42,10 @@ class Lattice {
 	void Update();
 	void Render(double);
 public:
+#ifdef SHOW_FPS
+	static int FPS;
+#endif
+
 	static const ObjectList* ObjectInitializationList;
 	static unsigned int GetFramesElapsed();
 	Lattice(sf::RenderWindow&, std::wstring&, const ObjectList&);

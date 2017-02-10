@@ -11,6 +11,9 @@ const ObjectList* Lattice::ObjectInitializationList = nullptr;
 
 unsigned int Lattice::RenderFrame = 0;
 unsigned int Lattice::GetFramesElapsed() { return RenderFrame; }
+#ifdef SHOW_FPS
+	int Lattice::FPS;
+#endif
 
 void Lattice::LoadLevel(std::wstring& Filepath)
 {

@@ -148,8 +148,8 @@ void Hook_LevelMain(Level& level, unsigned int GameTicks) {
 		{ //fps
 			const int info_xPos = WINDOW_WIDTH_PIXELS / 2;
 			int info_yPos = WINDOW_HEIGHT_PIXELS - 30;
-			sprintf_s(buffer, "fps %3u", std::min(FPS_MAX, FPS));
-			WriteText(Sprites, info_xPos, info_yPos, buffer, smallFont);
+			sprintf_s(buffer, "fps %3u", std::min(FPS_MAX, Lattice::FPS));
+			WriteText(HUD, info_xPos, info_yPos, buffer, smallFont);
 		}
 #endif
 	//}
