@@ -111,6 +111,7 @@ bool Hook_Init() {
 void Hook_InitAfterShadersConstructed() {
 	WarpHorizonRenderStates.shader = Shaders[BunnyShaders::WarpHorizon];
 	TunnelRenderStates.shader = Shaders[BunnyShaders::Tunnel];
+	MenuBGRenderStates.shader = Shaders[BunnyShaders::MenuBG];
 	InitLighting();
 }
 void Hook_DetermineInitialStage(std::stack<std::unique_ptr<Stage>>& stages, int argc, char *argv[]) {

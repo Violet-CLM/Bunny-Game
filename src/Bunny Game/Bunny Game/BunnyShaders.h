@@ -20,7 +20,8 @@ namespace BunnyPaletteLineNames {
 namespace BunnyShaders {
 	enum {
 		FIRST = DefaultShaders::LAST - 1,
-		Gem, WarpHorizon, Tunnel,
+		Gem,
+		WarpHorizon, Tunnel, MenuBG,
 		ClearAmbientLightingBuffer, BlurAmbientLightingBuffer, ApplyAmbientLightingToVideo, 
 		LAST
 	};
@@ -29,7 +30,7 @@ namespace BunnyShaders {
 extern std::array<std::string, BunnyShaders::LAST - 1 - BunnyShaders::FIRST> BunnyShaderSources;
 void WriteBunnyShaders();
 
-extern sf::RenderStates WarpHorizonRenderStates, TunnelRenderStates;
+extern sf::RenderStates WarpHorizonRenderStates, TunnelRenderStates, MenuBGRenderStates;
 
 class SpriteModeGem : public SpriteMode {
 public:

@@ -49,7 +49,7 @@ void InitLighting() {
 			}
 		}
 	ClearAmbientLightingBufferColorLUT.create(COLORSPERPALETTE,COLORSPERPALETTE);
-	ClearAmbientLightingBufferColorLUT.update((const sf::Uint8*)ClearLUTImage.data(), COLORSPERPALETTE,COLORSPERPALETTE, 0,0);
+	ClearAmbientLightingBufferColorLUT.update((const sf::Uint8*)ClearLUTImage.data());
 	}
 	Shaders[BunnyShaders::ApplyAmbientLightingToVideo]->setUniform("dark", sf::Glsl::Vec4());
 	Shaders[BunnyShaders::ApplyAmbientLightingToVideo]->setUniform("lightBuffer", LightingBuffer[1].getTexture());

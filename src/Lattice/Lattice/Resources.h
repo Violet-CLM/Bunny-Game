@@ -107,7 +107,7 @@ public:
 };
 
 class SpriteManager {
-friend class Level;
+friend class Stage;
 friend class AnimFile;
 friend class GameObject;
 	struct SpriteTreeNode {

@@ -3,9 +3,15 @@
 #include "Level.h"
 #include "Lattice.h"
 
+namespace BunnyMenuTextureIDs { enum {
+	Image128, Image32, Image16, LASTSAVEDASINDICES = Image16, Palette, LAST
+};}
 class BunnyMenu : public Stage {
-	SpriteManager spriteManager;
-	DataTarget Image128, Image32, Image16, Palette;
+	VertexCollectionQueue Sprites;
+	const std::vector<AnimFrame>* Fonts[2];
+
+	std::array<DataTarget, BunnyMenuTextureIDs::LAST> DataTargets;
+	std::array<sf::Texture, BunnyMenuTextureIDs::LAST> Textures;
 	
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 public:

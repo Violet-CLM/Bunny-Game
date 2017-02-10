@@ -19,6 +19,12 @@ protected:
 public:
 	virtual void Update(const KeyStates&) = 0;
 	void ReplaceWithNewStage(Stage*);
+	
+	SpriteManager spriteManager;
+	const AnimSet& GetAnimSet(int) const;
+	
+	sf::Sound& StartSound(unsigned int, unsigned int) const;
+	sf::Sound& StartSound(unsigned int, unsigned int, sf::Vector2f, unsigned int = 0, unsigned int = 0) const;
 };
 
 class GameObject;
@@ -74,7 +80,6 @@ public:
 	Layer Layers[LEVEL_LAYERCOUNT];
 	sf::Uint16 AnimOffset;
 	
-	SpriteManager spriteManager;
 	std::forward_list<std::unique_ptr<GameObject>> Objects;
 	unsigned int GameTicks;
 
@@ -84,10 +89,6 @@ public:
 	Event& GetEvent(unsigned int, unsigned int);
 	void ForEachEvent(std::function<void(Event&, int, int)>);
 	Tile GetRealTile(Tile) const;
-	const AnimSet& GetAnimSet(int) const;
-	
-	sf::Sound& StartSound(unsigned int, unsigned int) const;
-	sf::Sound& StartSound(unsigned int, unsigned int, sf::Vector2f, unsigned int = 0, unsigned int = 0) const;
 
 	void Update(const KeyStates&) override;
 };

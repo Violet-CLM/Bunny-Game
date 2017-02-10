@@ -3,7 +3,7 @@
 #include "Layer.h"
 #include "Misc.h"
 
-sf::RenderStates WarpHorizonRenderStates, TunnelRenderStates;
+sf::RenderStates WarpHorizonRenderStates, TunnelRenderStates, MenuBGRenderStates;
 
 std::array<std::string, BunnyShaders::LAST - 1 - BunnyShaders::FIRST> BunnyShaderSources;
 void WriteBunnyShaders() {
@@ -69,6 +69,27 @@ void WriteBunnyShaders() {
 				clamp(depth / 4.0, 0.0, 1.0)\
 			);\
 		}", float(WINDOW_WIDTH_PIXELS/2), float(WINDOW_HEIGHT_PIXELS/2), float(WINDOW_HEIGHT_PIXELS + WINDOW_HEIGHT_PIXELS/2)),
+	//BunnyShaders::MenuBG
+		sprintf_z("uniform sampler2D texture128;\
+		uniform sampler2D texture32;\
+		uniform sampler2D texture16;\
+		uniform sampler2D tables;\
+		uniform mat4 transform128;\
+		uniform vec4 transform32;\
+		uniform mat4 transform16;\
+		const vec2 resize128 = vec2(128.0, 128.0);\
+		const vec2 resize32 = vec2(32.0, 32.0);\
+		const vec2 resize16 = vec2(16.0, 16.0);\
+		const vec4 translate16 = vec4(8.0, 8.0, 0, 0);\
+		\
+		void main(void)\
+		{\
+			vec4 position = gl_FragCoord - vec4(%f, %f, 0, 0);\
+			vec4 index = texture2D(texture128, (position *= transform128).xy / resize128);\
+			index = mix(texture2D(texture32, (position += transform32).xy / resize32), index, index.g);\
+			index = mix(texture2D(texture16, ((mod(position, 32.0) - translate16) * transform16).xy / resize16), index, index.g);\
+			gl_FragColor = texture2D(tables, vec2(index.r, 0));\
+		}", float(WINDOW_WIDTH_PIXELS/2), float(WINDOW_HEIGHT_PIXELS/2)),
 	//BunnyShaders::ClearAmbientLightingBuffer
 		"uniform sampler2D remapping;\
 		uniform sampler2D texture;\
@@ -114,6 +135,7 @@ void WriteBunnyShaders() {
 	const sf::BlendMode colorFromSourceAlphaFromDestination(sf::BlendMode::One, sf::BlendMode::Zero, sf::BlendMode::Add, sf::BlendMode::Zero, sf::BlendMode::One, sf::BlendMode::Add);
 	WarpHorizonRenderStates.blendMode = colorFromSourceAlphaFromDestination;
 	TunnelRenderStates.blendMode = colorFromSourceAlphaFromDestination;
+	MenuBGRenderStates.blendMode = colorFromSourceAlphaFromDestination;
 }
 
 void Hook_SetupPaletteTables(sf::Texture& tex, const sf::Color* const paletteColors, std::array<sf::Color, COLORSPERPALETTE>& buffer) {

@@ -187,17 +187,6 @@ Tile Level::GetRealTile(Tile inputTile) const
 	return inputTile;
 }
 
-const AnimSet& Level::GetAnimSet(int setID) const {
-	return spriteManager.AnimationSets[setID];
-}
-
-sf::Sound & Level::StartSound(unsigned int setID, unsigned int sampleID) const {
-	return GetAnimSet(setID).StartSound(sampleID);
-}
-sf::Sound & Level::StartSound(unsigned int setID, unsigned int sampleID, sf::Vector2f Position, unsigned int volume, unsigned int frequency) const {
-	return GetAnimSet(setID).StartSound(sampleID, Position, volume, frequency);
-}
-
 void Level::UpdateAnimatedTiles() {
 	int animTileID = AnimOffset;
 	const auto time = getCurrentTime();
@@ -315,4 +304,14 @@ void Stage::ReplaceWithNewStage(Stage* stage) {
 		DeleteCurrentStage(); //delete me
 		stage->MakeNewStage();
 	}
+}
+
+const AnimSet& Stage::GetAnimSet(int setID) const {
+	return spriteManager.AnimationSets[setID];
+}
+sf::Sound & Stage::StartSound(unsigned int setID, unsigned int sampleID) const {
+	return GetAnimSet(setID).StartSound(sampleID);
+}
+sf::Sound & Stage::StartSound(unsigned int setID, unsigned int sampleID, sf::Vector2f Position, unsigned int volume, unsigned int frequency) const {
+	return GetAnimSet(setID).StartSound(sampleID, Position, volume, frequency);
 }
