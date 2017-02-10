@@ -17,6 +17,7 @@ Bunny::Bunny(ObjectStartPos & objStart, int characterIndex) : BunnyObject(objSta
 	ObjectType = BunnyObjectType::Player;
 	CollisionShapes.emplace_back(18,32);
 	MakeNormal(13);
+	LightType = LightType::Player; //partially distinct from Normal, partially not
 
 	Health = START_HEALTH;
 }

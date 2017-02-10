@@ -21,7 +21,7 @@ sf::Texture ClearAmbientLightingBufferColorLUT;
 sf::RenderTexture LightingBuffer[2];
 sf::RenderStates LightingStates, ClearAmbientLightingBufferRenderStates, BlurAmbientLightingBufferRenderStates;
 VertexCollectionQueue LightingSprites, HUD;
-SpriteMode *LightModeAdd, *LightModeAlpha;//, *LightModeMax;
+SpriteMode *LightModeAdd, *LightModeAlpha, *LightModeMax;
 std::unordered_map<LightHash, AnimFrame> LightingSpriteProperties;
 
 void InitLighting() {
@@ -33,6 +33,7 @@ void InitLighting() {
 
 	LightModeAdd = new SpriteMode(Shaders[DefaultShaders::Normal], 0, sf::BlendAdd);
 	LightModeAlpha = new SpriteMode(Shaders[DefaultShaders::Normal], 0, sf::BlendAlpha);
+	LightModeMax = new SpriteMode(Shaders[DefaultShaders::Normal], 0, sf::BlendMode(sf::BlendMode::One, sf::BlendMode::One, sf::BlendMode::Equation::Max));
 	{
 	std::array<sf::Color, COLORSPERPALETTE * COLORSPERPALETTE> ClearLUTImage;
 	for (int previousIntensity = 0; previousIntensity < COLORSPERPALETTE; ++previousIntensity) //recreate GeneralGlobals->lightShadeTransitionMappingLightValue
@@ -60,9 +61,8 @@ void InitLighting() {
 void Hook_ClearSpriteQueues() {
 	HUD.Clear();
 	LightingSprites.Clear();
-	if (AmbientLightingLevel < NormalIntensityF)
-		for (const auto& it : Players)
-			DrawObjectToLightBuffer(*it.Object); //draw players FIRST
+	for (const auto& it : Players)
+		DrawObjectToLightBuffer(*it.Object); //draw players FIRST
 }
 void Hook_LevelMain(Level& level, unsigned int GameTicks) {
 	const AnimSet& fontSet = level.GetAnimSet(GetVersionSpecificAnimationID(AnimSets::Font));
@@ -178,7 +178,7 @@ void GenerateAreaLightingSprite(sf::Color* buffer, unsigned int radius, unsigned
 	const int length = radius * 2 + 1;
 	const int whiteRange = (radius - LIGHT32CIRCLEFADESIZE) * (radius - LIGHT32CIRCLEFADESIZE);
 	const int grayRange = radiusSquare - whiteRange;
-	const sf::Color innerBrightness = sf::Color(brightness, 0, 0, opacity);
+	const sf::Color innerBrightness(brightness, 0, 0, opacity);
 	for (int i = 0; i < length; ++i) {
 		const int yDistance = radius - i;
 		for (int j = 0; j < length; ++j, ++buffer) {
@@ -193,7 +193,6 @@ void GenerateAreaLightingSprite(sf::Color* buffer, unsigned int radius, unsigned
 				//*buffer = sf::Color::Transparent;
 		}
 	}
-	//Players[0].Object->PlayerProperties.Score = foo;
 }
 void GenerateNormalLightingSprite(sf::Color* buffer, unsigned int radius, unsigned int brightness) {
 	GenerateAreaLightingSprite(buffer, radius, brightness, 255);
@@ -281,15 +280,36 @@ void GenerateRingLightingSprite(sf::Color* buffer, unsigned int radius, unsigned
 		}
 	}
 }
+void GeneratePlayerLightingSprite(sf::Color* buffer, unsigned int radius, unsigned int brightness) {
+	const int radiusSquare = radius * radius;
+	const int length = radius * 2 + 1;
+	const int whiteRange = (radius - LIGHT32CIRCLEFADESIZE) * (radius - LIGHT32CIRCLEFADESIZE);
+	const int grayRange = radiusSquare - whiteRange;
+	const sf::Color innerBrightness(brightness, 0,0, 255);
+	for (int i = 0; i < length; ++i) {
+		const int yDistance = radius - i;
+		for (int j = 0; j < length; ++j, ++buffer) {
+			const int xDistance = radius - j;
+			const int distanceSquare = xDistance * xDistance + yDistance * yDistance;
+			if (distanceSquare < radiusSquare) {
+				if (distanceSquare < whiteRange)
+					*buffer = innerBrightness;
+				else
+					*buffer = sf::Color(std::min((brightness * (radiusSquare - distanceSquare) / grayRange), 255u), 0,0, 255);
+			} //else
+				//*buffer = sf::Color::Transparent;
+		}
+	}
+}
 
 GenerateLightingSprite* GenerateLightingSpriteFunctions[LightType::LAST] = {
-	nullptr, GeneratePointLightingSprite, GenerateNormalLightingSprite, GenerateFlickerLightingSprite, GenerateRingLightingSprite
+	nullptr, GeneratePointLightingSprite, GenerateNormalLightingSprite, GenerateFlickerLightingSprite, GenerateRingLightingSprite, GeneratePlayerLightingSprite
 };
 
 //#include "Windows.h"
 //#include "Misc.h"
-void DrawLightToLightBuffer(LightType type, LightParam radius, LightParam brightness, sf::Vector2f position) {
-	if (type == LightType::Flicker) brightness = LightParam(RandFac(255)); //generate at most 255 different possible HD flicker lights and display them basically at random
+void DrawLightToLightBuffer(LightType::LightType type, LightParam radius, LightParam brightness, sf::Vector2f position) {
+	if (type == LightType::Flicker) brightness = LightParam(RandFac(255)); //generate at most 256 different possible HD flicker lights and display them basically at random
 	const LightHash hash = (radius << 0) | (brightness << 8) | (type << 16);
 	if (!LightingSpriteProperties.count(hash)) { //this particular lighting image hasn't been predrawn yet, so draw it before rendering it
 		AnimFrame& frame = LightingSpriteProperties[hash];
@@ -301,7 +321,17 @@ void DrawLightToLightBuffer(LightType type, LightParam radius, LightParam bright
 		EffectSprites.CreateAndAssignTextureForSingleFrame(frame);
 	}
 
-	LightingSprites.AppendSprite(*((type == LightType::Point || type == LightType::Ring) ? LightModeAdd : LightModeAlpha), int(position.x), int(position.y), LightingSpriteProperties[hash]); //todo laser lights that draw more than a single sprite
+	LightingSprites.AppendSprite(
+		*(
+			(type == LightType::Point || type == LightType::Ring) ?
+				LightModeAdd :
+				(type != LightType::Player) ?
+					LightModeAlpha :
+					LightModeMax
+		),
+		int(position.x), int(position.y),
+		LightingSpriteProperties[hash]
+	); //todo laser lights that draw more than a single sprite
 
 }
 void DrawObjectToLightBuffer(const BunnyObject& obj) {

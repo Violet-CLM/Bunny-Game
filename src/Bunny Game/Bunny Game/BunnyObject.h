@@ -22,7 +22,7 @@ protected:
 	int DirectionX, DirectionY;
 	Explosion& AddExplosion(int setID, int animID, bool makeChild = false);
 public:
-	LightType LightType; LightParam LightIntensity, LightRadius;
+	LightType::LightType LightType; LightParam LightIntensity, LightRadius;
 protected: //series of convenience methods for turning JJ2 constants into their composite values
 	void MakePoint1() { LightType = LightType::Point; LightRadius = 20; LightIntensity = NormalIntensity >> 3; }
 	void MakePoint2() { LightType = LightType::Point; LightRadius = 20; LightIntensity = NormalIntensity >> 2; }
