@@ -1892,13 +1892,16 @@ void Bunny::DoZoneDetection(Event& curEvent, unsigned int gameTicks)
 		}
 		break;*/
 
-	/*case areaEOL:
-		if (!NetGlobals->isServer || GameGlobals->gameMode == GM_RACE) {
+	case EventIDs::WARPEOL:
+	case EventIDs::ENDOFLEVEL:
+			//todo waiting period
+			HostLevel.ReplaceWithNewStage(Level::LoadLevel(HostLevel.NextLevel));
+		/*if (!NetGlobals->isServer || GameGlobals->gameMode == GM_RACE) {
 			GameEvent::EndOfLevel(px, py, playerID);
 		}
 		if (GameGlobals->gameMode == GM_TREASURE)
-			CheckPlayerCoins(playerID, *maxScore, false, 255, false);
-		break;*/
+			CheckPlayerCoins(playerID, *maxScore, false, 255, false);*/
+		break;
 
 	/*case areaWARPEOL:
 		if (!NetGlobals->isServer || GameGlobals->gameMode == GM_RACE) {

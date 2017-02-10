@@ -31,11 +31,14 @@ public:
 };
 
 class Lattice {
+friend class Stage;
 	static sf::RenderWindow* Window;
 	sf::RenderTexture VideoBuffer;
 	KeyStates Keys;
 
 	static unsigned int RenderFrame;
+	static std::unique_ptr<Stage> StageToDelete;
+	static std::stack<std::unique_ptr<Stage>> Stages;
 
 	bool ProcessInput();
 	void Update();
@@ -47,7 +50,6 @@ public:
 
 	static const ObjectList* ObjectInitializationList;
 	static unsigned int GetFramesElapsed();
-	static std::stack<std::unique_ptr<Stage>> Stages;
 	static void SetWindowTitle(const sf::String&);
 	Lattice(sf::RenderWindow&, int argc, char *argv[]);
 };

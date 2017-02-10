@@ -13,8 +13,12 @@
 
 class KeyStates;
 class Stage : public sf::Drawable {
+protected:
+	void MakeNewStage();
+	void DeleteCurrentStage();
 public:
 	virtual void Update(const KeyStates&) = 0;
+	void ReplaceWithNewStage(Stage*);
 };
 
 class GameObject;

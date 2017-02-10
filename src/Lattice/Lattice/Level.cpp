@@ -73,8 +73,11 @@ void Level::ForEachEvent(std::function<void(Event&, int, int)> func)
 }
 Level* Level::LoadLevel(std::wstring& Filepath)
 {
+	if (!(Filepath.length() > 4 && Filepath.substr(Filepath.length() - 4, 4) == L".j2l"))
+		Filepath += L".j2l";
 	Level* newLevel = new Level(Filepath);
 	if (newLevel->Open() && newLevel->ProcessLevelData()) {
+		newLevel->MakeNewStage();
 		return newLevel;
 	} else {
 		ShowErrorMessage((Filepath + L" encountered an error").c_str());
@@ -296,4 +299,20 @@ void GameState::SetCamera(float x, float y)
 void GameState::CenterCamera(float x, float y)
 {
 	SetCamera(x - WINDOW_WIDTH_PIXELS / 2, y - WINDOW_HEIGHT_PIXELS / 2);
+}
+
+void Stage::MakeNewStage() {
+	Lattice::Stages.emplace(this);
+}
+void Stage::DeleteCurrentStage() {
+	if (!Lattice::Stages.empty()) {
+		Lattice::StageToDelete.swap(Lattice::Stages.top());
+		Lattice::Stages.pop();
+	}
+}
+void Stage::ReplaceWithNewStage(Stage* stage) {
+	if (!Lattice::Stages.empty() && Lattice::Stages.top().get() == this) {
+		DeleteCurrentStage(); //delete me
+		stage->MakeNewStage();
+	}
 }

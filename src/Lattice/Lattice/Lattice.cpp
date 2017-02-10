@@ -9,6 +9,7 @@
 
 const ObjectList* Lattice::ObjectInitializationList = nullptr;
 std::stack<std::unique_ptr<Stage>> Lattice::Stages;
+std::unique_ptr<Stage> Lattice::StageToDelete(nullptr);
 sf::RenderWindow* Lattice::Window;
 
 unsigned int Lattice::RenderFrame = 0;
@@ -78,10 +79,19 @@ Lattice::Lattice(sf::RenderWindow& window, int argc, char *argv[]) {
 		while (lag >= MS_PER_UPDATE)
 		{
 			Update();
+			if (StageToDelete) { //something in the Update call ended that Stage altogether
+				StageToDelete.reset();
+				continue;
+			}
 			lag -= MS_PER_UPDATE;
 		}
 		Render(lag / MS_PER_UPDATE);
 	}
+
+	//cleanup
+	StageToDelete.reset();
+	while (!Stages.empty())
+		Stages.pop();
 }
 
 int main(int argc, char *argv[])

@@ -113,12 +113,9 @@ void Hook_InitAfterShadersConstructed() {
 	InitLighting();
 }
 void Hook_DetermineInitialStage(std::stack<std::unique_ptr<Stage>>& stages, int argc, char *argv[]) {
-	std::wstring filename = L"Diam3.j2l";
-	if (argc == 2) {
+	std::wstring filename = L"Diam3";
+	if (argc == 2)
 		filename = WStringFromCharArray(argv[1]);
-		if (!(filename.length() > 4 && filename.substr(filename.length() - 4, 4) == L".j2l"))
-			filename += L".j2l";
-	}
 
 	if (!filename.empty()) {
 		Level* CurrentLevel = Level::LoadLevel(filename);
