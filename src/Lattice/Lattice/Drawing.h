@@ -120,7 +120,7 @@ struct quad {
 		}
 	}
 };
-extern quad FullScreenQuad;
+extern quad FullScreenQuad, FullScreenQuadNonFlipped;
 
 struct SpriteMode {
 protected:

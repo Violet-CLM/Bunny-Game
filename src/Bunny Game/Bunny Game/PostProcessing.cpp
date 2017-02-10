@@ -17,19 +17,44 @@ float AmbientLightingLevel = 0.125f;
 
 sf::Transform Layer4Offset;
 SpriteManager EffectSprites;
-sf::RenderTexture LightingBuffer;
-sf::RenderStates LightingStates;
+sf::Texture ClearAmbientLightingBufferColorLUT;
+sf::RenderTexture LightingBuffer[2];
+sf::RenderStates LightingStates, ClearAmbientLightingBufferRenderStates, BlurAmbientLightingBufferRenderStates;
 VertexCollectionQueue LightingSprites, HUD;
 SpriteMode *LightModeAdd, *LightModeAlpha;//, *LightModeMax;
 std::unordered_map<LightHash, AnimFrame> LightingSpriteProperties;
 
 void InitLighting() {
-	LightingBuffer.create(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS);
-	LightingStates = sf::RenderStates(sf::BlendNone, sf::Transform::Identity, nullptr, Shaders[BunnyShaders::AmbientLighting]);
-	Shaders[BunnyShaders::AmbientLighting]->setUniform("dark", sf::Glsl::Vec4());
-	Shaders[BunnyShaders::AmbientLighting]->setUniform("lightBuffer", LightingBuffer.getTexture());
+	for (int i = 0; i < 2; ++i)
+		LightingBuffer[i].create(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS);
+	LightingStates = sf::RenderStates(sf::BlendNone, sf::Transform::Identity, nullptr, Shaders[BunnyShaders::ApplyAmbientLightingToVideo]);
+	ClearAmbientLightingBufferRenderStates = sf::RenderStates(sf::BlendNone, sf::Transform::Identity, nullptr, Shaders[BunnyShaders::ClearAmbientLightingBuffer]);
+	BlurAmbientLightingBufferRenderStates = sf::RenderStates(sf::BlendNone, sf::Transform::Identity, nullptr, Shaders[BunnyShaders::BlurAmbientLightingBuffer]);
+
 	LightModeAdd = new SpriteMode(Shaders[DefaultShaders::Normal], 0, sf::BlendAdd);
 	LightModeAlpha = new SpriteMode(Shaders[DefaultShaders::Normal], 0, sf::BlendAlpha);
+	{
+	std::array<sf::Color, COLORSPERPALETTE * COLORSPERPALETTE> ClearLUTImage;
+	for (int previousIntensity = 0; previousIntensity < COLORSPERPALETTE; ++previousIntensity) //recreate GeneralGlobals->lightShadeTransitionMappingLightValue
+		for (int newBaseIntensity = 0; newBaseIntensity < COLORSPERPALETTE; ++newBaseIntensity) {
+			auto& newIntensity = ClearLUTImage[previousIntensity + newBaseIntensity * COLORSPERPALETTE].r;
+			if (previousIntensity + 4 < newBaseIntensity) {
+				newIntensity = std::min(127, previousIntensity + 4);
+			} else {
+				if (previousIntensity - 6 > newBaseIntensity)
+					newIntensity = std::max(0, previousIntensity - 6);
+				else
+					newIntensity = newBaseIntensity;
+			}
+		}
+	ClearAmbientLightingBufferColorLUT.create(COLORSPERPALETTE,COLORSPERPALETTE);
+	ClearAmbientLightingBufferColorLUT.update((const sf::Uint8*)ClearLUTImage.data(), COLORSPERPALETTE,COLORSPERPALETTE, 0,0);
+	}
+	Shaders[BunnyShaders::ApplyAmbientLightingToVideo]->setUniform("dark", sf::Glsl::Vec4());
+	Shaders[BunnyShaders::ApplyAmbientLightingToVideo]->setUniform("lightBuffer", LightingBuffer[1].getTexture());
+	Shaders[BunnyShaders::ClearAmbientLightingBuffer]->setUniform("remapping", ClearAmbientLightingBufferColorLUT);
+	BlurAmbientLightingBufferRenderStates.texture = &LightingBuffer[0].getTexture();
+	ClearAmbientLightingBufferRenderStates.texture = &LightingBuffer[1].getTexture();
 }
 
 void Hook_ClearSpriteQueues() {
@@ -218,7 +243,7 @@ void GenerateFlickerLightingSprite(sf::Color* buffer, unsigned int radius, unsig
 		}
 	}
 	//blur
-	for (int i = 0; i < 6; ++i) { //number of times to blur
+	for (int i = 0; i < 2; ++i) { //number of times to blur
 		buffer = bufferStart;
 		for (int y = 0; y < length; ++y) {
 			for (int x = 0; x < length; ++x, ++buffer) {
@@ -284,13 +309,22 @@ void DrawObjectToLightBuffer(const BunnyObject& obj) {
 }
 
 void Hook_DrawToWindow(sf::RenderTexture& videoBuffer, sf::RenderWindow& window) {
-	LightingBuffer.clear(sf::Color(sf::Uint8(AmbientLightingLevel * 255), 0, 0, 255));
-	//LightingBuffer.draw(FullScreenQuad.vertices, 4, sf::Quads, clearAmbientLightingBufferRenderStates);
-	LightingBuffer.draw(LightingSprites, Layer4Offset);
-	//LasersToDrawOnLightBuffer32.draw(*lightBuffer32); //always draw lasers, and specifically do so after all other lights
+	/*static unsigned int lastFrames = 0; //change light at random every second; good for testing light fading
+	const auto currentRenderFrame = Lattice::GetFramesElapsed();
+	if (currentRenderFrame > lastFrames + AISPEED) {
+		lastFrames = currentRenderFrame;
+		AmbientLightingLevel = RandFac(127) / 255.f;
+	}*/
+
+	Shaders[BunnyShaders::ClearAmbientLightingBuffer]->setUniform("newIntensity", AmbientLightingLevel);
+	LightingBuffer[0].draw(FullScreenQuad.vertices, 4, sf::Quads, ClearAmbientLightingBufferRenderStates); //fade the previous version of the buffer onto the new base intensity
+	LightingBuffer[0].draw(LightingSprites, Layer4Offset); //draw all the new light sources
+	//laser beam goes here
+	LightingBuffer[1].draw(FullScreenQuad.vertices, 4, sf::Quads, BlurAmbientLightingBufferRenderStates); //blur everything
+	//laser shield goes here
 
 	videoBuffer.display();
 	LightingStates.texture = &videoBuffer.getTexture();
-	window.draw(sf::Sprite(videoBuffer.getTexture()), LightingStates);
+	window.draw(FullScreenQuadNonFlipped.vertices, 4, sf::Quads, LightingStates);
 	window.draw(HUD);
 }

@@ -9,7 +9,7 @@
 sf::Texture* PaletteTexture;
 
 quad PossibleQuadOrientations[2 * 2 * 2];
-quad FullScreenQuad;
+quad FullScreenQuad, FullScreenQuadNonFlipped;
 
 void GeneratePaletteTexture(sf::Texture& tex, const sf::Uint8* palette)
 {

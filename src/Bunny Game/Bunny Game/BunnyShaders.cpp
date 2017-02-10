@@ -69,7 +69,29 @@ void WriteBunnyShaders() {
 				clamp(depth / 4.0, 0.0, 1.0)\
 			);\
 		}", float(WINDOW_WIDTH_PIXELS/2), float(WINDOW_HEIGHT_PIXELS/2), float(WINDOW_HEIGHT_PIXELS + WINDOW_HEIGHT_PIXELS/2)),
-	//BunnyShaders::AmbientLighting
+	//BunnyShaders::ClearAmbientLightingBuffer
+		"uniform sampler2D remapping;\
+		uniform sampler2D texture;\
+		uniform float newIntensity;\
+		\
+		void main(void)\
+		{\
+			gl_FragColor = texture2D(remapping, vec2(texture2D(texture, gl_TexCoord[0].xy).r, newIntensity)); \
+		}",
+	//BunnyShaders::BlurAmbientLightingBuffer
+		sprintf_z("uniform sampler2D texture;\
+			\
+			void main(void)\
+			{\
+				gl_FragColor = vec4((\
+					texture2D(texture, gl_TexCoord[0].xy).r +\
+					texture2D(texture, gl_TexCoord[0].xy + vec2(%f,0)).r +\
+					texture2D(texture, gl_TexCoord[0].xy - vec2(%f,0)).r +\
+					texture2D(texture, gl_TexCoord[0].xy + vec2(0,%f)).r +\
+					texture2D(texture, gl_TexCoord[0].xy - vec2(0,%f)).r\
+				) / 5.0, 0,0, 1.0);\
+			}", float(8) / WINDOW_WIDTH_PIXELS, float(8) / WINDOW_WIDTH_PIXELS, float(8) / WINDOW_HEIGHT_PIXELS, float(8) / WINDOW_HEIGHT_PIXELS),
+	//BunnyShaders::ApplyAmbientLightingToVideo
 		"uniform sampler2D texture;\
 		uniform sampler2D lightBuffer;\
 		uniform vec4 dark;\
@@ -85,7 +107,7 @@ void WriteBunnyShaders() {
 				float smallerIntensity = lightIntensity - 1.0;\
 				gl_FragColor = (color * lightIntensity) + (smallerIntensity * smallerIntensity); \
 			}\
-		}"
+		}",
 	};
 
 

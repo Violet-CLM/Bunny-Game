@@ -3250,10 +3250,10 @@ void Bunny::Draw(Layer* layers) const {
 	if (!flicker || ((long long)(getCurrentTime()) & 64))
 		DrawNormally(layers);
 	if (TraceLength) {
-		const unsigned int summedSpeeds = unsigned int(abs(SpeedX) + abs(SpeedY)) * 2;
+		const unsigned int summedSpeeds = unsigned int(abs(SpeedX) + abs(SpeedY));
 		if (summedSpeeds) //otherwise no point, since this is the minimum intensity
 			for (unsigned int j = 0; j / 2 < (TraceLength + 1) / 2; j += 2)
-				DrawLightToLightBuffer(LightType::Point, 20, std::min(j * 3, summedSpeeds), Trace[(TraceStartIndex + TraceLength - j) % MAXPLAYERTRACE]);
+				DrawLightToLightBuffer(LightType::Point, 20, std::min(j * 2, summedSpeeds), Trace[(TraceStartIndex + TraceLength - j) % MAXPLAYERTRACE]);
 	}
 }
 

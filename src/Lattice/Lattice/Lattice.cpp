@@ -96,7 +96,13 @@ int main(int argc, char *argv[])
 {
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS), "Error Loading Level", sf::Style::Titlebar | sf::Style::Close);
 	window.setFramerateLimit(FPS_MAX); //solves all problems now and forever
+
 	FullScreenQuad.setDimensions(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS);
+	for (int i = 0; i < 4; ++i)
+		FullScreenQuad.vertices[i].texCoords = FullScreenQuad.vertices[3 - i].position; //vertically flipped
+	FullScreenQuadNonFlipped.setDimensions(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS);
+	for (int i = 0; i < 4; ++i)
+		FullScreenQuadNonFlipped.vertices[i].texCoords = FullScreenQuadNonFlipped.vertices[i].position;
 
 	if (!Hook_Init())
 		return -1;
