@@ -94,10 +94,10 @@ void AnimFrame::AssignTextureCoordinates(const SpriteCoordinateRectangle* const 
 	Quad.vertices[3].texCoords = sf::Vector2<float>(float(textureCoordinates->left), float(textureCoordinates->top + textureCoordinates->height));
 }
 
-void AnimFrame::AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates, std::vector<sf::Texture>& SpriteTextures) {
+void AnimFrame::AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates, std::vector<std::unique_ptr<sf::Texture>>& SpriteTextures) {
 	AssignTextureCoordinates(textureCoordinates);
 
-	(Texture = &SpriteTextures[Quad.TextureID = t])->update(
+	(Texture = SpriteTextures[Quad.TextureID = t].get())->update(
 		(sf::Uint8*)Image.data(),
 		textureCoordinates->width,
 		textureCoordinates->height,
@@ -336,7 +336,7 @@ void SpriteManager::CreateAndAssignTextures() {
 	const unsigned int hardwareMaximumTextureSize = sf::Texture::getMaximumSize();
 	const unsigned int textureWidth = (hardwareMaximumTextureSize > 4096) ? 4096 : hardwareMaximumTextureSize;
 	const unsigned int textureHeight = (hardwareMaximumTextureSize > 2048) ? 2048 : hardwareMaximumTextureSize; //4096x2048 should be enough to hold all the sprites except MAYBE in some very crowded levels? I can investigate if I feel like it.
-	for (auto& it : SpriteTexturesSortedBySize) {
+	for (auto it : SpriteTexturesSortedBySize) {
 		if (!it->SmallerThan(textureHeight)) {
 			ShowErrorMessageF(L"Cannot render sprite of size %ux%u", it->Width, it->Height);
 			continue; //fail silently?
@@ -344,8 +344,8 @@ void SpriteManager::CreateAndAssignTextures() {
 
 		for (unsigned int textureID = 0; ; ++textureID) {
 			while (SpriteTextures.size() <= textureID) { //SpriteTextures and SpriteTrees should always be the same size
-				SpriteTextures.emplace_back();
-				if (!SpriteTextures.back().create(textureWidth, textureHeight)) {
+				SpriteTextures.emplace_back(new sf::Texture());
+				if (!SpriteTextures.back()->create(textureWidth, textureHeight)) {
 					ShowErrorMessage(L"Error while creating new sprite/lighting texture!");
 					//at this point I have no idea what might happen but it might or might not involve crashing
 				}
@@ -382,10 +382,11 @@ void SpriteManager::Clear() {
 			SpriteTrees[textureID] = nullptr;
 		}
 	
-	//SpriteTextures[0].copyToImage().saveToFile("C:\\Games\\Jazz2\\SpriteTexture.png");
+	//SpriteTextures[0]->copyToImage().saveToFile("C:\\Games\\Jazz2\\SpriteTexture.png");
 }
 SpriteManager::~SpriteManager() {
 	Clear();
+	//SpriteTextures[0].copyToImage().saveToFile("C:\\Games\\Jazz2\\LightingTexture.png");
 }
 
 AnimFrame& SpriteManager::GetFrame(int setID, int animID, int frameID) const {

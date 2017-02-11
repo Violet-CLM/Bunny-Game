@@ -71,7 +71,7 @@ private:
 
 	void AssignTextureCoordinates(const SpriteCoordinateRectangle* const textureCoordinates);
 public:
-	void AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates, std::vector<sf::Texture>&);
+	void AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates, std::vector<std::unique_ptr<sf::Texture>>&);
 	sf::Uint32* CreateImage(unsigned int w, unsigned int h);
 
 	AnimFrame(){}
@@ -129,7 +129,7 @@ friend class GameObject;
 		SpriteCoordinateRectangle* placeSprite(const unsigned int width, const unsigned int height);
 	};
 	std::vector<SpriteTreeNode*> SpriteTrees;
-	std::vector<sf::Texture> SpriteTextures;
+	std::vector<std::unique_ptr<sf::Texture>> SpriteTextures;
 	std::vector<AnimFrame*> SpriteTexturesSortedBySize;
 	std::vector<AnimSet> AnimationSets;
 
