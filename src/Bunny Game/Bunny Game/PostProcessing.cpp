@@ -309,7 +309,7 @@ GenerateLightingSprite* GenerateLightingSpriteFunctions[LightType::LAST] = {
 //#include "Windows.h"
 //#include "Misc.h"
 void DrawLightToLightBuffer(LightType::LightType type, LightParam radius, LightParam brightness, sf::Vector2f position) {
-	if (type == LightType::Flicker) brightness = LightParam(RandFac(255)); //generate at most 256 different possible HD flicker lights and display them basically at random
+	if (type == LightType::Flicker) brightness = LightParam(RandFac(31)); //generate at most 32 different possible HD flicker lights and display them basically at random
 	const LightHash hash = (radius << 0) | (brightness << 8) | (type << 16);
 	if (!LightingSpriteProperties.count(hash)) { //this particular lighting image hasn't been predrawn yet, so draw it before rendering it
 		AnimFrame& frame = LightingSpriteProperties[hash];
