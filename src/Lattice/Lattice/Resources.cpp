@@ -245,8 +245,10 @@ void AnimSet::LoadFromFile(std::ifstream& file)
 	for (int sampleID = 0; sampleID < SampleCount; ++sampleID)
 		LoadSample(sampleData);
 }
-void AnimSet::LoadSample(const sf::Uint8*& sampleData) { //based on https://www.jazz2online.com/soundboard/thread.js and https://www.jazz2online.com/jcf/showpost.php?p=472384&postcount=191
-	unsigned int sfxLength = *(unsigned int*)sampleData; sampleData += sizeof(unsigned int);
+void AnimSet::LoadSample(const sf::Uint8*& samplePointer) { //based on https://www.jazz2online.com/soundboard/thread.js and https://www.jazz2online.com/jcf/showpost.php?p=472384&postcount=191
+	unsigned int sfxLength = *(unsigned int*)samplePointer;
+	const sf::Uint8* sampleData = samplePointer + sizeof(unsigned int);
+	samplePointer += sfxLength;
 	struct {
 		sf::Int8 Magic[4];
 		sf::Uint32 Len;
@@ -296,7 +298,6 @@ void AnimSet::LoadSample(const sf::Uint8*& sampleData) { //based on https://www.
 	mul <<= 7;
 	while (length--)
 		waveHeader.push_back((*sampleData++ ^ mul));
-	sampleData += (RiffInfo.length & 1); //sampledata arrays are padded out to multiples of two, and we need this pointer to be in the right position in case another sample gets loaded after this one
 
 	Samples.emplace_back();
 	Samples.back().loadFromMemory(waveHeader.data(), waveHeader.size());
