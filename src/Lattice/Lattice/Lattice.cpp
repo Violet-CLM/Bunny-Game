@@ -99,6 +99,12 @@ Lattice::Lattice(sf::RenderWindow& window, int argc, char *argv[]) {
 
 int main(int argc, char *argv[])
 {
+#ifdef DEBUG
+	// Redirect errors to a file
+	std::ofstream file("bunnygame-error-log.txt");
+	std::streambuf* previous = sf::err().rdbuf(file.rdbuf());
+#endif
+
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS), "Bunny Game", sf::Style::Titlebar | sf::Style::Close);
 	window.setFramerateLimit(FPS_MAX); //solves all problems now and forever
 
@@ -109,22 +115,29 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < 4; ++i)
 		FullScreenQuadNonFlipped.vertices[i].texCoords = FullScreenQuadNonFlipped.vertices[i].position;
 
-	if (!Hook_Init())
-		return -1;
-	Lattice::ObjectInitializationList = &Hook_GetObjectList();
-	InitPopulateTextureArrays();
-	InitCreateShaders(Shaders, ShaderSources);
-	SpriteMode::Normal = SpriteMode(Shaders[DefaultShaders::Normal], 0);
-	SpriteMode::Paletted = SpriteMode(Shaders[DefaultShaders::Paletted], 0);
+	if (Hook_Init()) {
+		Lattice::ObjectInitializationList = &Hook_GetObjectList();
+		InitPopulateTextureArrays();
+		InitCreateShaders(Shaders, ShaderSources);
+		SpriteMode::Normal = SpriteMode(Shaders[DefaultShaders::Normal], 0);
+		SpriteMode::Paletted = SpriteMode(Shaders[DefaultShaders::Paletted], 0);
 
-	{ //set working directory to application's directory
-		wchar_t applicationDirectory[MAX_PATH]; //http://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
-		std::wstring applicationFilename(applicationDirectory, GetModuleFileName(NULL, applicationDirectory, MAX_PATH));
-		_wchdir(applicationFilename.substr(applicationFilename.find_last_of(L"/\\")).c_str());
+		{ //set working directory to application's directory
+			wchar_t applicationDirectory[MAX_PATH]; //http://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
+			std::wstring applicationFilename(applicationDirectory, GetModuleFileName(NULL, applicationDirectory, MAX_PATH));
+			_wchdir(applicationFilename.substr(applicationFilename.find_last_of(L"/\\")).c_str());
+		}
+
+		Lattice Game(window, argc, argv);
+	
+#ifdef DEBUG
+		// Restore the original error output
+		sf::err().rdbuf(previous);
+#endif
+
+		//_CrtDumpMemoryLeaks();
+		return 0;
 	}
-
-	Lattice Game(window, argc, argv);
-
-	//_CrtDumpMemoryLeaks();
-	return 0;
+	return -1;
+	
 }

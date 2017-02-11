@@ -333,18 +333,25 @@ void SpriteManager::CreateAndAssignTextures() {
 
 	std::sort(SpriteTexturesSortedBySize.begin(), SpriteTexturesSortedBySize.end(), AnimFrame::SortBySize);
 
-	const unsigned int hardwareMaximumTextureSize = sf::Texture::getMaximumSize(); //todo move somewhere else?
+	const unsigned int hardwareMaximumTextureSize = sf::Texture::getMaximumSize();
+	const unsigned int textureWidth = (hardwareMaximumTextureSize > 4096) ? 4096 : hardwareMaximumTextureSize;
+	const unsigned int textureHeight = (hardwareMaximumTextureSize > 2048) ? 2048 : hardwareMaximumTextureSize; //4096x2048 should be enough to hold all the sprites except MAYBE in some very crowded levels? I can investigate if I feel like it.
 	for (auto& it : SpriteTexturesSortedBySize) {
-		if (!it->SmallerThan(hardwareMaximumTextureSize))
+		if (!it->SmallerThan(textureHeight)) {
+			ShowErrorMessageF(L"Cannot render sprite of size %ux%u", it->Width, it->Height);
 			continue; //fail silently?
+		}
 
 		for (unsigned int textureID = 0; ; ++textureID) {
 			while (SpriteTextures.size() <= textureID) { //SpriteTextures and SpriteTrees should always be the same size
 				SpriteTextures.emplace_back();
-				SpriteTextures.back().create(hardwareMaximumTextureSize, hardwareMaximumTextureSize);
+				if (!SpriteTextures.back().create(textureWidth, textureHeight)) {
+					ShowErrorMessage(L"Error while creating new sprite/lighting texture!");
+					//at this point I have no idea what might happen but it might or might not involve crashing
+				}
 
 				SpriteTreeNode* newNode = new SpriteTreeNode;
-				newNode->rectangle = SpriteCoordinateRectangle(0, 0, hardwareMaximumTextureSize, hardwareMaximumTextureSize);
+				newNode->rectangle = SpriteCoordinateRectangle(0, 0, textureWidth, textureHeight);
 				SpriteTrees.push_back(newNode);
 			}
 
@@ -375,7 +382,7 @@ void SpriteManager::Clear() {
 			SpriteTrees[textureID] = nullptr;
 		}
 	
-	//SpriteTextures[0]->copyToImage().saveToFile("C:\\Games\\Jazz2\\SpriteTexture.png");
+	//SpriteTextures[0].copyToImage().saveToFile("C:\\Games\\Jazz2\\SpriteTexture.png");
 }
 SpriteManager::~SpriteManager() {
 	Clear();
