@@ -20,7 +20,7 @@ namespace BunnyPaletteLineNames {
 namespace BunnyShaders {
 	enum {
 		FIRST = DefaultShaders::LAST - 1,
-		Gem,
+		Gem, Palshift,
 		WarpHorizon, Tunnel, MenuBG,
 		ClearAmbientLightingBuffer, BlurAmbientLightingBuffer, ApplyAmbientLightingToVideo, 
 		LAST

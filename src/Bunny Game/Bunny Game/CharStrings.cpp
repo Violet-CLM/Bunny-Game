@@ -1,15 +1,26 @@
 #include "CharStrings.h"
+#include "Lattice.h"
+#include "BunnyShaders.h"
 #include "BunnyMisc.h"
 
 const TtextAppearance TtextAppearance::pureString;
-const TtextAppearance TtextAppearance::defaultNormal(0, 0, true,		ch_DISPLAY, ch_DISPLAY, ch_SPECIAL);
-const TtextAppearance TtextAppearance::defaultDark(0, 0, true,			ch_DISPLAY, ch_DISPLAY, ch_HIDE);
-const TtextAppearance TtextAppearance::defaultRightAlign(0, 0, false,	ch_DISPLAY, ch_DISPLAY, ch_HIDE, align_RIGHT);
-const TtextAppearance TtextAppearance::defaultBounce(0, 1, false,		ch_DISPLAY, ch_DISPLAY, ch_HIDE, align_DEFAULT, 0);
-const TtextAppearance TtextAppearance::defaultSpin(1, 1, false,			ch_SPECIAL, ch_SPECIAL, ch_HIDE);
-const TtextAppearance TtextAppearance::defaultPalShift(0, 0, false,		ch_DISPLAY, ch_DISPLAY, ch_HIDE);
+const TtextAppearance TtextAppearance::defaultNormal(0, 0, 0, true,			ch_DISPLAY, ch_DISPLAY, ch_SPECIAL);
+const TtextAppearance TtextAppearance::defaultDark(0, 0, 0, true,			ch_DISPLAY, ch_DISPLAY, ch_HIDE);
+const TtextAppearance TtextAppearance::defaultRightAlign(0, 0, 0, false,	ch_DISPLAY, ch_DISPLAY, ch_HIDE, align_RIGHT);
+const TtextAppearance TtextAppearance::defaultBounce(0, 1, 16, false,		ch_DISPLAY, ch_DISPLAY, ch_HIDE, align_DEFAULT, 0);
+const TtextAppearance TtextAppearance::defaultSpin(1, 1, 16, false,			ch_SPECIAL, ch_SPECIAL, ch_HIDE);
+const TtextAppearance TtextAppearance::defaultPalShift(0, 0, 0, false,		ch_DISPLAY, ch_DISPLAY, ch_HIDE);
+const TtextAppearance TtextAppearance::defaultMenuSpinFast(1, 1, 16, false,	ch_HIDE, ch_SPECIAL, ch_HIDE, align_DEFAULT, 1, 0, MenuPalShifts);
+const TtextAppearance TtextAppearance::defaultMenuSpinSlow(1, 1, 8, false,	ch_HIDE, ch_SPECIAL, ch_HIDE, align_DEFAULT, 1, 0, MenuPalShifts);
 
-int WriteText(VertexCollectionQueue& sprites, int x,int y, const char* text, const std::vector<AnimFrame>& font, const TtextAppearance& textParams) {
+TtextPalshiftList IngamePalShifts = {
+	sf::Uint8(2 * 8), sf::Uint8(-6 * 8), sf::Uint8(-5 * 8), sf::Uint8(-4 * 8), sf::Uint8(-3 * 8), sf::Uint8(-2 * 8), 0, sf::Uint8(1 * 8)
+};
+TtextPalshiftList MenuPalShifts = {
+	16*0, 16*1, 16*2, 16*3, 16*4, 16*5, 16*6
+};
+
+int WriteText(VertexCollectionQueue& sprites, int x,int y, const char* text, const std::vector<AnimFrame>& font, const TtextAppearance& textParams, unsigned int animationTick) {
 	int textLength = strlen(text);
 	if (textLength <= 0)
 		return x;
@@ -38,17 +49,15 @@ int WriteText(VertexCollectionQueue& sprites, int x,int y, const char* text, con
 	}*/
 	y -= 10;
 	int spacing = textParams.spacing;
-	int xArg = 0;//textParams.xAmp ? animationTick + 256 : 0;
-	int yArg = 0;//textParams.yAmp ? animationTick : 0;
+	animationTick *= textParams.animSpeed;
+	int xArg = textParams.xAmp ? animationTick + 256 : 0;
+	int yArg = textParams.yAmp ? animationTick : 0;
 	bool hashColored = false;
-	bool pipeColored = false;
-	int currentColor = 0;
+	unsigned int currentColor = 0;
 	int frameID = 0;
 	for (int i = 0; i < textLength; i++) {
-		if (textParams.xAmp)
-			xArg += 16 * frameID;
-		if (textParams.yAmp)
-			yArg += 8 * frameID;
+		xArg += int(16 * textParams.xAmp * frameID);
+		yArg += int(8 * textParams.yAmp * frameID);
 		int realFrameID = frameID = (unsigned char)text[i] - 32;
 		switch (text[i]) {
 			case ' ':
@@ -81,41 +90,26 @@ int WriteText(VertexCollectionQueue& sprites, int x,int y, const char* text, con
 				break;
 			case '|':
 				if (textParams.pipe == TtextAppearance::ch_SPECIAL) {
-					if (pipeColored) {
-						currentColor += 8;
-						if (currentColor > 2*8)
-							currentColor = -6*8;
-						else if (currentColor == -1*8)
-							currentColor = 0*8;
-					} else {
-						pipeColored = true;
-						currentColor = -6*8;
-					}
+					++currentColor;
 					continue;
 				}
 				if (textParams.pipe == TtextAppearance::ch_HIDE)
 					realFrameID = 0;
 				break;
 		}
-		if (hashColored) {
-			currentColor += 8;
-			if (currentColor > 16)
-				currentColor = -48;
-			if (currentColor == -8)
-				currentColor = 0;
-		}
+		if (hashColored)
+			++currentColor;
 		if (realFrameID < 0)
 			realFrameID = 0;
 		const auto& frame = font[realFrameID];
 		if (frame.Width) {
-			/*if (inverseAmplitude) {
-				if (textParams.xAmp)
-					xUlt += sinTable(xArg) * textParams.xAmp / inverseAmplitude;
-				if (textParams.yAmp)
-					yUlt += sinTable(yArg) * textParams.yAmp / inverseAmplitude;
-			}*/
-			//sf::Uint8 paramUlt = (spriteParam + currentColor) & 255;
-			sprites.AppendSprite(SpriteMode::Paletted, x,y, frame);
+			auto xUlt = x, yUlt = y;
+			if (textParams.animSpeed) {
+				const auto inverseAmplitude = 0xC000 - (textParams.animSpeed << 11);
+				xUlt += int(textParams.xAmp * sinTable(xArg) * 65536 / inverseAmplitude);
+				yUlt += int(textParams.yAmp * sinTable(yArg) * 65536 / inverseAmplitude);
+			}
+			sprites.AppendSprite(SpriteMode(Shaders[BunnyShaders::Palshift], textParams.spriteParam + (!currentColor ? 0 : textParams.spriteParams[currentColor % textParams.spriteParams.size()])), xUlt,yUlt, frame);
 			x += spacing + frame.Width;
 		}
 	}
