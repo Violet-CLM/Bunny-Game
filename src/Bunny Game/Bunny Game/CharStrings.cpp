@@ -4,14 +4,15 @@
 #include "BunnyMisc.h"
 
 const TtextAppearance TtextAppearance::pureString;
-const TtextAppearance TtextAppearance::defaultNormal(0, 0, 0, true,			ch_DISPLAY, ch_DISPLAY, ch_SPECIAL);
-const TtextAppearance TtextAppearance::defaultDark(0, 0, 0, true,			ch_DISPLAY, ch_DISPLAY, ch_HIDE);
-const TtextAppearance TtextAppearance::defaultRightAlign(0, 0, 0, false,	ch_DISPLAY, ch_DISPLAY, ch_HIDE, align_RIGHT);
-const TtextAppearance TtextAppearance::defaultBounce(0, 1, 16, false,		ch_DISPLAY, ch_DISPLAY, ch_HIDE, align_DEFAULT, 0);
-const TtextAppearance TtextAppearance::defaultSpin(1, 1, 16, false,			ch_SPECIAL, ch_SPECIAL, ch_HIDE);
-const TtextAppearance TtextAppearance::defaultPalShift(0, 0, 0, false,		ch_DISPLAY, ch_DISPLAY, ch_HIDE);
-const TtextAppearance TtextAppearance::defaultMenuSpinFast(1, 1, 16, false,	ch_HIDE, ch_SPECIAL, ch_HIDE, align_DEFAULT, 1, 0, MenuPalShifts);
-const TtextAppearance TtextAppearance::defaultMenuSpinSlow(1, 1, 8, false,	ch_HIDE, ch_SPECIAL, ch_HIDE, align_DEFAULT, 1, 0, MenuPalShifts);
+const TtextAppearance TtextAppearance::defaultNormal(0, 0, 0,-1, true,					ch_DISPLAY, ch_DISPLAY, ch_SPECIAL);
+const TtextAppearance TtextAppearance::defaultDark(0, 0, 0,-1, true,					ch_DISPLAY, ch_DISPLAY, ch_HIDE);
+const TtextAppearance TtextAppearance::defaultRightAlign(0, 0, 0,-1, false,				ch_DISPLAY, ch_DISPLAY, ch_HIDE, align_RIGHT);
+const TtextAppearance TtextAppearance::defaultBounce(0, 1, 16,-1, false,				ch_DISPLAY, ch_DISPLAY, ch_HIDE, align_DEFAULT, 0);
+const TtextAppearance TtextAppearance::defaultSpin(1, 1, 16,-1, false,					ch_SPECIAL, ch_SPECIAL, ch_HIDE);
+const TtextAppearance TtextAppearance::defaultPalShift(0, 0, 0,-1, false,				ch_DISPLAY, ch_DISPLAY, ch_HIDE);
+const TtextAppearance TtextAppearance::defaultMenuSpinFast(1, 1, 16,-1, false,			ch_HIDE, ch_SPECIAL, ch_HIDE, align_DEFAULT, 1, 0, MenuPalShifts);
+const TtextAppearance TtextAppearance::defaultMenuSpinSlow(1, 1, 8,-1, false,			ch_HIDE, ch_SPECIAL, ch_HIDE, align_DEFAULT, 1, 0, MenuPalShifts);
+const TtextAppearance TtextAppearance::defaultMenuScreenTitle(1, 1, 16,0x8000, false,	ch_HIDE, ch_SPECIAL, ch_HIDE, align_DEFAULT, 1, 0, MenuPalShifts);
 
 const TtextPalshiftList IngamePalShifts = {
 	sf::Uint8(2 * 8), sf::Uint8(-6 * 8), sf::Uint8(-5 * 8), sf::Uint8(-4 * 8), sf::Uint8(-3 * 8), sf::Uint8(-2 * 8), 0, sf::Uint8(1 * 8)

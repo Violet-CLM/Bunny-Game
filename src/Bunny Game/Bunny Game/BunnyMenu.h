@@ -13,6 +13,7 @@ class BunnyMenu : public Stage {
 	SpriteMode ShadowMode;
 	WriteCharacter writeCharFunc;
 	const std::vector<AnimFrame>* Fonts[2];
+	const AnimFrame* Logo;
 	unsigned int GameTicks = 0;
 
 	std::array<DataTarget, BunnyMenuTextureIDs::LAST> DataTargets;

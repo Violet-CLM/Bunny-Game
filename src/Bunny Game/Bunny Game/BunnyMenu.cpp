@@ -70,6 +70,7 @@ BunnyMenu::BunnyMenu() {
 		const AnimSet& fontSet = GetAnimSet(GetVersionSpecificAnimationID(AnimSets::MenuFont));
 		for (int i = 0; i < 2; ++i)
 			Fonts[i] = fontSet.Animations[i ^ 1].AnimFrames.get();
+		Logo = fontSet.Animations[2].AnimFrames.get()->data();
 	}
 
 	ShadowMode = SpriteMode(Shaders[BunnyShaders::Shadow], 0);
@@ -86,6 +87,11 @@ void BunnyMenu::Update(const KeyStates& keys) { //todo obviously
 	Sprites.Clear();
 
 	++GameTicks;
+	
+	ShadowSprites.AppendSprite(ShadowMode, 7,7, *Logo);
+	Sprites.AppendSprite(SpriteMode::Paletted, -1,-1, *Logo);
+
+	WriteText(writeCharFunc, TtextAppearance::DefaultRightAlign, WINDOW_HEIGHT_PIXELS - 11, "#Menu System", *Fonts[1], TtextAppearance::defaultMenuScreenTitle, GameTicks);
 
 	WriteText(writeCharFunc, TtextAppearance::DefaultCenterAlign, 210, "#Bunny Game", *Fonts[1], TtextAppearance::defaultMenuSpinFast, GameTicks);
 	WriteText(writeCharFunc, TtextAppearance::DefaultCenterAlign, 270, "Press Enter to begin", *Fonts[0], TtextAppearance::defaultMenuSpinSlow, GameTicks);
