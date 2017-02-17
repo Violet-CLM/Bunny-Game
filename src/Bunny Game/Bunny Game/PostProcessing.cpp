@@ -81,6 +81,23 @@ void Hook_LevelMain(Level& level, unsigned int GameTicks) {
 	//for (const auto& play : Players) if (play.Object != nullptr) {
 		const auto& playerObject = *play.Object;
 
+		if (playerObject.HelpStringCounter < 0) {
+			const auto result = playerObject.HelpStringCounter + 6*AISPEED;
+			int x = TtextAppearance::DefaultCenterAlign;
+			static TtextAppearance helpStringAppearance(TtextAppearance::defaultSpin);
+			if (result >= AISPEED) {
+				if (result >= 5*AISPEED) { //fade out
+					x -= (playerObject.HelpStringCounter + AISPEED) * (playerObject.HelpStringCounter + AISPEED) / 20;
+					helpStringAppearance.inverseAmplitude = 0x8000 - 220 * (playerObject.HelpStringCounter + AISPEED);
+				} else
+					helpStringAppearance.inverseAmplitude = 0x8000;
+			} else { //fade in
+				x += (AISPEED - result) * (AISPEED - result) / 20;
+				helpStringAppearance.inverseAmplitude = 0x8000 - 220 * (AISPEED - result);
+			}
+			WriteText(HUD, x,10, playerObject.HelpString, smallFont, helpStringAppearance, GameTicks);
+		}
+
 		{ //score
 			/*
 			int scoreDiff = play->score - play->lastScoreDisplay;

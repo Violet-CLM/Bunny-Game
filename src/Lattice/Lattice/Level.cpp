@@ -117,7 +117,9 @@ bool Level::ProcessLevelData() //called after Open()
 	NextLevel = WStringFromCharArray(data1Ptr);
 	data1Ptr += FILE_NAMEFIELDLENGTH * 2; //skip over SecretLevel
 	Music = WStringFromCharArray(data1Ptr);
-	data1Ptr += FILE_NAMEFIELDLENGTH + LEVEL_HELPSTRINGCOUNT * LEVEL_HELPSTRINGLENGTH;
+	data1Ptr += FILE_NAMEFIELDLENGTH;
+	memcpy(HelpStrings, data1Ptr, sizeof(HelpStrings));
+	data1Ptr += sizeof(HelpStrings);
 
 	for (int layerID = 0; layerID < LEVEL_LAYERCOUNT; ++layerID) {
 		new(&Layers[layerID]) Layer(this, data1Ptr, data3Ptr, data4Ptr, layerID);

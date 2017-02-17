@@ -1591,69 +1591,16 @@ void Bunny::DoZoneDetection(Event& curEvent, unsigned int gameTicks)
 {
 	const int currentTilePosition = (int(PositionX / TILEWIDTH) << 16) | int(PositionY / TILEHEIGHT);
 	switch (curEvent.ID) {
-	/*case aTEXT:
-		if (curEvent.GetParameter(9, 1)) { // AngelScript function!
-			if (lastTilePosition != currentTilePosition) {
-				if (AllowLocallyEnactedAdditions() && ASengine && scriptFileIsProperlyFormatted) {
-					Word8 fID = curEvent.GetParameter(0, 8);
-					if (!getBoolValueAtIndex(ASnumberedfunctionsaredisabled, fID)) {
-						if (ASnumberedfunctionpointers[fID]) {
-							ASctx->Prepare(ASnumberedfunctionpointers[fID]);
-							if (getBoolValueAtIndex(ASnumberedfunctionstakeparameters, fID)) {
-								if (ASnumberedfunctionpointers[fID]->GetParamCount() == 2) {
-									ASctx->SetArgObject(0, play);
-									ASctx->SetArgByte(1, curEvent.GetParameter(10, 8));
-								}
-								else {
-									ASctx->SetArgByte(0, curEvent.GetParameter(10, 8));
-									setASplayer(playerID);
-								}
-							}
-							else if (ASnumberedfunctionpointers[fID]->GetParamCount() == 1)
-								ASctx->SetArgObject(0, play);
-							else setASplayer(playerID);
-							if (ASctx->Execute() == asEXECUTION_EXCEPTION)
-								AngelEcho(sprintf_z("ANGELSCRIPT: An exception '%s' occurred. Please correct the code and try again.", ASctx->GetExceptionString()));
-							ASctx->Unprepare();
-							if (curEvent.GetParameter(8, 1)) //disable
-								setBoolValueAtIndexToTrue(ASnumberedfunctionsaredisabled, fID);
-						}
-						else
-							AngelEcho(sprintf_z("ANGELSCRIPT: The script must have a function 'onFunction%d'. Please add it and try again.", fID));
-					}
-				}
-				else if (NetGlobals->isServer)
-					CommandEcho("|AngelScript will not run if Plus Only and Latest Version Only aren't turned on!");
-			}
-		}
-		else { // display help string, the normal behavior
-			Tdisplay* display = &display[FindEmptyMessage(playerID, 6)];
-			calc = curEvent.GetParameter(0, 8);
-			int bx;
-			if (bx = curEvent.GetParameter(10, 8)) calc |= bx << 8 | localPlayerID << 16;
-			if (display->state == 6 && display->var1 == calc) {
-				break;
-			}
-
-			display->state = 6;
-			display->counter = -6 * AISPEED;
-			display->var1 = calc;
-			display->PositionX = 0; //small
-			if (bx) { // offset
-				strcpy(
-					playerHelpStrings[localPlayerID],
-					GetStringFromSplitAndOffset(
-						'|',
-						LevelGlobals->helpString[calc & 15], bx
-					).c_str()
-				);
-			}
-			if (curEvent.GetParameter(8, 1)) { //vanish
-				MySetEvent(px, py, 0);
-			}
-		}
-
-		break;*/
+	case EventIDs::TEXT: {
+		const char* const str = HostLevel.HelpStrings[curEvent.GetParameter(0, 4)];
+		if (str == HelpString && HelpStringCounter < 0)
+			break;
+		HelpString = str;
+		HelpStringCounter = -6*AISPEED;
+		if (curEvent.GetParameter(8, 1)) //vanish
+			curEvent.ID = 0;
+		break;
+	}
 
 	/*case aWATERBLOCK:
 		if (lastEvent != aWATERBLOCK) {
@@ -3249,6 +3196,8 @@ void Bunny::Behave(GameState& gameState)
 			LowerToZero(TraceLength);
 		}
 	}
+
+	++HelpStringCounter;
 }
 void Bunny::Draw(Layer* layers) const {
 	if (!flicker || ((long long)(getCurrentTime()) & 64))

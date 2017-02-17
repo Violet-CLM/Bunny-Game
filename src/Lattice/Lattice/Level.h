@@ -75,6 +75,7 @@ public:
 	Tileset* TilesetPtr;
 	std::wstring NextLevel;
 	std::wstring Music;
+	char HelpStrings[LEVEL_HELPSTRINGCOUNT][LEVEL_HELPSTRINGLENGTH];
 
 	quad QuadsPerTile[MAX_TILES]; //todo wrap this more
 	Layer Layers[LEVEL_LAYERCOUNT];

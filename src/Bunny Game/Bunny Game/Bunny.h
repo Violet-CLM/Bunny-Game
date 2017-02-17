@@ -94,5 +94,6 @@ public:
 
 	int Health;
 	int freeze, invincibility, fly, fireType;
+	const char* HelpString; int HelpStringCounter = 0;
 	Player PlayerProperties;
 };

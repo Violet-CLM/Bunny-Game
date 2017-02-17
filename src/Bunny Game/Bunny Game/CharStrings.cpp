@@ -13,18 +13,61 @@ const TtextAppearance TtextAppearance::defaultPalShift(0, 0, 0, false,		ch_DISPL
 const TtextAppearance TtextAppearance::defaultMenuSpinFast(1, 1, 16, false,	ch_HIDE, ch_SPECIAL, ch_HIDE, align_DEFAULT, 1, 0, MenuPalShifts);
 const TtextAppearance TtextAppearance::defaultMenuSpinSlow(1, 1, 8, false,	ch_HIDE, ch_SPECIAL, ch_HIDE, align_DEFAULT, 1, 0, MenuPalShifts);
 
-TtextPalshiftList IngamePalShifts = {
+const TtextPalshiftList IngamePalShifts = {
 	sf::Uint8(2 * 8), sf::Uint8(-6 * 8), sf::Uint8(-5 * 8), sf::Uint8(-4 * 8), sf::Uint8(-3 * 8), sf::Uint8(-2 * 8), 0, sf::Uint8(1 * 8)
 };
-TtextPalshiftList MenuPalShifts = {
+const TtextPalshiftList MenuPalShifts = {
 	16*0, 16*1, 16*2, 16*3, 16*4, 16*5, 16*6
 };
 
-int WriteText(VertexCollectionQueue& sprites, int x,int y, const char* text, const std::vector<AnimFrame>& font, const TtextAppearance& textParams, unsigned int animationTick) {
+int getTextWidth(const char* text, FontAnim& font, const TtextAppearance& textParams) {
+	const int spaceWidth = textParams.xAmp ? 15 : (textParams.yAmp? 16 : 7);
+	int currentLineWidth = 0;
+	int longestLineWidth = 0;
+	int spacing = textParams.spacing;
+	for (; *text; ++text) {
+		int frameID = *text - 32;
+		switch (*text) {
+			case ' ':
+				currentLineWidth += spacing + spaceWidth;
+				continue;
+			case '§':
+				spacing = 48 - (unsigned char)*++text;
+				continue;
+			case '#':
+				if (textParams.hash == TtextAppearance::ch_SPECIAL)
+					continue;
+				if (textParams.hash == TtextAppearance::ch_HIDE)
+					frameID = 0;
+				break;
+			case '@':
+				if (textParams.at == TtextAppearance::ch_SPECIAL) {
+					if (currentLineWidth > longestLineWidth)
+						longestLineWidth = currentLineWidth;
+					currentLineWidth = 0;
+					continue;
+				}
+				if (textParams.at == TtextAppearance::ch_HIDE)
+					frameID = 0;
+				break;
+			case '|':
+				if (textParams.pipe == TtextAppearance::ch_SPECIAL)
+					continue;
+				if (textParams.pipe == TtextAppearance::ch_HIDE)
+					frameID = 0;
+				break;
+		}
+		if (frameID < 0)
+			frameID = 0;
+		currentLineWidth += spacing + font[frameID].Width;
+	}
+	return std::max(currentLineWidth, longestLineWidth);
+}
+int WriteText(VertexCollectionQueue& sprites, int x,int y, const char* text, FontAnim& font, const TtextAppearance& textParams, unsigned int animationTick) {
 	int textLength = strlen(text);
 	if (textLength <= 0)
 		return x;
-	const int spaceWidth = textParams.xAmp ? (font[28].Width - 2) : (textParams.yAmp? 16 : 7);
+	const int spaceWidth = textParams.xAmp ? 15 : (textParams.yAmp? 16 : 7);
 	const int newlineHeight = font[1].Height * 5 / 3;
 	if (text[0] == '#' && textParams.skipInitialHash) {
 		if (--textLength == 0)
@@ -32,21 +75,13 @@ int WriteText(VertexCollectionQueue& sprites, int x,int y, const char* text, con
 		text++;
 	}
 	int initialXPos = x;
-	/*if (textParams.align != TtextAppearance::align_LEFT) {
-		const int textWidth = getTextWidth(text, anim, textParams);
-		if (textParams.align == TtextAppearance::align_CENTER) {
-			x -= getTextLineWidth(text, anim, textParams) / 2;
-		} else {
-			if (textParams.align == TtextAppearance::align_RIGHT) {
-				x -= getTextLineWidth(text, anim, textParams);
-			} else if (x > 0x4000) {
-				if (x < 0x10000)
-					initialXPos = x = x + *screenWidth / 2 - textWidth / 2 - 0x8000;
-				else
-					initialXPos = x = *screenWidth - textWidth - x + 0x10000 - (textParams.xAmp ? 8 : 0);
-			}
-		}
-	}*/
+	if (x > 0x4000) {
+		const int textWidth = getTextWidth(text, font, textParams);
+		if (x < 0x10000)
+			initialXPos = x += WINDOW_WIDTH_PIXELS / 2 - textWidth / 2 - TtextAppearance::DefaultCenterAlign;
+		else
+			initialXPos = x = WINDOW_WIDTH_PIXELS - textWidth - x + TtextAppearance::DefaultRightAlign - (textParams.xAmp ? 8 : 0);
+	}
 	y -= 10;
 	int spacing = textParams.spacing;
 	animationTick *= textParams.animSpeed;
@@ -105,9 +140,8 @@ int WriteText(VertexCollectionQueue& sprites, int x,int y, const char* text, con
 		if (frame.Width) {
 			auto xUlt = x, yUlt = y;
 			if (textParams.animSpeed) {
-				const auto inverseAmplitude = 0xC000 - (textParams.animSpeed << 11);
-				xUlt += int(textParams.xAmp * sinTable(xArg) * 65536 / inverseAmplitude);
-				yUlt += int(textParams.yAmp * sinTable(yArg) * 65536 / inverseAmplitude);
+				xUlt += int(textParams.xAmp * sinTable(xArg) * 65536 / textParams.inverseAmplitude);
+				yUlt += int(textParams.yAmp * sinTable(yArg) * 65536 / textParams.inverseAmplitude);
 			}
 			sprites.AppendSprite(SpriteMode(Shaders[BunnyShaders::Palshift], textParams.spriteParam + (!currentColor ? 0 : textParams.spriteParams[currentColor % textParams.spriteParams.size()])), xUlt,yUlt, frame);
 			x += spacing + frame.Width;
