@@ -30,6 +30,13 @@ void WriteBunnyShaders() {
 			vec4 pixel = texture2D(tables, vec2(mod(index.r + param, 1.0), 0)); \
 			gl_FragColor = vec4(pixel.r, pixel.g, pixel.b, index.a);\
 		}",
+	//BunnyShaders::Shadow
+		"uniform sampler2D texture;\
+		\
+		void main(void)\
+		{\
+			gl_FragColor = vec4(0,0,0, texture2D(texture, gl_TexCoord[0].xy).a / 2.0);\
+		}",
 	//BunnyShaders::WarpHorizon
 		sprintf_z(
 			"uniform sampler2D texture256;\

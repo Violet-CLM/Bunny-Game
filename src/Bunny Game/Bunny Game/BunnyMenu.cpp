@@ -1,6 +1,5 @@
 #include "BunnyMenu.h"
 #include "BunnyMisc.h"
-#include "BunnyShaders.h"
 #include "BunnyObjectList.h"
 #include "BunnyVersionDependentStuff.h"
 #include "PostProcessing.h"
@@ -72,10 +71,18 @@ BunnyMenu::BunnyMenu() {
 		for (int i = 0; i < 2; ++i)
 			Fonts[i] = fontSet.Animations[i ^ 1].AnimFrames.get();
 	}
+
+	ShadowMode = SpriteMode(Shaders[BunnyShaders::Shadow], 0);
+	writeCharFunc = [this](const AnimFrame& frame, sf::Uint8 spriteParam, int x, int y) {
+		//todo alter position somehow based on menu transitions
+		ShadowSprites.AppendSprite(ShadowMode, x, y+4, frame);
+		Sprites.AppendSprite(SpriteMode(Shaders[BunnyShaders::Palshift], spriteParam), x,y, frame); //standard behavior
+	};
 }
 
 void BunnyMenu::Update(const KeyStates& keys) { //todo obviously
 	LightingSprites.Clear();
+	ShadowSprites.Clear();
 	Sprites.Clear();
 
 	++GameTicks;
@@ -91,5 +98,6 @@ void BunnyMenu::Update(const KeyStates& keys) { //todo obviously
 
 void BunnyMenu::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 	DrawMenuBG(target);
+	target.draw(ShadowSprites, states);
 	target.draw(Sprites, states);
 }
