@@ -20,6 +20,12 @@ const TtextPalshiftList MenuPalShifts = {
 	16*0, 16*1, 16*2, 16*3, 16*4, 16*5, 16*6
 };
 
+WriteCharacter GetWriteCharacterFunction(VertexCollectionQueue& sprites) {
+	return [&sprites](const AnimFrame& frame, sf::Uint8 spriteParam, int x, int y) {
+		sprites.AppendSprite(SpriteMode(Shaders[BunnyShaders::Palshift], spriteParam), x,y, frame);
+	};
+}
+
 int getTextWidth(const char* text, FontAnim& font, const TtextAppearance& textParams) {
 	const int spaceWidth = textParams.xAmp ? 15 : (textParams.yAmp? 16 : 7);
 	int currentLineWidth = 0;
@@ -63,7 +69,7 @@ int getTextWidth(const char* text, FontAnim& font, const TtextAppearance& textPa
 	}
 	return std::max(currentLineWidth, longestLineWidth);
 }
-int WriteText(VertexCollectionQueue& sprites, int x,int y, const char* text, FontAnim& font, const TtextAppearance& textParams, unsigned int animationTick) {
+int WriteText(WriteCharacter& writeChar, int x,int y, const char* text, FontAnim& font, const TtextAppearance& textParams, unsigned int animationTick) {
 	int textLength = strlen(text);
 	if (textLength <= 0)
 		return x;
@@ -143,7 +149,7 @@ int WriteText(VertexCollectionQueue& sprites, int x,int y, const char* text, Fon
 				xUlt += int(textParams.xAmp * sinTable(xArg) * 65536 / textParams.inverseAmplitude);
 				yUlt += int(textParams.yAmp * sinTable(yArg) * 65536 / textParams.inverseAmplitude);
 			}
-			sprites.AppendSprite(SpriteMode(Shaders[BunnyShaders::Palshift], textParams.spriteParam + (!currentColor ? 0 : textParams.spriteParams[currentColor % textParams.spriteParams.size()])), xUlt,yUlt, frame);
+			writeChar(frame, textParams.spriteParam + (!currentColor ? 0 : textParams.spriteParams[currentColor % textParams.spriteParams.size()]), xUlt,yUlt);
 			x += spacing + frame.Width;
 		}
 	}

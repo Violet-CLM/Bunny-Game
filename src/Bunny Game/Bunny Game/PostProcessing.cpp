@@ -76,6 +76,7 @@ void Hook_LevelMain(Level& level, unsigned int GameTicks) {
 	const std::vector<AnimFrame>& smallFont = *fontSet.Animations[1].AnimFrames;
 	
 	char buffer[16];
+	WriteCharacter writeCharToHUD = GetWriteCharacterFunction(HUD);
 
 	const auto& play = Players[0]; //no splitscreen support at present
 	//for (const auto& play : Players) if (play.Object != nullptr) {
@@ -95,7 +96,7 @@ void Hook_LevelMain(Level& level, unsigned int GameTicks) {
 				x += (AISPEED - result) * (AISPEED - result) / 20;
 				helpStringAppearance.inverseAmplitude = 0x8000 - 220 * (AISPEED - result);
 			}
-			WriteText(HUD, x,10, playerObject.HelpString, smallFont, helpStringAppearance, GameTicks);
+			WriteText(writeCharToHUD, x,10, playerObject.HelpString, smallFont, helpStringAppearance, GameTicks);
 		}
 
 		{ //score
@@ -112,7 +113,7 @@ void Hook_LevelMain(Level& level, unsigned int GameTicks) {
 			}
 			*/
 			sprintf_s(buffer, "%07d", playerObject.PlayerProperties.Score);
-			WriteText(HUD, 4, 12, buffer, hm.smallerFont);
+			WriteText(writeCharToHUD, 4, 12, buffer, hm.smallerFont);
 		}
 
 		{ //health
@@ -124,7 +125,7 @@ void Hook_LevelMain(Level& level, unsigned int GameTicks) {
 		{ //lives
 			HUD.AppendSprite(SpriteMode::Paletted, 0, WINDOW_HEIGHT_PIXELS, level.spriteManager.GetFrameLimited(GetVersionSpecificAnimationID(AnimSets::Faces), 3 + playerObject.PlayerProperties.CharacterIndex, GameTicks / 6));
 			sprintf_s(buffer, "x%u", playerObject.PlayerProperties.Lives);
-			WriteText(HUD, 32, WINDOW_HEIGHT_PIXELS - hm.lineHeight - 4, buffer, hm.smallerFont);
+			WriteText(writeCharToHUD, 32, WINDOW_HEIGHT_PIXELS - hm.lineHeight - 4, buffer, hm.smallerFont);
 		}
 
 		{ //ammo
@@ -158,7 +159,7 @@ void Hook_LevelMain(Level& level, unsigned int GameTicks) {
 				) ammo >>= 5;
 					sprintf_s(buffer, "x%u", ammo);
 			}
-			WriteText(HUD, ammo_xPos, ammo_yPos, buffer, hm.smallerFont);
+			WriteText(writeCharToHUD, ammo_xPos, ammo_yPos, buffer, hm.smallerFont);
 		}
 
 #ifdef SHOW_FPS

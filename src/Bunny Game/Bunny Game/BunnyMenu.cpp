@@ -3,7 +3,6 @@
 #include "BunnyShaders.h"
 #include "BunnyObjectList.h"
 #include "BunnyVersionDependentStuff.h"
-#include "CharStrings.h"
 #include "PostProcessing.h"
 
 void AssignImagesToMenuShader(const std::array<sf::Texture, BunnyMenuTextureIDs::LAST>& Textures) {
@@ -81,8 +80,8 @@ void BunnyMenu::Update(const KeyStates& keys) { //todo obviously
 
 	++GameTicks;
 
-	WriteText(Sprites, 236, 210, "#Bunny Game", *Fonts[1], TtextAppearance::defaultMenuSpinFast, GameTicks);
-	WriteText(Sprites, 214, 270, "Press Enter to begin", *Fonts[0], TtextAppearance::defaultMenuSpinSlow, GameTicks);
+	WriteText(writeCharFunc, TtextAppearance::DefaultCenterAlign, 210, "#Bunny Game", *Fonts[1], TtextAppearance::defaultMenuSpinFast, GameTicks);
+	WriteText(writeCharFunc, TtextAppearance::DefaultCenterAlign, 270, "Press Enter to begin", *Fonts[0], TtextAppearance::defaultMenuSpinSlow, GameTicks);
 	DrawLightToLightBuffer(LightType::Ring, 150, 68, sf::Vector2f(WINDOW_WIDTH_PIXELS / 2, WINDOW_HEIGHT_PIXELS / 2));
 
 	if (keys.KeyPressed(sf::Keyboard::Return)) {

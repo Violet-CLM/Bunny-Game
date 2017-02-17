@@ -1,9 +1,13 @@
 #pragma once
+#include <functional>
 #include "Resources.h"
 
 typedef const std::vector<sf::Uint8> TtextPalshiftList;
 typedef const std::vector<AnimFrame> FontAnim;
 extern const TtextPalshiftList IngamePalShifts, MenuPalShifts;
+
+typedef std::function<void(const AnimFrame&, sf::Uint8, int, int)> WriteCharacter;
+WriteCharacter GetWriteCharacterFunction(VertexCollectionQueue&);
 
 struct TtextAppearance {
 	static const TtextAppearance pureString, defaultNormal, defaultDark, defaultRightAlign, defaultBounce, defaultSpin, defaultPalShift, defaultMenuSpinFast, defaultMenuSpinSlow;
@@ -25,4 +29,4 @@ struct TtextAppearance {
 		: xAmp(xAmp), yAmp(yAmp), animSpeed(animSpeed), inverseAmplitude(0xC000 - (animSpeed << 11)), skipInitialHash(skipInitialHash), at(at), hash(hash), pipe(pipe), align(align), spacing(spacing), spriteParam(spriteParam), spriteParams(spriteParams) { }
 };
 
-int WriteText(VertexCollectionQueue& sprites, int x, int y, const char* text, FontAnim& font, const TtextAppearance& textParams = TtextAppearance::defaultNormal, unsigned int animationTick = 0);
+int WriteText(WriteCharacter& writeChar, int x, int y, const char* text, FontAnim& font, const TtextAppearance& textParams = TtextAppearance::defaultNormal, unsigned int animationTick = 0);
