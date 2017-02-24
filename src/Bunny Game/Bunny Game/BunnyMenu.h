@@ -23,8 +23,8 @@ class MenuScreen {
 protected:
 	int SelectedItem = 0, ItemCount;
 	//void MoveSelectionUpOrDown();
-	//static const TtextAppearance& GetAnimatedness(bool);
-	//const TtextAppearance& GetAnimatedness(int) const;
+	static const TtextAppearance& GetAnimatedness(bool);
+	const TtextAppearance& GetAnimatedness(int) const;
 	MenuScreen(const char* t = nullptr, int ic = 0) : ItemCount(ic), Title(t) {}
 public:
 	const char* Title;
@@ -54,9 +54,9 @@ public:
 	BunnyMenu();
 };
 
-class DummyMenu : public MenuScreen {
+class RootMenu : public MenuScreen {
 	void Draw(MenuStrings&) const override;
 	MenuScreen* Behave(const KeyStates&) override;
 public:
-	DummyMenu();
+	RootMenu(int startItem = 0);
 };

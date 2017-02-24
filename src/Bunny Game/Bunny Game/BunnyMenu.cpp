@@ -80,7 +80,7 @@ BunnyMenu::BunnyMenu() {
 		Sprites.AppendSprite(SpriteMode(Shaders[BunnyShaders::Palshift], spriteParam), x,y, frame); //standard behavior
 	};
 
-	Screen.reset(new DummyMenu()); //todo
+	Screen.reset(new RootMenu());
 }
 
 void BunnyMenu::Update(const KeyStates& keys) {
@@ -117,23 +117,39 @@ void BunnyMenu::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 
+const TtextAppearance& MenuScreen::GetAnimatedness(bool yes) {
+	return yes ? TtextAppearance::defaultMenuSpinFast : TtextAppearance::defaultNormal;
+}
+const TtextAppearance& MenuScreen::GetAnimatedness(int i) const {
+	return GetAnimatedness(i == SelectedItem);
+}
 void MenuString::Draw(const WriteCharacter& WriteCharFunc, const std::vector<AnimFrame>** Fonts, unsigned int GameTicks) const {
 	WriteText(WriteCharFunc, xPos,yPos, Text.c_str(), *Fonts[large], appearance, GameTicks);
 }
 
 
-DummyMenu::DummyMenu() : MenuScreen("#Menu System") {}
-void DummyMenu::Draw(MenuStrings& strings) const {
-	strings.emplace_back( TtextAppearance::DefaultCenterAlign, 210, "#Bunny Game", TtextAppearance::defaultMenuSpinFast, true);
-	strings.emplace_back( TtextAppearance::DefaultCenterAlign, 270, "Press Enter to begin", TtextAppearance::defaultMenuSpinSlow, false);
-
-	DrawLightToLightBuffer(LightType::Ring, 150, 68, sf::Vector2f(WINDOW_WIDTH_PIXELS / 2, WINDOW_HEIGHT_PIXELS / 2));
+RootMenu::RootMenu(int startItem) : MenuScreen("#Main Menu", 5) {
+	//MenuGlobals->menuLightCount = 2;
+	//GeneralGlobals->menuGlowStyle1 = 0;
+	//GeneralGlobals->menuGlowStyle2 = 0;
+	SelectedItem = startItem;
 }
+const char* RootMenuStrings[] = {"#New Game", "#Load Game", "#Options", "#High Scores", "#Quit"};
+void RootMenu::Draw(MenuStrings& strings) const {
+	const int distanceBetweenMenuitems = 22 * WINDOW_HEIGHT_PIXELS / 200;
+	int menuYPos = 60 * WINDOW_HEIGHT_PIXELS / 200 - distanceBetweenMenuitems;
+	for (int i = 0; i < ItemCount; ++i) {
+		strings.emplace_back(TtextAppearance::DefaultCenterAlign, menuYPos += distanceBetweenMenuitems, RootMenuStrings[i], GetAnimatedness(i), true);
+		//if (SelectedItem == i)
+			//GeneralGlobals->menuGlowYPos = menuYPos << FIXFAC;
+	}
+	strings.emplace_back(0, WINDOW_HEIGHT_PIXELS - 6, "1.00", TtextAppearance::defaultMenuSpinSlow, false); //todo base this line on some value somewhere
 
-MenuScreen* DummyMenu::Behave(const KeyStates& keys) {
+	//GeneralGlobals->menuGlowXPos = *screenWidth << 15;
+}
+MenuScreen* RootMenu::Behave(const KeyStates& keys) {
 	if (keys.KeyPressed(sf::Keyboard::Return)) {
 		return nullptr;
 	}
 	return this; //normal return
 }
-
