@@ -70,7 +70,7 @@ int getTextWidth(const char* text, FontAnim& font, const TtextAppearance& textPa
 	}
 	return std::max(currentLineWidth, longestLineWidth);
 }
-int WriteText(WriteCharacter& writeChar, int x,int y, const char* text, FontAnim& font, const TtextAppearance& textParams, unsigned int animationTick) {
+int WriteText(const WriteCharacter& writeChar, int x,int y, const char* text, FontAnim& font, const TtextAppearance& textParams, unsigned int animationTick) {
 	int textLength = strlen(text);
 	if (textLength <= 0)
 		return x;

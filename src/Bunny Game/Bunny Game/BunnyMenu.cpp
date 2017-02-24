@@ -79,26 +79,34 @@ BunnyMenu::BunnyMenu() {
 		ShadowSprites.AppendSprite(ShadowMode, x, y+4, frame);
 		Sprites.AppendSprite(SpriteMode(Shaders[BunnyShaders::Palshift], spriteParam), x,y, frame); //standard behavior
 	};
+
+	Screen.reset(new DummyMenu()); //todo
 }
 
-void BunnyMenu::Update(const KeyStates& keys) { //todo obviously
-	LightingSprites.Clear();
-	ShadowSprites.Clear();
-	Sprites.Clear();
-
+void BunnyMenu::Update(const KeyStates& keys) {
 	++GameTicks;
-	
-	ShadowSprites.AppendSprite(ShadowMode, 7,7, *Logo);
-	Sprites.AppendSprite(SpriteMode::Paletted, -1,-1, *Logo);
 
-	WriteText(writeCharFunc, TtextAppearance::DefaultRightAlign, WINDOW_HEIGHT_PIXELS - 11, "#Menu System", *Fonts[1], TtextAppearance::defaultMenuScreenTitle, GameTicks);
+	const auto CurrentMenuScreen = Screen.get();
+	if (CurrentMenuScreen != nullptr) {
+		const auto NextMenuScreen = CurrentMenuScreen->Behave(keys);
+		if (NextMenuScreen == CurrentMenuScreen) { //no change, so it's time to draw this
+			LightingSprites.Clear();
+			ShadowSprites.Clear();
+			Sprites.Clear();
+			
+			ShadowSprites.AppendSprite(ShadowMode, 7,7, *Logo);
+			Sprites.AppendSprite(SpriteMode::Paletted, -1,-1, *Logo);
 
-	WriteText(writeCharFunc, TtextAppearance::DefaultCenterAlign, 210, "#Bunny Game", *Fonts[1], TtextAppearance::defaultMenuSpinFast, GameTicks);
-	WriteText(writeCharFunc, TtextAppearance::DefaultCenterAlign, 270, "Press Enter to begin", *Fonts[0], TtextAppearance::defaultMenuSpinSlow, GameTicks);
-	DrawLightToLightBuffer(LightType::Ring, 150, 68, sf::Vector2f(WINDOW_WIDTH_PIXELS / 2, WINDOW_HEIGHT_PIXELS / 2));
-
-	if (keys.KeyPressed(sf::Keyboard::Return)) {
-		ReplaceWithNewStage(Level::LoadLevel(std::wstring(L"Diam3")));
+			MenuStrings strings;
+			CurrentMenuScreen->Draw(strings);
+			if (CurrentMenuScreen->Title != nullptr)
+				strings.emplace_back( TtextAppearance::DefaultRightAlign, WINDOW_HEIGHT_PIXELS - 11, CurrentMenuScreen->Title, TtextAppearance::defaultMenuScreenTitle, true);
+			for (const auto& it : strings)
+				it.Draw(writeCharFunc, Fonts, GameTicks);
+		} else if (NextMenuScreen == nullptr) { //quit menu system
+			ReplaceWithNewStage(Level::LoadLevel(std::wstring(L"Diam3"))); //todo
+		} else //change menu screen
+			Screen.reset(NextMenuScreen);
 	}
 }
 
@@ -107,3 +115,25 @@ void BunnyMenu::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 	target.draw(ShadowSprites, states);
 	target.draw(Sprites, states);
 }
+
+
+void MenuString::Draw(const WriteCharacter& WriteCharFunc, const std::vector<AnimFrame>** Fonts, unsigned int GameTicks) const {
+	WriteText(WriteCharFunc, xPos,yPos, Text.c_str(), *Fonts[large], appearance, GameTicks);
+}
+
+
+DummyMenu::DummyMenu() : MenuScreen("#Menu System") {}
+void DummyMenu::Draw(MenuStrings& strings) const {
+	strings.emplace_back( TtextAppearance::DefaultCenterAlign, 210, "#Bunny Game", TtextAppearance::defaultMenuSpinFast, true);
+	strings.emplace_back( TtextAppearance::DefaultCenterAlign, 270, "Press Enter to begin", TtextAppearance::defaultMenuSpinSlow, false);
+
+	DrawLightToLightBuffer(LightType::Ring, 150, 68, sf::Vector2f(WINDOW_WIDTH_PIXELS / 2, WINDOW_HEIGHT_PIXELS / 2));
+}
+
+MenuScreen* DummyMenu::Behave(const KeyStates& keys) {
+	if (keys.KeyPressed(sf::Keyboard::Return)) {
+		return nullptr;
+	}
+	return this; //normal return
+}
+

@@ -29,4 +29,4 @@ struct TtextAppearance {
 		: xAmp(xAmp), yAmp(yAmp), animSpeed(animSpeed), skipInitialHash(skipInitialHash), at(at), hash(hash), pipe(pipe), align(align), spacing(spacing), spriteParam(spriteParam), spriteParams(spriteParams), inverseAmplitude(inverseAmplitude >= 0 ? inverseAmplitude : (0xC000 - (animSpeed << 11))) { }
 };
 
-int WriteText(WriteCharacter& writeChar, int x, int y, const char* text, FontAnim& font, const TtextAppearance& textParams = TtextAppearance::defaultNormal, unsigned int animationTick = 0);
+int WriteText(const WriteCharacter& writeChar, int x, int y, const char* text, FontAnim& font, const TtextAppearance& textParams = TtextAppearance::defaultNormal, unsigned int animationTick = 0);
