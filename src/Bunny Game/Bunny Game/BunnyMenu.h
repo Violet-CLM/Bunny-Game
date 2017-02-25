@@ -10,11 +10,11 @@ private:
 	const TtextAppearance& appearance;
 	int xPos, yPos, animSpeed;
 	std::string Text;
-	bool large;
+	bool large, dark;
 public:
-	MenuString(int x, int y, const char* t, const TtextAppearance& a, bool l = true) : xPos(x), yPos(y), Text(t), appearance(a), large(l) {}
-	MenuString(int x, int y, const std::string& t, const TtextAppearance& a, bool l = true) : xPos(x), yPos(y), Text(t), appearance(a), large(l) {}
-	void Draw(const WriteCharacter& WriteCharFunc, const std::vector<AnimFrame>** Fonts, unsigned int GameTicks) const;
+	MenuString(int x, int y, const char* t, const TtextAppearance& a, bool l = true, bool d = false) : xPos(x), yPos(y), Text(t), appearance(a), large(l), dark(d) {}
+	MenuString(int x, int y, const std::string& t, const TtextAppearance& a, bool l = true, bool d = false) : xPos(x), yPos(y), Text(t), appearance(a), large(l), dark(d) {}
+	void Draw(const WriteCharacter* WriteCharFuncs, const std::vector<AnimFrame>** Fonts, unsigned int GameTicks) const;
 
 };
 typedef std::vector<MenuString> MenuStrings;
@@ -37,8 +37,8 @@ namespace BunnyMenuTextureIDs { enum {
 };}
 class BunnyMenu : public Stage {
 	VertexCollectionQueue Sprites, ShadowSprites;
-	SpriteMode ShadowMode;
-	WriteCharacter writeCharFunc;
+	SpriteMode ShadowMode, DarkCharacterMode;
+	WriteCharacter writeCharFunc[2];
 	const std::vector<AnimFrame>* Fonts[2];
 	const AnimFrame* Logo;
 	unsigned int GameTicks = 0;

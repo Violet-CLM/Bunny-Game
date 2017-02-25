@@ -37,6 +37,25 @@ void WriteBunnyShaders() {
 		{\
 			gl_FragColor = vec4(0,0,0, texture2D(texture, gl_TexCoord[0].xy).a / 2.0);\
 		}",
+	//BunnyShaders::Brightness
+		"uniform sampler2D texture;\
+		uniform sampler2D tables;\
+		uniform float param;\
+		uniform vec4 brightness;\
+		uniform vec4 doublebrightness;\
+		\
+		void main(void)\
+		{\
+			vec4 dark(0, 0, 0, 1.0);\
+			vec4 index = texture2D(texture, gl_TexCoord[0].xy);\
+			vec4 pixel;\
+			if (param <= 1.0) {\
+				pixel = mix(texture2D(tables, vec2(index.r, 0)), dark, param); \
+			} else {\
+				pixel = (texture2D(tables, vec2(index.r, 0)) * doublebrightness) + (brightness * brightness); \
+			}\
+			gl_FragColor = vec4(pixel.r, pixel.g, pixel.b, index.a);\
+		}",
 	//BunnyShaders::WarpHorizon
 		sprintf_z(
 			"uniform sampler2D texture256;\

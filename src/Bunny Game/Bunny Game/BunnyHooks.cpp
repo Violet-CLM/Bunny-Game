@@ -6,6 +6,7 @@
 #include "BunnyMenu.h"
 #include "Bunny.h"
 #include "PostProcessing.h"
+#include "J2S.h"
 #include "Windows.h"
 #include "Misc.h"
 
@@ -99,6 +100,7 @@ bool Hook_Init() {
 	if (!IsTSF(VersionTSF))
 		return false;
 	InitializeRabbitAnimIDs();
+	InitLoadStrings();
 
 	GetDefaultAnimList(DefaultAnimationsList);
 

@@ -3,6 +3,7 @@
 #include "BunnyObjectList.h"
 #include "BunnyVersionDependentStuff.h"
 #include "PostProcessing.h"
+#include "J2S.h"
 
 void AssignImagesToMenuShader(const std::array<sf::Texture, BunnyMenuTextureIDs::LAST>& Textures) {
 	Shaders[BunnyShaders::MenuBG]->setUniform("texture128", Textures[BunnyMenuTextureIDs::Image128]);
@@ -74,10 +75,16 @@ BunnyMenu::BunnyMenu() {
 	}
 
 	ShadowMode = SpriteMode(Shaders[BunnyShaders::Shadow], 0);
-	writeCharFunc = [this](const AnimFrame& frame, sf::Uint8 spriteParam, int x, int y) {
+	DarkCharacterMode = SpriteMode(Shaders[BunnyShaders::Brightness], 82); //according to SE's onDrawDarkText
+	writeCharFunc[0] = [this](const AnimFrame& frame, sf::Uint8 spriteParam, int x, int y) {
 		//todo alter position somehow based on menu transitions
 		ShadowSprites.AppendSprite(ShadowMode, x, y+4, frame);
 		Sprites.AppendSprite(SpriteMode(Shaders[BunnyShaders::Palshift], spriteParam), x,y, frame); //standard behavior
+	};
+	writeCharFunc[1] = [this](const AnimFrame& frame, sf::Uint8 spriteParam, int x, int y) { //dark
+		//todo alter position somehow based on menu transitions
+		ShadowSprites.AppendSprite(ShadowMode, x, y+4, frame);
+		Sprites.AppendSprite(DarkCharacterMode, x,y, frame);
 	};
 
 	Screen.reset(new RootMenu());
@@ -123,23 +130,22 @@ const TtextAppearance& MenuScreen::GetAnimatedness(bool yes) {
 const TtextAppearance& MenuScreen::GetAnimatedness(int i) const {
 	return GetAnimatedness(i == SelectedItem);
 }
-void MenuString::Draw(const WriteCharacter& WriteCharFunc, const std::vector<AnimFrame>** Fonts, unsigned int GameTicks) const {
-	WriteText(WriteCharFunc, xPos,yPos, Text.c_str(), *Fonts[large], appearance, GameTicks);
+void MenuString::Draw(const WriteCharacter* WriteCharFuncs, const std::vector<AnimFrame>** Fonts, unsigned int GameTicks) const {
+	WriteText(WriteCharFuncs[dark], xPos,yPos, Text.c_str(), *Fonts[large], appearance, GameTicks);
 }
 
 
-RootMenu::RootMenu(int startItem) : MenuScreen("#Main Menu", 5) {
+RootMenu::RootMenu(int startItem) : MenuScreen(GetTranslatedString(StringID::MainMenu), 5) {
 	//MenuGlobals->menuLightCount = 2;
 	//GeneralGlobals->menuGlowStyle1 = 0;
 	//GeneralGlobals->menuGlowStyle2 = 0;
 	SelectedItem = startItem;
 }
-const char* RootMenuStrings[] = {"#New Game", "#Load Game", "#Options", "#High Scores", "#Quit"};
 void RootMenu::Draw(MenuStrings& strings) const {
 	const int distanceBetweenMenuitems = 22 * WINDOW_HEIGHT_PIXELS / 200;
 	int menuYPos = 60 * WINDOW_HEIGHT_PIXELS / 200 - distanceBetweenMenuitems;
 	for (int i = 0; i < ItemCount; ++i) {
-		strings.emplace_back(TtextAppearance::DefaultCenterAlign, menuYPos += distanceBetweenMenuitems, RootMenuStrings[i], GetAnimatedness(i), true);
+		strings.emplace_back(TtextAppearance::DefaultCenterAlign, menuYPos += distanceBetweenMenuitems, GetTranslatedString(StringID::StringID(StringID::NewGame + (i != 2 ? i : 5))), GetAnimatedness(i), true);
 		//if (SelectedItem == i)
 			//GeneralGlobals->menuGlowYPos = menuYPos << FIXFAC;
 	}

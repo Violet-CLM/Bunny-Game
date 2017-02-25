@@ -180,6 +180,7 @@
     <ClCompile Include="CharStrings.cpp" />
     <ClCompile Include="Diamondus.cpp" />
     <ClCompile Include="Bunny.cpp" />
+    <ClCompile Include="J2S.cpp" />
     <ClCompile Include="PostProcessing.cpp" />
     <ClCompile Include="Pickups.cpp" />
   </ItemGroup>
@@ -196,6 +197,7 @@
     <ClInclude Include="CharStrings.h" />
     <ClInclude Include="Diamondus.h" />
     <ClInclude Include="Bunny.h" />
+    <ClInclude Include="J2S.h" />
     <ClInclude Include="PostProcessing.h" />
     <ClInclude Include="Pickups.h" />
   </ItemGroup>
