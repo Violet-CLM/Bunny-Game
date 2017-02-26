@@ -87,6 +87,8 @@ BunnyMenu::BunnyMenu() : ShadowMode(Shaders[BunnyShaders::Shadow], 0), DarkChara
 		Sprites.AppendSprite(DarkCharacterMode, x,y, frame);
 	};
 
+	ClearLightingBuffer();
+
 	Screen.reset(new RootMenu());
 }
 

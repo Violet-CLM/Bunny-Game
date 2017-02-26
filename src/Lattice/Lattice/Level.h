@@ -80,6 +80,7 @@ public:
 	quad QuadsPerTile[MAX_TILES]; //todo wrap this more
 	Layer Layers[LEVEL_LAYERCOUNT];
 	sf::Uint16 AnimOffset;
+	unsigned int MinLight, StartLight;
 	
 	std::forward_list<std::unique_ptr<GameObject>> Objects;
 	unsigned int GameTicks;

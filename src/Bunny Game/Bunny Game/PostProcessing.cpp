@@ -13,7 +13,7 @@
 typedef unsigned int LightHash;
 typedef void GenerateLightingSprite(sf::Color*, unsigned int, unsigned int);
 
-float AmbientLightingLevel = 0.125f;
+float AmbientLightingLevel = NormalIntensityF;
 
 sf::Transform Layer4Offset;
 SpriteManager EffectSprites;
@@ -356,6 +356,11 @@ void DrawObjectToLightBuffer(const BunnyObject& obj) {
 	DrawLightToLightBuffer(obj.LightType, obj.LightRadius, obj.LightIntensity, sf::Vector2f(obj.PositionX, obj.PositionY));
 }
 
+void ClearLightingBuffer(float intensity) { //resets without any blurring
+	sf::Color clear(sf::Uint8(intensity * 256), 0, 0, 255);
+	LightingBuffer[0].clear(clear);
+	LightingBuffer[1].clear(clear);
+}
 void Hook_DrawToWindow(sf::RenderTexture& videoBuffer, sf::RenderWindow& window) {
 	/*static unsigned int lastFrames = 0; //change light at random every second; good for testing light fading
 	const auto currentRenderFrame = Lattice::GetFramesElapsed();

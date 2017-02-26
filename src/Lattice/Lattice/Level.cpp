@@ -88,9 +88,12 @@ Level* Level::LoadLevel(std::wstring& Filepath)
 
 bool Level::ProcessLevelData() //called after Open()
 {
-	const char* data1Ptr = (const char*)&UncompressedData[0][11]; //skip over a bunch of useless values
+	const char* data1Ptr = (const char*)&UncompressedData[0][9]; //skip over a bunch of useless values
 	Word* data3Ptr = (Word*)UncompressedData[2].data();
 	const WordID* data4Ptr = (const WordID*)UncompressedData[3].data();
+
+	MinLight = *data1Ptr++;
+	StartLight = *data1Ptr++;
 
 	AnimCount = *(sf::Uint16*)data1Ptr;
 	AnimOffset = MAX_TILES - AnimCount;

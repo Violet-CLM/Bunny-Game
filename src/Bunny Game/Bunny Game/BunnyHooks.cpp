@@ -94,6 +94,9 @@ void Hook_LevelLoad(Level& level) {
 			break;
 		}
 	}
+
+	//lighting
+	ClearLightingBuffer(AmbientLightingLevel = ConvertIntLightToFloatLight(level.MinLight));
 }
 
 bool Hook_Init() {
