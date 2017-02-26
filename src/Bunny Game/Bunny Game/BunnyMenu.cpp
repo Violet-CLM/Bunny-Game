@@ -37,7 +37,7 @@ void DrawMenuBG(sf::RenderTarget& target) {
 
 #include "Windows.h"
 #include "Misc.h"
-BunnyMenu::BunnyMenu() {
+BunnyMenu::BunnyMenu() : ShadowMode(Shaders[BunnyShaders::Shadow], 0), DarkCharacterMode(82) {
 	LoadDataFromFile(
 		L"Data.j2d",
 		{"Menu.Texture.128x128", "Menu.Texture.32x32", "Menu.Texture.16x16", "Menu.Palette"},
@@ -74,14 +74,12 @@ BunnyMenu::BunnyMenu() {
 		Logo = fontSet.Animations[2].AnimFrames.get()->data();
 	}
 
-	ShadowMode = SpriteMode(Shaders[BunnyShaders::Shadow], 0);
-	DarkCharacterMode = SpriteMode(Shaders[BunnyShaders::Brightness], 82); //according to SE's onDrawDarkText
 	writeCharFunc[0] = [this](const AnimFrame& frame, sf::Uint8 spriteParam, int x, int y) {
 		//todo alter position somehow based on menu transitions
 		ShadowSprites.AppendSprite(ShadowMode, x, y+4, frame);
 		Sprites.AppendSprite(SpriteMode(Shaders[BunnyShaders::Palshift], spriteParam), x,y, frame); //standard behavior
 	};
-	writeCharFunc[1] = [this](const AnimFrame& frame, sf::Uint8 spriteParam, int x, int y) { //dark
+	writeCharFunc[1] = [this](const AnimFrame& frame, sf::Uint8, int x, int y) { //dark
 		//todo alter position somehow based on menu transitions
 		ShadowSprites.AppendSprite(ShadowMode, x, y+4, frame);
 		Sprites.AppendSprite(DarkCharacterMode, x,y, frame);
@@ -133,6 +131,19 @@ const TtextAppearance& MenuScreen::GetAnimatedness(int i) const {
 void MenuString::Draw(const WriteCharacter* WriteCharFuncs, const std::vector<AnimFrame>** Fonts, unsigned int GameTicks) const {
 	WriteText(WriteCharFuncs[dark], xPos,yPos, Text.c_str(), *Fonts[large], appearance, GameTicks);
 }
+void DarkSprite::Apply(sf::RenderStates& states) const {
+	if (ParamAsFloat > 0.5f) {
+		float brightness = ParamAsFloat * 2;
+		Shader->setUniform("param", brightness);
+		brightness -= 1;
+		Shader->setUniform("brightness", sf::Glsl::Vec4(brightness,brightness,brightness,1.f));
+	} else
+		Shader->setUniform("param", (0.5f - ParamAsFloat) * 2.0f);
+
+	states.shader = Shader;
+	states.blendMode = BlendMode;
+}
+
 
 
 RootMenu::RootMenu(int startItem) : MenuScreen(GetTranslatedString(StringID::MainMenu), 5) {
@@ -141,11 +152,12 @@ RootMenu::RootMenu(int startItem) : MenuScreen(GetTranslatedString(StringID::Mai
 	//GeneralGlobals->menuGlowStyle2 = 0;
 	SelectedItem = startItem;
 }
+const static bool RootMenuItemsAreAvailable[] = {true, false, false, false, true};
 void RootMenu::Draw(MenuStrings& strings) const {
 	const int distanceBetweenMenuitems = 22 * WINDOW_HEIGHT_PIXELS / 200;
 	int menuYPos = 60 * WINDOW_HEIGHT_PIXELS / 200 - distanceBetweenMenuitems;
 	for (int i = 0; i < ItemCount; ++i) {
-		strings.emplace_back(TtextAppearance::DefaultCenterAlign, menuYPos += distanceBetweenMenuitems, GetTranslatedString(StringID::StringID(StringID::NewGame + (i != 2 ? i : 5))), GetAnimatedness(i), true);
+		strings.emplace_back(TtextAppearance::DefaultCenterAlign, menuYPos += distanceBetweenMenuitems, GetTranslatedString(StringID::StringID(StringID::NewGame + (i != 2 ? i : 5))), GetAnimatedness(i), true, !RootMenuItemsAreAvailable[i]);
 		//if (SelectedItem == i)
 			//GeneralGlobals->menuGlowYPos = menuYPos << FIXFAC;
 	}

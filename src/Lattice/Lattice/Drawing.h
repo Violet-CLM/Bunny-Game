@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include "SFML/Config.hpp"
 #include "SFML/Graphics.hpp"
 #include "Tile.h"
@@ -136,20 +137,31 @@ public:
 	bool operator==(const SpriteMode& other) const {
 		return other.Shader == Shader && other.Param == Param && other.BlendMode == BlendMode;
 	}
-	void Apply(sf::RenderStates&) const;
+	virtual void Apply(sf::RenderStates&) const;
+	virtual SpriteMode* clone() const { return new SpriteMode(*this); }
 
 	static SpriteMode Normal, Paletted;
 };
+template <class Derived>
+class SpriteModeDerivationHelper: public SpriteMode { //http://stackoverflow.com/questions/5731217/how-to-copy-create-derived-class-instance-from-a-pointer-to-a-polymorphic-base-c
+public:
+	using SpriteMode::SpriteMode;
+	virtual SpriteMode* clone() const
+	{
+		return new Derived(static_cast<const Derived&>(*this)); // call the copy ctor.
+	}
+};
+
 class AnimFrame;
 class VertexCollection : public sf::Drawable, public sf::Transformable {
 private:
 	sf::Texture* Texture;
-	SpriteMode Mode;
+	std::unique_ptr<SpriteMode> Mode;
 	VertexVector Vertices;
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 public:
 	VertexCollection() {}
-	VertexCollection(sf::Texture* t, const SpriteMode& m) : Texture(t), Mode(m) {}
+	VertexCollection(sf::Texture* t, const SpriteMode& m) : Texture(t), Mode(m.clone()) {}
 	void AppendQuad(quad&);
 	bool Matches(const sf::Texture* const, const SpriteMode&) const; //todo more options
 };

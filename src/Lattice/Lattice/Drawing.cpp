@@ -98,7 +98,7 @@ void InitCreateShaders(std::vector<sf::Shader*>& shaders, const std::vector<std:
 void VertexCollection::draw(sf::RenderTarget & target, sf::RenderStates states) const
 {
 	states.texture = Texture;
-	Mode.Apply(states);
+	Mode->Apply(states);
 	target.draw(Vertices.data(), Vertices.size(), sf::Quads, states);
 }
 void VertexCollectionQueue::draw(sf::RenderTarget & target, sf::RenderStates states) const
@@ -115,7 +115,7 @@ void VertexCollection::AppendQuad(quad& q)
 
 bool VertexCollection::Matches(const sf::Texture* const otherTexture, const SpriteMode& otherMode) const
 {
-	return Texture == otherTexture && Mode == otherMode;
+	return Texture == otherTexture && *Mode == otherMode;
 }
 
 void SpriteMode::Apply(sf::RenderStates& states) const

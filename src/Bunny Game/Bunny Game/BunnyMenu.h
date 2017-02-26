@@ -19,6 +19,12 @@ public:
 };
 typedef std::vector<MenuString> MenuStrings;
 
+class DarkSprite : public SpriteModeDerivationHelper <DarkSprite> {
+public:
+	DarkSprite(sf::Uint8 p) : SpriteModeDerivationHelper(Shaders[BunnyShaders::Brightness], p) {}
+	void Apply(sf::RenderStates&) const override;
+};
+
 class MenuScreen {
 protected:
 	int SelectedItem = 0, ItemCount;
@@ -37,7 +43,7 @@ namespace BunnyMenuTextureIDs { enum {
 };}
 class BunnyMenu : public Stage {
 	VertexCollectionQueue Sprites, ShadowSprites;
-	SpriteMode ShadowMode, DarkCharacterMode;
+	SpriteMode ShadowMode; DarkSprite DarkCharacterMode;
 	WriteCharacter writeCharFunc[2];
 	const std::vector<AnimFrame>* Fonts[2];
 	const AnimFrame* Logo;
