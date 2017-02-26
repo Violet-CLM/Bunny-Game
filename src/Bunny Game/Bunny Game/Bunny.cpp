@@ -18,7 +18,7 @@ Bunny::Bunny(ObjectStartPos & objStart, int characterIndex) : BunnyObject(objSta
 	CollisionShapes.emplace_back(18,32);
 	MakeNormal(13);
 	LightType = LightType::Player; //partially distinct from Normal, partially not
-	LightingTarget = ConvertIntLightToFloatLight(HostLevel.StartLight);
+	LightingTarget = HostLevel.StartLight;
 
 	Health = START_HEALTH;
 }
@@ -1809,14 +1809,14 @@ void Bunny::DoZoneDetection(Event& curEvent, unsigned int gameTicks)
 		break;*/
 
 	case EventIDs::SETLIGHT:
-		LightingTarget = ConvertIntLightToFloatLight(curEvent.GetParameter(0, 8) * 64 / 100);
+		LightingTarget = curEvent.GetParameter(0, 8) * 64 / 100;
 		break;
 
 	/*case areaDIMLIGHT: // dunno. can't find the right function to hack. been using this for debug stuff instead. (violet)
 		break;*/
 
 	case EventIDs::RESETLIGHT:
-		LightingTarget = ConvertIntLightToFloatLight(HostLevel.StartLight);
+		LightingTarget = HostLevel.StartLight;
 		break;
 
 	/*case areaECHO:
@@ -3198,6 +3198,7 @@ void Bunny::Behave(GameState& gameState)
 
 	++HelpStringCounter;
 }
+#include "Windows.h"
 void Bunny::Draw(Layer* layers) const {
 	if (!flicker || ((long long)(getCurrentTime()) & 64))
 		DrawNormally(layers);
@@ -3210,9 +3211,9 @@ void Bunny::Draw(Layer* layers) const {
 	}
 
 	if (AmbientLightingLevel < LightingTarget)
-		AmbientLightingLevel += 0.015625;
+		AmbientLightingLevel += 1;
 	else if (AmbientLightingLevel > LightingTarget)
-		AmbientLightingLevel -= 0.015625;
+		AmbientLightingLevel -= 1;
 }
 
 std::array<Player, MAXLOCALPLAYERS> Players;

@@ -6,10 +6,8 @@
 typedef sf::Uint8 LightParam;
 const LightParam NormalIntensity = 64;
 const float NormalIntensityF = 0.25f;
-extern float AmbientLightingLevel;
+extern unsigned int AmbientLightingLevel;
 extern void ClearLightingBuffer(float = NormalIntensityF);
-
-#define ConvertIntLightToFloatLight(a) (std::min(127u, unsigned int(a)) / 256.f)
 
 namespace LightType { enum LightType {
 	None, Point, Normal, Flicker, Ring, Player,

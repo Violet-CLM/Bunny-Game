@@ -48,7 +48,7 @@ class Bunny : public BunnyObject {
 	bool goUp, goRight, goLeft, goDown, goFarDown, fixAnim, fireHold;
 	Event* LastSuckerTube;
 	sf::Vector2f Trace[MAXPLAYERTRACE]; int TraceStartIndex = 0; unsigned int TraceLength = 0;
-	float LightingTarget;
+	unsigned int LightingTarget;
 
 	void GetInput(const KeyStates&);		//461C20
 	void ProcessInput();					//435AC0

@@ -13,7 +13,7 @@
 typedef unsigned int LightHash;
 typedef void GenerateLightingSprite(sf::Color*, unsigned int, unsigned int);
 
-float AmbientLightingLevel = NormalIntensityF;
+unsigned int AmbientLightingLevel = NormalIntensity;
 
 sf::Transform Layer4Offset;
 SpriteManager EffectSprites;
@@ -369,7 +369,7 @@ void Hook_DrawToWindow(sf::RenderTexture& videoBuffer, sf::RenderWindow& window)
 		AmbientLightingLevel = RandFac(127) / 255.f;
 	}*/
 
-	Shaders[BunnyShaders::ClearAmbientLightingBuffer]->setUniform("newIntensity", AmbientLightingLevel);
+	Shaders[BunnyShaders::ClearAmbientLightingBuffer]->setUniform("newIntensity", std::min(127u, AmbientLightingLevel) / 256.f);
 	LightingBuffer[0].draw(FullScreenQuad.vertices, 4, sf::Quads, ClearAmbientLightingBufferRenderStates); //fade the previous version of the buffer onto the new base intensity
 	LightingBuffer[0].draw(LightingSprites, Layer4Offset); //draw all the new light sources
 	//laser beam goes here
