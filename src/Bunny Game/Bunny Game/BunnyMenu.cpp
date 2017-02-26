@@ -5,6 +5,8 @@
 #include "PostProcessing.h"
 #include "J2S.h"
 
+std::wstring MenuScreen::levelFilename = L"";
+
 void AssignImagesToMenuShader(const std::array<sf::Texture, BunnyMenuTextureIDs::LAST>& Textures) {
 	Shaders[BunnyShaders::MenuBG]->setUniform("texture128", Textures[BunnyMenuTextureIDs::Image128]);
 	Shaders[BunnyShaders::MenuBG]->setUniform("texture32", Textures[BunnyMenuTextureIDs::Image32]);
@@ -109,7 +111,11 @@ void BunnyMenu::Update(const KeyStates& keys) {
 			for (const auto& it : strings)
 				it.Draw(writeCharFunc, Fonts, GameTicks);
 		} else if (NextMenuScreen == nullptr) { //quit menu system
-			ReplaceWithNewStage(Level::LoadLevel(std::wstring(L"Diam3"))); //todo
+			if (!MenuScreen::levelFilename.empty()) {
+				ReplaceWithNewStage(Level::LoadLevel(MenuScreen::levelFilename));
+				MenuScreen::levelFilename = L""; //in case the player comes back to the menu system later
+			} else
+				DeleteCurrentStage(); //end game, pretty much
 		} else //change menu screen
 			Screen.reset(NextMenuScreen);
 	}
@@ -122,12 +128,42 @@ void BunnyMenu::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 
+
 const TtextAppearance& MenuScreen::GetAnimatedness(bool yes) {
 	return yes ? TtextAppearance::defaultMenuSpinFast : TtextAppearance::defaultNormal;
 }
 const TtextAppearance& MenuScreen::GetAnimatedness(int i) const {
 	return GetAnimatedness(i == SelectedItem);
 }
+
+
+int MenuScreen::GetVerticalInput(const KeyStates& keys) const {
+	if (keys.KeyPressed(sf::Keyboard::Up))
+		return -1;
+	if (keys.KeyPressed(sf::Keyboard::Down))
+		return 1;
+	return 0;
+}
+int MenuScreen::GetHorizontalInput(const KeyStates& keys) const {
+	if (keys.KeyPressed(sf::Keyboard::Left))
+		return -1;
+	if (keys.KeyPressed(sf::Keyboard::Right))
+		return 1;
+	return 0;
+}
+bool MenuScreen::GetAdvance(const KeyStates& keys) const {
+	return keys.KeyPressed(sf::Keyboard::Return) || keys.KeyPressed(sf::Keyboard::Space);
+}
+bool MenuScreen::GetRetreat(const KeyStates& keys) const {
+	return keys.KeyPressed(sf::Keyboard::Escape);
+}
+void MenuScreen::MoveSelectionUpOrDown(const KeyStates& keys) {
+	if (SelectedItem += GetVerticalInput(keys) < 0)
+		SelectedItem = ItemCount - 1;
+	else if (SelectedItem >= ItemCount)
+		SelectedItem = 0;
+}
+
 void MenuString::Draw(const WriteCharacter* WriteCharFuncs, const std::vector<AnimFrame>** Fonts, unsigned int GameTicks) const {
 	WriteText(WriteCharFuncs[dark], xPos,yPos, Text.c_str(), *Fonts[large], appearance, GameTicks);
 }
@@ -166,8 +202,17 @@ void RootMenu::Draw(MenuStrings& strings) const {
 	//GeneralGlobals->menuGlowXPos = *screenWidth << 15;
 }
 MenuScreen* RootMenu::Behave(const KeyStates& keys) {
-	if (keys.KeyPressed(sf::Keyboard::Return)) {
-		return nullptr;
-	}
+	if (GetAdvance(keys)) {
+		switch (SelectedItem) {
+		case 0:
+			levelFilename = L"Diam3"; //todo
+			return nullptr;
+		default:
+			return nullptr; //quit
+		}
+	} else if (GetVerticalInput(keys))
+		SelectedItem ^= 4; //skip over 1,2,3 for now
+	else if (GetRetreat(keys))
+		SelectedItem = 4;
 	return this; //normal return
 }

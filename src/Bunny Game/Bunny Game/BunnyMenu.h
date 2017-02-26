@@ -28,11 +28,19 @@ public:
 class MenuScreen {
 protected:
 	int SelectedItem = 0, ItemCount;
-	//void MoveSelectionUpOrDown();
+
+	int GetVerticalInput(const KeyStates&) const;
+	int GetHorizontalInput(const KeyStates&) const;
+	bool GetAdvance(const KeyStates&) const;
+	bool GetRetreat(const KeyStates&) const;
+	void MoveSelectionUpOrDown(const KeyStates&);
+
 	static const TtextAppearance& GetAnimatedness(bool);
 	const TtextAppearance& GetAnimatedness(int) const;
+
 	MenuScreen(const char* t = nullptr, int ic = 0) : ItemCount(ic), Title(t) {}
 public:
+	static std::wstring levelFilename;
 	const char* Title;
 	virtual void Draw(MenuStrings&) const = 0;
 	virtual MenuScreen* Behave(const KeyStates&) = 0;
