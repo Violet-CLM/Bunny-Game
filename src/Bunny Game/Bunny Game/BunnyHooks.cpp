@@ -97,6 +97,7 @@ void Hook_LevelLoad(Level& level) {
 
 	//lighting
 	ClearLightingBuffer(AmbientLightingLevel = level.MinLight);
+	CurrentStageType = StageType::Level;
 }
 
 bool Hook_Init() {

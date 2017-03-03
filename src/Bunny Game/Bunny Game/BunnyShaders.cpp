@@ -1,3 +1,4 @@
+#include "PostProcessing.h"
 #include "BunnyShaders.h"
 #include "Lattice.h"
 #include "Layer.h"
@@ -136,6 +137,11 @@ void WriteBunnyShaders() {
 		{\
 			gl_FragColor = texture2D(remapping, vec2(texture2D(texture, gl_TexCoord[0].xy).r, newIntensity)); \
 		}",
+	//BunnyShaders::ClearAmbientLightingBufferMenu
+		sprintf_z("void main(void)\
+		{\
+			gl_FragColor = vec4(%f, 0, 0, 0.5); \
+		}", NormalIntensityF),
 	//BunnyShaders::BlurAmbientLightingBuffer
 		sprintf_z("uniform sampler2D texture;\
 			\

@@ -9,6 +9,11 @@ const float NormalIntensityF = 0.25f;
 extern unsigned int AmbientLightingLevel;
 extern void ClearLightingBuffer(float = NormalIntensityF);
 
+namespace StageType { enum StageType {
+	Level, Menu, Image
+};}
+extern StageType::StageType CurrentStageType;
+
 namespace LightType { enum LightType {
 	None, Point, Normal, Flicker, Ring, Player,
 	LAST

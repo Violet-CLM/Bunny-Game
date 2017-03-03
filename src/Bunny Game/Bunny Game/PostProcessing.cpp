@@ -14,12 +14,13 @@ typedef unsigned int LightHash;
 typedef void GenerateLightingSprite(sf::Color*, unsigned int, unsigned int);
 
 unsigned int AmbientLightingLevel = NormalIntensity;
+StageType::StageType CurrentStageType;
 
 sf::Transform Layer4Offset;
 SpriteManager EffectSprites;
 sf::Texture ClearAmbientLightingBufferColorLUT;
 sf::RenderTexture LightingBuffer[2];
-sf::RenderStates LightingStates, ClearAmbientLightingBufferRenderStates, BlurAmbientLightingBufferRenderStates;
+sf::RenderStates LightingStates, ClearAmbientLightingBufferRenderStates, ClearAmbientLightingBufferMenuRenderStates, BlurAmbientLightingBufferRenderStates;
 VertexCollectionQueue LightingSprites, HUD;
 SpriteMode *LightModeAdd, *LightModeAlpha, *LightModeMax;
 std::unordered_map<LightHash, AnimFrame> LightingSpriteProperties;
@@ -29,6 +30,7 @@ void InitLighting() {
 		LightingBuffer[i].create(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS);
 	LightingStates = sf::RenderStates(sf::BlendNone, sf::Transform::Identity, nullptr, Shaders[BunnyShaders::ApplyAmbientLightingToVideo]);
 	ClearAmbientLightingBufferRenderStates = sf::RenderStates(sf::BlendNone, sf::Transform::Identity, nullptr, Shaders[BunnyShaders::ClearAmbientLightingBuffer]);
+	ClearAmbientLightingBufferMenuRenderStates = sf::RenderStates(sf::BlendAlpha, sf::Transform::Identity, nullptr, Shaders[BunnyShaders::ClearAmbientLightingBufferMenu]);
 	BlurAmbientLightingBufferRenderStates = sf::RenderStates(sf::BlendNone, sf::Transform::Identity, nullptr, Shaders[BunnyShaders::BlurAmbientLightingBuffer]);
 
 	LightModeAdd = new SpriteMode(Shaders[DefaultShaders::Normal], 0, sf::BlendAdd);
@@ -76,7 +78,7 @@ void Hook_LevelMain(Level& level, unsigned int GameTicks) {
 	const std::vector<AnimFrame>& smallFont = *fontSet.Animations[1].AnimFrames;
 	
 	char buffer[16];
-	WriteCharacter writeCharToHUD = GetWriteCharacterFunction(HUD);
+	const static WriteCharacter writeCharToHUD = GetWriteCharacterFunction(HUD);
 
 	const auto& play = Players[0]; //no splitscreen support at present
 	//for (const auto& play : Players) if (play.Object != nullptr) {
@@ -361,6 +363,9 @@ void ClearLightingBuffer(float intensity) { //resets without any blurring
 	LightingBuffer[0].clear(clear);
 	LightingBuffer[1].clear(clear);
 }
+inline void BlurLightingBuffer() {
+	LightingBuffer[1].draw(FullScreenQuad.vertices, 4, sf::Quads, BlurAmbientLightingBufferRenderStates); //blur everything
+}
 void Hook_DrawToWindow(sf::RenderTexture& videoBuffer, sf::RenderWindow& window) {
 	/*static unsigned int lastFrames = 0; //change light at random every second; good for testing light fading
 	const auto currentRenderFrame = Lattice::GetFramesElapsed();
@@ -369,15 +374,31 @@ void Hook_DrawToWindow(sf::RenderTexture& videoBuffer, sf::RenderWindow& window)
 		AmbientLightingLevel = RandFac(127) / 255.f;
 	}*/
 
-	Shaders[BunnyShaders::ClearAmbientLightingBuffer]->setUniform("newIntensity", std::min(127u, AmbientLightingLevel) / 256.f);
-	LightingBuffer[0].draw(FullScreenQuad.vertices, 4, sf::Quads, ClearAmbientLightingBufferRenderStates); //fade the previous version of the buffer onto the new base intensity
-	LightingBuffer[0].draw(LightingSprites, Layer4Offset); //draw all the new light sources
-	//laser beam goes here
-	LightingBuffer[1].draw(FullScreenQuad.vertices, 4, sf::Quads, BlurAmbientLightingBufferRenderStates); //blur everything
-	//laser shield goes here
-
 	videoBuffer.display();
 	LightingStates.texture = &videoBuffer.getTexture();
-	window.draw(FullScreenQuadNonFlipped.vertices, 4, sf::Quads, LightingStates);
-	window.draw(HUD);
+
+	if (CurrentStageType != StageType::Image) {
+		if (CurrentStageType == StageType::Level) {
+			Shaders[BunnyShaders::ClearAmbientLightingBuffer]->setUniform("newIntensity", std::min(127u, AmbientLightingLevel) / 256.f);
+			LightingBuffer[0].draw(FullScreenQuad.vertices, 4, sf::Quads, ClearAmbientLightingBufferRenderStates); //fade the previous version of the buffer onto the new base intensity
+			LightingBuffer[0].draw(LightingSprites, Layer4Offset); //draw all the new light sources
+			//laser beam goes here
+			BlurLightingBuffer();
+			//laser shield goes here
+		} else if (CurrentStageType == StageType::Menu) {
+			LightingBuffer[0].draw(FullScreenQuad.vertices, 4, sf::Quads, ClearAmbientLightingBufferMenuRenderStates);
+			LightingBuffer[0].draw(LightingSprites);
+			BlurLightingBuffer();
+		}
+
+		window.draw(FullScreenQuadNonFlipped.vertices, 4, sf::Quads, LightingStates);
+	} else {
+		window.draw(FullScreenQuadNonFlipped.vertices, 4, sf::Quads, LightingStates.texture);
+	}
+
+	if (CurrentStageType == StageType::Level) {
+		window.draw(HUD);
+	} else if (CurrentStageType == StageType::Menu) {
+		//gradient at bottom goes here
+	}
 }

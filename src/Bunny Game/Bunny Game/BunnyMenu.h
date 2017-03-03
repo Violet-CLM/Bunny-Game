@@ -19,7 +19,7 @@ public:
 };
 typedef std::vector<MenuString> MenuStrings;
 
-class DarkSprite : public SpriteModeDerivationHelper <DarkSprite> {
+DerivedSpriteMode(DarkSprite) {
 public:
 	DarkSprite(sf::Uint8 p) : SpriteModeDerivationHelper(Shaders[BunnyShaders::Brightness], p) {}
 	void Apply(sf::RenderStates&) const override;

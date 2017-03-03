@@ -22,7 +22,7 @@ namespace BunnyShaders {
 		FIRST = DefaultShaders::LAST - 1,
 		Gem, Palshift, Shadow, Brightness,
 		WarpHorizon, Tunnel, MenuBG,
-		ClearAmbientLightingBuffer, BlurAmbientLightingBuffer, ApplyAmbientLightingToVideo, 
+		ClearAmbientLightingBuffer, ClearAmbientLightingBufferMenu, BlurAmbientLightingBuffer, ApplyAmbientLightingToVideo, 
 		LAST
 	};
 }

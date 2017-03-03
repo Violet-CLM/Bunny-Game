@@ -88,6 +88,7 @@ BunnyMenu::BunnyMenu() : ShadowMode(Shaders[BunnyShaders::Shadow], 0), DarkChara
 	};
 
 	ClearLightingBuffer();
+	CurrentStageType = StageType::Menu;
 
 	Screen.reset(new RootMenu());
 }
@@ -105,6 +106,7 @@ void BunnyMenu::Update(const KeyStates& keys) {
 			
 			ShadowSprites.AppendSprite(ShadowMode, 7,7, *Logo);
 			Sprites.AppendSprite(SpriteMode::Paletted, -1,-1, *Logo);
+			const static sf::Vector2f LogoLightPosition(32, 16);
 
 			MenuStrings strings;
 			CurrentMenuScreen->Draw(strings);
@@ -115,7 +117,7 @@ void BunnyMenu::Update(const KeyStates& keys) {
 		} else if (NextMenuScreen == nullptr) { //quit menu system
 			if (!MenuScreen::levelFilename.empty()) {
 				ReplaceWithNewStage(Level::LoadLevel(MenuScreen::levelFilename));
-				MenuScreen::levelFilename = L""; //in case the player comes back to the menu system later
+				MenuScreen::levelFilename.clear(); //in case the player comes back to the menu system later
 			} else
 				DeleteCurrentStage(); //end game, pretty much
 		} else //change menu screen

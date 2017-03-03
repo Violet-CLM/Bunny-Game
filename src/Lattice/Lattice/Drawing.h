@@ -151,6 +151,7 @@ public:
 		return new Derived(static_cast<const Derived&>(*this)); // call the copy ctor.
 	}
 };
+#define DerivedSpriteMode(name) class name : public SpriteModeDerivationHelper <name>
 
 class AnimFrame;
 class VertexCollection : public sf::Drawable, public sf::Transformable {
