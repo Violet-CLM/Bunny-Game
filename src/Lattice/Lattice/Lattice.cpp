@@ -121,6 +121,7 @@ int main(int argc, char *argv[])
 		InitCreateShaders(Shaders, ShaderSources);
 		SpriteMode::Normal = SpriteMode(Shaders[DefaultShaders::Normal], 0);
 		SpriteMode::Paletted = SpriteMode(Shaders[DefaultShaders::Paletted], 0);
+		Hook_InitAfterShadersConstructed();
 
 		{ //set working directory to application's directory
 			wchar_t applicationDirectory[MAX_PATH]; //http://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from

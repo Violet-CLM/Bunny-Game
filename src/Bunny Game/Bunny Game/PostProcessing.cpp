@@ -8,6 +8,7 @@
 #include "BunnyVersionDependentStuff.h"
 #include "Resources.h"
 #include "CharStrings.h"
+#include "AdditionalSprites.h"
 #include "Lattice.h"
 
 typedef unsigned int LightHash;
@@ -17,7 +18,6 @@ unsigned int AmbientLightingLevel = NormalIntensity;
 StageType::StageType CurrentStageType;
 
 sf::Transform Layer4Offset;
-SpriteManager EffectSprites;
 sf::Texture ClearAmbientLightingBufferColorLUT;
 sf::RenderTexture LightingBuffer[2];
 sf::RenderStates LightingStates, ClearAmbientLightingBufferRenderStates, ClearAmbientLightingBufferMenuRenderStates, BlurAmbientLightingBufferRenderStates;
@@ -399,6 +399,6 @@ void Hook_DrawToWindow(sf::RenderTexture& videoBuffer, sf::RenderWindow& window)
 	if (CurrentStageType == StageType::Level) {
 		window.draw(HUD);
 	} else if (CurrentStageType == StageType::Menu) {
-		//gradient at bottom goes here
+		window.draw(MenuBottomGradientVertices);
 	}
 }

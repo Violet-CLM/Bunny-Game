@@ -92,7 +92,6 @@ void InitCreateShaders(std::vector<sf::Shader*>& shaders, const std::vector<std:
 			shaders.push_back(shader);
 		}
 	}
-	Hook_InitAfterShadersConstructed();
 }
 
 void VertexCollection::draw(sf::RenderTarget & target, sf::RenderStates states) const

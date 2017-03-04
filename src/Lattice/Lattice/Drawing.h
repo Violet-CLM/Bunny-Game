@@ -22,6 +22,10 @@ struct quad {
 	quad(float w, float h) {
 		setDimensions(w, h);
 	}
+	quad(float w, float h, int x, int y) {
+		setDimensions(w, h);
+		positionPositionAt(x, y);
+	}
 
 	quad(const quad& tileQuad, int tileOrientation, unsigned int quadrant = 4) {
 		this->operator=(tileQuad);

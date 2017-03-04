@@ -6,6 +6,7 @@
 #include "BunnyMenu.h"
 #include "Bunny.h"
 #include "PostProcessing.h"
+#include "AdditionalSprites.h"
 #include "J2S.h"
 #include "Windows.h"
 #include "Misc.h"
@@ -119,6 +120,7 @@ void Hook_InitAfterShadersConstructed() {
 	TunnelRenderStates.shader = Shaders[BunnyShaders::Tunnel];
 	MenuBGRenderStates.shader = Shaders[BunnyShaders::MenuBG];
 	InitLighting();
+	InitCreateAdditionalSprites();
 }
 void Hook_DetermineInitialStage(std::stack<std::unique_ptr<Stage>>& stages, int argc, char *argv[]) {
 	std::wstring filename;

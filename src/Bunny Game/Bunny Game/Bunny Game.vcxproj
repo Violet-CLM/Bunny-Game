@@ -168,6 +168,7 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AdditionalSprites.cpp" />
     <ClCompile Include="BunnyEffects.cpp" />
     <ClCompile Include="BunnyHooks.cpp" />
     <ClCompile Include="BunnyMenu.cpp" />
@@ -185,6 +186,7 @@
     <ClCompile Include="Pickups.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AdditionalSprites.h" />
     <ClInclude Include="BunnyEffects.h" />
     <ClInclude Include="BunnyMenu.h" />
     <ClInclude Include="BunnyMisc.h" />
