@@ -107,6 +107,7 @@ void BunnyMenu::Update(const KeyStates& keys) {
 			ShadowSprites.AppendSprite(ShadowMode, 7,7, *Logo);
 			Sprites.AppendSprite(SpriteMode::Paletted, -1,-1, *Logo);
 			const static sf::Vector2f LogoLightPosition(32, 16);
+			DrawLightToLightBuffer(LightType::Menu, 0, 2, LogoLightPosition);
 
 			MenuStrings strings;
 			CurrentMenuScreen->Draw(strings);
@@ -187,9 +188,6 @@ void DarkSprite::Apply(sf::RenderStates& states) const {
 
 
 RootMenu::RootMenu(int startItem) : MenuScreen(GetTranslatedString(StringID::MainMenu), 5) {
-	//MenuGlobals->menuLightCount = 2;
-	//GeneralGlobals->menuGlowStyle1 = 0;
-	//GeneralGlobals->menuGlowStyle2 = 0;
 	SelectedItem = startItem;
 }
 const static bool RootMenuItemsAreAvailable[] = {true, false, false, false, true};
@@ -198,12 +196,10 @@ void RootMenu::Draw(MenuStrings& strings) const {
 	int menuYPos = 60 * WINDOW_HEIGHT_PIXELS / 200 - distanceBetweenMenuitems;
 	for (int i = 0; i < ItemCount; ++i) {
 		strings.emplace_back(TtextAppearance::DefaultCenterAlign, menuYPos += distanceBetweenMenuitems, GetTranslatedString(StringID::StringID(StringID::NewGame + (i != 2 ? i : 5))), GetAnimatedness(i), true, !RootMenuItemsAreAvailable[i]);
-		//if (SelectedItem == i)
-			//GeneralGlobals->menuGlowYPos = menuYPos << FIXFAC;
+		if (SelectedItem == i)
+			DrawLightToLightBuffer(LightType::Menu, 0, 0, sf::Vector2f(WINDOW_WIDTH_PIXELS/2, float(menuYPos)));
 	}
 	strings.emplace_back(0, WINDOW_HEIGHT_PIXELS - 6, "1.00", TtextAppearance::defaultMenuSpinSlow, false); //todo base this line on some value somewhere
-
-	//GeneralGlobals->menuGlowXPos = *screenWidth << 15;
 }
 MenuScreen* RootMenu::Behave(const KeyStates& keys) {
 	if (GetAdvance(keys)) {

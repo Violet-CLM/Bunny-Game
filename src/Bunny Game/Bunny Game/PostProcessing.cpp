@@ -322,8 +322,52 @@ void GeneratePlayerLightingSprite(sf::Color* buffer, unsigned int radius, unsign
 	}
 }
 
+void GenerateMenuLightingSprite(AnimFrame& frame, unsigned int subtype, unsigned int size) {
+	unsigned int maxLight;
+	int xShift = 2, yShift;
+	if (subtype == LightType::MenuType::Three) {
+		maxLight = 64 + size;
+		yShift = 2;
+	} else {
+		maxLight = 82;
+		xShift += size / 2;
+		if (subtype == LightType::MenuType::Zero)
+			yShift = size;
+		else
+			yShift = 0;
+	}
+	
+	const float xRadius = float(32 << xShift);
+	const float yRadius = float(32 << yShift);
+	const int radiusSquare = 128 * 128;
+	const int xLength = int(xRadius * 2 + 1);
+	const int yLength = int(yRadius * 2 + 1);
+	const int whiteRange = 86 * 86;
+	const int grayRange = radiusSquare - whiteRange;
+	const sf::Color innerBrightness(maxLight, 0,0, 255);
+
+	sf::Color* buffer = (sf::Color*)frame.CreateImage(xLength, yLength);
+	frame.HotspotX = -sf::Int16(xRadius);
+	frame.HotspotY = -sf::Int16(yRadius);
+
+	for (int i = 0; i < yLength; ++i) {
+		const float yDistance = (yRadius - i) * 128 / yRadius;
+		for (int j = 0; j < xLength; ++j, ++buffer) {
+			const float xDistance = (xRadius - j) * 128 / xRadius;
+			const int distanceSquare = int(xDistance * xDistance + yDistance * yDistance);
+			if (distanceSquare < radiusSquare) {
+				if (distanceSquare < whiteRange)
+					*buffer = innerBrightness;
+				else
+					*buffer = sf::Color(std::min((maxLight * (radiusSquare - distanceSquare) / grayRange), 127u), 0,0, 255);
+			} //else
+				//*buffer = sf::Color::Transparent;
+		}
+	}
+}
+
 GenerateLightingSprite* GenerateLightingSpriteFunctions[LightType::LAST] = {
-	nullptr, GeneratePointLightingSprite, GenerateNormalLightingSprite, GenerateFlickerLightingSprite, GenerateRingLightingSprite, GeneratePlayerLightingSprite
+	nullptr, GeneratePointLightingSprite, GenerateNormalLightingSprite, GenerateFlickerLightingSprite, GenerateRingLightingSprite, GeneratePlayerLightingSprite, nullptr
 };
 
 //#include "Windows.h"
@@ -333,10 +377,14 @@ void DrawLightToLightBuffer(LightType::LightType type, LightParam radius, LightP
 	const LightHash hash = (radius << 0) | (brightness << 8) | (type << 16);
 	if (!LightingSpriteProperties.count(hash)) { //this particular lighting image hasn't been predrawn yet, so draw it before rendering it
 		AnimFrame& frame = LightingSpriteProperties[hash];
-		frame.HotspotX = frame.HotspotY = -sf::Int16(radius);
-		const unsigned int spriteDimension = radius * 2 + 1;
-		sf::Uint32* buffer = frame.CreateImage(spriteDimension, spriteDimension);
-		GenerateLightingSpriteFunctions[type]((sf::Color*)buffer, radius, brightness);
+		if (type != LightType::Menu) {
+			frame.HotspotX = frame.HotspotY = -sf::Int16(radius);
+			const unsigned int spriteDimension = radius * 2 + 1;
+			sf::Uint32* buffer = frame.CreateImage(spriteDimension, spriteDimension);
+			GenerateLightingSpriteFunctions[type]((sf::Color*)buffer, radius, brightness);
+		} else {
+			GenerateMenuLightingSprite(frame, radius, brightness);
+		}
 		//OutputDebugStringF(L"%u, %u, %u", spriteDimension, obj.LightRadius, brightness);
 		EffectSprites.CreateAndAssignTextureForSingleFrame(frame);
 	}
@@ -345,7 +393,7 @@ void DrawLightToLightBuffer(LightType::LightType type, LightParam radius, LightP
 		*(
 			(type == LightType::Point || type == LightType::Ring) ?
 				LightModeAdd :
-				(type != LightType::Player) ?
+				(type < LightType::Player) ?
 					LightModeAlpha :
 					LightModeMax
 		),

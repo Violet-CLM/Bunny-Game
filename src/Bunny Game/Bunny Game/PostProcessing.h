@@ -14,10 +14,15 @@ namespace StageType { enum StageType {
 };}
 extern StageType::StageType CurrentStageType;
 
-namespace LightType { enum LightType {
-	None, Point, Normal, Flicker, Ring, Player,
-	LAST
-}; }
+namespace LightType {
+	enum LightType {
+		None, Point, Normal, Flicker, Ring, Player, Menu,
+		LAST
+	}; 
+	enum MenuType {
+		Zero, Two, Three
+	};
+}
 
 extern VertexCollectionQueue LightingSprites;
 
