@@ -3,6 +3,10 @@
 
 class Bee : public Interactive {
 	int Counter;
+	const Bunny* Target;
+	float
+		ApproachSpeedX, ApproachSpeedY, //can't use the same pair of floats for each state, because bees start out attacking you at the same angle they were at the last time they finished attacking you
+		RetreatSpeedX, RetreatSpeedY;
 	void Move(GameState&) override;
 public:
 	Bee(ObjectStartPos&);

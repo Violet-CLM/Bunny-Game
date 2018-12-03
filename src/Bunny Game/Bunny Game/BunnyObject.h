@@ -12,6 +12,7 @@ namespace BunnyObjectType {
 }
 
 class Explosion;
+class Bunny;
 class BunnyObject : public GameObject { //put deactivates, etc. code in here
 	using GameObject::GameObject;
 protected:
@@ -21,7 +22,16 @@ protected:
 	void DoBlast(int, bool=false);
 	int DirectionX, DirectionY;
 	Explosion& AddExplosion(int setID, int animID, bool makeChild = false);
+	Bunny* GetNearestPlayer(int distance) const;
+	Bunny* GetNearestPlayerRef(int& distance) const;
 public:
+	enum class State {
+		Start = 0, Sleep, Wake, Kill, Deactivate, Walk, Jump, Fire, Fly, Bounce,
+		Explode = 10, RocketFly, Still, Float, Hit, Spring, Action, Done, Push,
+		Fall = 19, FloatFall, Circle, Attack, Freeze, FadeIn, FadeOut, Hide,
+		Turn = 27, Idle, Extra, Stop, Wait, Land, DelayedStart, Rotate, Duck
+	};
+	State State = State::Start, OldState;
 	LightType::LightType LightType; LightParam LightIntensity, LightRadius;
 protected: //series of convenience methods for turning JJ2 constants into their composite values
 	void MakePoint1() { LightType = LightType::Point; LightRadius = 20; LightIntensity = NormalIntensity >> 3; }

@@ -76,6 +76,24 @@ void BunnyObject::DoBlast(int forceRadius, bool doFullBlast) { //used by TNT, RF
 		nearestTNT->Hurt(1, true); //force amount doesn't matter
 }
 
+Bunny* BunnyObject::GetNearestPlayer(int threshold) const {
+	return GetNearestPlayerRef(threshold);
+}
+Bunny* BunnyObject::GetNearestPlayerRef(int& threshold) const {
+	Bunny* nearest = nullptr;
+	for (const auto& it : Players) {
+		int totalDistance = int(PositionX - it.Object->PositionX);
+		if ((totalDistance *= totalDistance) < threshold) { //necessary, though not sufficient
+			const auto dy = int(PositionY - it.Object->PositionY);
+			if ((totalDistance += dy * dy) < threshold) {
+				threshold = totalDistance;
+				nearest = it.Object;
+			}
+		}
+	}
+	return nearest;
+}
+
 Interactive::Interactive(ObjectStartPos& start, bool enemy) : BunnyObject(start), IsEnemy(enemy), TriggersTNT(enemy) {
 	ObjectType = BunnyObjectType::Interactive;
 }

@@ -14,6 +14,7 @@
 #define ApproachZero(a) if (a > 0) --a; else if (a < 0) ++a
 #define LowerToZero(a) if (a) --a
 #define ApproachZeroByUnit(a, u) if (a > u) a -= u; else if (a < -u) a += u; else a = 0
+#define ApproachConstantByConstant(value, target, unit) if (value < target) value += unit; else if (value > target) value -= unit//; else value = target
 #define Minimize(value, limit) if (value > limit) value = limit
 #define Maximize(value, limit) if (value < limit) value = limit
 #define LimitToRange(value, lower, upper) Maximize(value, lower); else Minimize(value, upper)
