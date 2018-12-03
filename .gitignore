@@ -3,19 +3,8 @@
 
 *
 !README.md
-!src/
-!src/Bunny Game/
-!src/Bunny Game/*/
-!src/Bunny Game/*/*
-!src/Bunny Game/*/*/*
-!src/Bunny Game/*/*/*/*
 /src/Bunny Game/Bunny Game/Debug
 /src/Bunny Game/Bunny Game/Release
-!src/Lattice/
-!src/Lattice/*/
-!src/Lattice/*/*
-!src/Lattice/*/*/*
-!src/Lattice/*/*/*/*
 /src/Lattice/Lattice/include
 /src/Lattice/Lattice/lib
 *.suo
