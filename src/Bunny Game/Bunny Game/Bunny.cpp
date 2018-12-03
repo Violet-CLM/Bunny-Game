@@ -432,7 +432,7 @@ void Bunny::ProcessInputStuffWithFlyAndSwim() {
 		}
 	}
 	if (DirectionKeyY > 0 && hang != 0)
-		SpeedY = 0x40000;
+		SpeedY = 4;
 	if (DirectionKeyY || DirectionKeyX || KeyJump || KeySelect || runDash > 0) {
 		fixAnim = 0;
 		idleTime = 0;
@@ -1145,34 +1145,41 @@ void Bunny::DoLandscapeCollision(GameState& gameState)
 	//if (mSpeedY>=0)
 	if (!fly) {// && PlayerProperties.CharacterIndex != char2FROG) { //todo frog
 		for (ty = (gravDir == 1 ? -8 : 11); ty; ty += gravDir) {
-			check = gameState.MaskedHLine(px, py + ty, 24);
-			if (!check) {	//really nothing there
-				check = gameState.MaskedHLine(px, py + ty, 24, tileAttr);
-				if (check && (tileAttr.ID == EventIDs::VINE || tileAttr.ID == EventIDs::HOOK)) {
-					if (!hang) {
-						if (tileAttr.ID == EventIDs::VINE) {
-							hang = 1;
-						}
-						else {
-							hang = 2;	//HOOK
-											//newPositionX=((px/32)*32+15);
+			bool lookingForHookOrVinePixels = false;
+			for (int x = 0; x < 24; ++x)
+				if (gameState.MaskedPixel(px + x, py + ty, tileAttr)) {
+					if (tileAttr.ID == EventIDs::VINE || tileAttr.ID == EventIDs::HOOK) {
+						lookingForHookOrVinePixels = true;
+					}
+					else {
+						lookingForHookOrVinePixels = false;
+						break;
+					}
+				}
+			if (lookingForHookOrVinePixels) {
+				if (!hang) {
+					if (tileAttr.ID == EventIDs::VINE) {
+						hang = 1;
+					}
+					else {
+						hang = 2;	//HOOK
+										//newPositionX=((px/32)*32+15);
 
-							SpeedX = 0;
-							SpeedY = 0;
-						}
-
-						if (SpeedY > 4) {
-							//;//PlaySample(PositionX, PositionY, sCOMMON_FOEW3, 0, 30000); //todo sample
-						}
+						SpeedX = 0;
+						SpeedY = 0;
 					}
 
-					newPositionY = float(gravDir * 9 + py + ty);
-
-					mSpeedY = newPositionY - PositionY;
-					SpeedY = 0;
-					AccelerationY = 0;
-					break;
+					if (SpeedY > 4) {
+						//;//PlaySample(PositionX, PositionY, sCOMMON_FOEW3, 0, 30000); //todo sample
+					}
 				}
+
+				newPositionY = float(gravDir * 9 + py + ty);
+
+				mSpeedY = newPositionY - PositionY;
+				SpeedY = 0;
+				AccelerationY = 0;
+				break;
 			}
 		}	//for ty
 	} //if not a bird/flier: falling
