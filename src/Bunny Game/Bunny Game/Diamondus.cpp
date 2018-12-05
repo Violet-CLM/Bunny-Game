@@ -268,3 +268,7 @@ bool NormalTurtle::Die() {
 
 	return Interactive::Die();
 }
+void NormalTurtle::HitBy(GameObject& other) {
+	if (!(CausesRicochet && other.ObjectType == BunnyObjectType::Player && static_cast<Bunny&>(other).GetAttackType(false) == Bunny::AttackTypes::NotAttacking)) //ignore non-violent collisions when not in shell
+		Interactive::HitBy(other);
+}
