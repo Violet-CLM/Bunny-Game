@@ -114,6 +114,10 @@ int main(int argc, char *argv[])
 	FullScreenQuadNonFlipped.setDimensions(WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS);
 	for (int i = 0; i < 4; ++i)
 		FullScreenQuadNonFlipped.vertices[i].texCoords = FullScreenQuadNonFlipped.vertices[i].position;
+#ifndef SUPPORT_QUADS
+	FullScreenTriangleQuad = FullScreenQuad;
+	FullScreenTriangleQuadNonFlipped = FullScreenQuadNonFlipped;
+#endif
 
 	if (Hook_Init()) {
 		Lattice::ObjectInitializationList = &Hook_GetObjectList();

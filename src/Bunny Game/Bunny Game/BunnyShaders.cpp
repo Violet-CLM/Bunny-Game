@@ -235,6 +235,6 @@ bool Hook_ShouldTexturedLayerBeRendered(const Layer& layer, sf::RenderTarget& ta
 		((layerSpeeds.x * renderFrame) - layerPosition.x) / horizontalDiver,
 		((layerSpeeds.y * renderFrame) - layerPosition.y) / (8*TILEWIDTH)
 	));
-	target.draw(FullScreenQuad.vertices, 4, sf::Quads, !isTunnel ? WarpHorizonRenderStates : TunnelRenderStates);
+	target.draw(FullScreenShape.vertices, PrimitiveCount, OpenGLPrimitive, !isTunnel ? WarpHorizonRenderStates : TunnelRenderStates);
 	return false;
 }

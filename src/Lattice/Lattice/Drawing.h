@@ -6,6 +6,14 @@
 #include "Shaders.h"
 #include "Constants.h"
 
+#ifdef SUPPORT_QUADS
+#define OpenGLPrimitive sf::Quads
+#define PrimitiveCount 4
+#else
+#define OpenGLPrimitive sf::Triangles
+#define PrimitiveCount 6
+#endif
+
 struct quad;
 extern quad PossibleQuadOrientations[];
 struct quad {
@@ -120,12 +128,43 @@ struct quad {
 	}
 	void appendTo(VertexVector& vertexVector) {
 		//OuputDebugStringF("%f, %f, %f, %f, %f, %f, %f, %f", vertices[0].texCoords.x, vertices[0].texCoords.y, vertices[2].texCoords.x, vertices[2].texCoords.y, vertices[0].position.x, vertices[0].position.y, vertices[2].position.x, vertices[2].position.y);
+#ifdef SUPPORT_QUADS
 		for (int i = 0; i < 4; ++i) {
 			vertexVector.push_back(vertices[i]);
 		}
+#else
+		vertexVector.push_back(vertices[0]);
+		vertexVector.push_back(vertices[1]);
+		vertexVector.push_back(vertices[2]);
+		vertexVector.push_back(vertices[2]);
+		vertexVector.push_back(vertices[3]);
+		vertexVector.push_back(vertices[0]);
+#endif
 	}
 };
 extern quad FullScreenQuad, FullScreenQuadNonFlipped;
+
+#ifndef SUPPORT_QUADS
+struct triangleQuad {
+	sf::Vertex vertices[6];
+
+	triangleQuad& operator=(const quad& source) {
+		vertices[0] = source.vertices[0];
+		vertices[1] = source.vertices[1];
+		vertices[2] = source.vertices[2];
+		vertices[3] = source.vertices[2];
+		vertices[4] = source.vertices[3];
+		vertices[5] = source.vertices[0];
+		return *this;
+	}
+};
+extern triangleQuad FullScreenTriangleQuad, FullScreenTriangleQuadNonFlipped;
+#define FullScreenShape FullScreenTriangleQuad
+#define FullScreenShapeNonFlipped FullScreenTriangleQuadNonFlipped
+#else
+#define FullScreenShape FullScreenQuad
+#define FullScreenShapeNonFlipped FullScreenQuadNonFlipped
+#endif
 
 struct SpriteMode {
 protected:

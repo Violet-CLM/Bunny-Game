@@ -10,6 +10,9 @@ sf::Texture* PaletteTexture;
 
 quad PossibleQuadOrientations[2 * 2 * 2];
 quad FullScreenQuad, FullScreenQuadNonFlipped;
+#ifndef SUPPORT_QUADS
+triangleQuad FullScreenTriangleQuad, FullScreenTriangleQuadNonFlipped;
+#endif
 
 void GeneratePaletteTexture(sf::Texture& tex, const sf::Uint8* palette)
 {
@@ -98,7 +101,7 @@ void VertexCollection::draw(sf::RenderTarget & target, sf::RenderStates states) 
 {
 	states.texture = Texture;
 	Mode->Apply(states);
-	target.draw(Vertices.data(), Vertices.size(), sf::Quads, states);
+	target.draw(Vertices.data(), Vertices.size(), OpenGLPrimitive, states);
 }
 void VertexCollectionQueue::draw(sf::RenderTarget & target, sf::RenderStates states) const
 {

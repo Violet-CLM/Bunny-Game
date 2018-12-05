@@ -273,7 +273,7 @@ void Layer::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	if (!IsTextured || Hook_ShouldTexturedLayerBeRendered(*this, target, states, TextureMode)) {
 		for (int i = 0; i < NUMBEROFTILESETTEXTURES; ++i) if (!Vertices[i].empty()) {
 			states.texture = LevelPtr->TilesetPtr->TileImages[i];
-			target.draw(Vertices[i].data(), Vertices[i].size(), sf::Quads, states);
+			target.draw(Vertices[i].data(), Vertices[i].size(), OpenGLPrimitive, states);
 		}
 	}
 	VertexCollectionQueue::draw(target, states);
@@ -289,7 +289,7 @@ void Layer::MakeTexture(sf::RenderTexture& textureImage) const {
 
 		for (int i = 0; i < NUMBEROFTILESETTEXTURES; ++i)
 			if (!vertices[i].empty())
-				textureImage.draw(vertices[i].data(), vertices[i].size(), sf::PrimitiveType::Quads, LevelPtr->TilesetPtr->TileImages[i]);
+				textureImage.draw(vertices[i].data(), vertices[i].size(), OpenGLPrimitive, LevelPtr->TilesetPtr->TileImages[i]);
 	}
 	textureImage.display();
 }

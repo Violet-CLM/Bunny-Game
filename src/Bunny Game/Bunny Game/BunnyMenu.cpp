@@ -1,3 +1,4 @@
+#include "Drawing.h"
 #include "BunnyMenu.h"
 #include "BunnyMisc.h"
 #include "BunnyObjectList.h"
@@ -34,7 +35,7 @@ void DrawMenuBG(sf::RenderTarget& target) {
 		const float v0 = (time >> 3) * 3.14159265359f / 512.f;
 		Shaders[BunnyShaders::MenuBG]->setUniform("transform32", sf::Glsl::Vec4(sin(v0) * 64.f, cos(v0 / 2.f) * -64.f, 0, 0));
 	}
-	target.draw(FullScreenQuad.vertices, 4, sf::Quads, MenuBGRenderStates);
+	target.draw(FullScreenShape.vertices, PrimitiveCount, OpenGLPrimitive, MenuBGRenderStates);
 }
 
 #include "Windows.h"

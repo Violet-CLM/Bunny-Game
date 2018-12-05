@@ -412,7 +412,7 @@ void ClearLightingBuffer(float intensity) { //resets without any blurring
 	LightingBuffer[1].clear(clear);
 }
 inline void BlurLightingBuffer() {
-	LightingBuffer[1].draw(FullScreenQuad.vertices, 4, sf::Quads, BlurAmbientLightingBufferRenderStates); //blur everything
+	LightingBuffer[1].draw(FullScreenShape.vertices, PrimitiveCount, OpenGLPrimitive, BlurAmbientLightingBufferRenderStates); //blur everything
 }
 void Hook_DrawToWindow(sf::RenderTexture& videoBuffer, sf::RenderWindow& window) {
 	/*static unsigned int lastFrames = 0; //change light at random every second; good for testing light fading
@@ -428,20 +428,20 @@ void Hook_DrawToWindow(sf::RenderTexture& videoBuffer, sf::RenderWindow& window)
 	if (CurrentStageType != StageType::Image) {
 		if (CurrentStageType == StageType::Level) {
 			Shaders[BunnyShaders::ClearAmbientLightingBuffer]->setUniform("newIntensity", std::min(127u, AmbientLightingLevel) / 256.f);
-			LightingBuffer[0].draw(FullScreenQuad.vertices, 4, sf::Quads, ClearAmbientLightingBufferRenderStates); //fade the previous version of the buffer onto the new base intensity
+			LightingBuffer[0].draw(FullScreenShape.vertices, PrimitiveCount, OpenGLPrimitive, ClearAmbientLightingBufferRenderStates); //fade the previous version of the buffer onto the new base intensity
 			LightingBuffer[0].draw(LightingSprites, Layer4Offset); //draw all the new light sources
 			//laser beam goes here
 			BlurLightingBuffer();
 			//laser shield goes here
 		} else if (CurrentStageType == StageType::Menu) {
-			LightingBuffer[0].draw(FullScreenQuad.vertices, 4, sf::Quads, ClearAmbientLightingBufferMenuRenderStates);
+			LightingBuffer[0].draw(FullScreenShape.vertices, PrimitiveCount, OpenGLPrimitive, ClearAmbientLightingBufferMenuRenderStates);
 			LightingBuffer[0].draw(LightingSprites);
 			BlurLightingBuffer();
 		}
 
-		window.draw(FullScreenQuadNonFlipped.vertices, 4, sf::Quads, LightingStates);
+		window.draw(FullScreenShapeNonFlipped.vertices, PrimitiveCount, OpenGLPrimitive, LightingStates);
 	} else {
-		window.draw(FullScreenQuadNonFlipped.vertices, 4, sf::Quads, LightingStates.texture);
+		window.draw(FullScreenShapeNonFlipped.vertices, PrimitiveCount, OpenGLPrimitive, LightingStates.texture);
 	}
 
 	if (CurrentStageType == StageType::Level) {
