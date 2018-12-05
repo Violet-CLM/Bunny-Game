@@ -101,6 +101,7 @@ const ObjectList& Hook_GetObjectList() {
 		ObjT(FLICKERLIGHT, Common, FlickerLight),
 
 		ObjT(BUMBEE, BumBee, Bee),
+		ObjT(NORMTURTLE, Turtle, NormalTurtle),
 	};
 }
 

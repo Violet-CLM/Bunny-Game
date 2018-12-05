@@ -24,6 +24,8 @@ protected:
 	Explosion& AddExplosion(int setID, int animID, bool makeChild = false);
 	Bunny* GetNearestPlayer(int distance) const;
 	Bunny* GetNearestPlayerRef(int& distance) const;
+	void PutOnGround(bool walker);
+	void MakeRectangularCollisionShapeBasedOnCurrentFrame();
 public:
 	enum class State {
 		Start = 0, Sleep, Wake, Kill, Deactivate, Walk, Jump, Fire, Fly, Bounce,
@@ -53,5 +55,7 @@ protected:
 public:
 	Interactive(ObjectStartPos&, bool=true);
 	virtual bool Hurt(unsigned int, bool);
+	virtual bool Die();
+	bool CausesRicochet = false;
 	bool IsEnemy, TriggersTNT; //separate from IsEnemy for purposes of destruct scenery
 };

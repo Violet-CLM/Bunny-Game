@@ -44,7 +44,7 @@ class Bunny : public BunnyObject {
 	};
 	PlatformTypes platformType;
 	float platform_relX, platform_relY, moveSpeedX, moveSpeedY, fixScrollX, quakeX, shiftPositionX, poleSpeed, fireAngle;
-	int playerID, fire, lastFire, lastDownAttack, airBoard, helicopter, helicopterTotal, specialJump, dive, lastDive, hit, DirectionKeyX, DirectionKeyY, warpCounter, frogMorph, bossActive, vPole, swim, stop, stoned, stonedLen, spring, specialMove, slope, runDash, run, lastRun, rolling, quake, platform, ledgeWiggle, lastSpring, lastJump, idleTime, hPole, hang, vine, fixStartX, downAttack, charCurr, beMoved, lastTilePosition, sugarRush, sucked, shieldType, shieldTime, morph, flicker, frameCount, animSpeed, warpFall, warpArea, viewSkipAverage, skid, pushObject, push, lookVP, lookVPAmount, lift, lastPush, lastLookVP, idleTrail, idleExtra, idleAnim, health, fireDirection;
+	int playerID, fire, lastDownAttack, airBoard, helicopter, helicopterTotal, specialJump, dive, lastDive, hit, DirectionKeyX, DirectionKeyY, warpCounter, frogMorph, bossActive, vPole, swim, stop, stoned, stonedLen, spring, specialMove, slope, runDash, run, lastRun, rolling, quake, platform, ledgeWiggle, lastSpring, lastJump, idleTime, hPole, hang, vine, fixStartX, downAttack, charCurr, beMoved, lastTilePosition, sugarRush, sucked, shieldType, shieldTime, morph, flicker, frameCount, animSpeed, warpFall, warpArea, viewSkipAverage, skid, pushObject, push, lookVP, lookVPAmount, lift, lastPush, lastLookVP, idleTrail, idleExtra, idleAnim, health, fireDirection;
 	bool goUp, goRight, goLeft, goDown, goFarDown, fixAnim, fireHold;
 	Event* LastSuckerTube;
 	sf::Vector2f Trace[MAXPLAYERTRACE]; int TraceStartIndex = 0; unsigned int TraceLength = 0;
@@ -94,7 +94,7 @@ public:
 	void AddToInvincibilityDuration(int);
 
 	int Health;
-	int freeze, invincibility, fly, fireType;
+	int freeze, invincibility, fly, fireType, lastFire;
 	const char* HelpString; int HelpStringCounter = 0;
 	Player PlayerProperties;
 };

@@ -74,6 +74,7 @@ protected:
 	
 	unsigned int GetFrameCount() const;
 	void DetermineFrame(unsigned int);
+	void AnimateIfZero(bool);
 	void Delete();
 	void Deactivate();
 

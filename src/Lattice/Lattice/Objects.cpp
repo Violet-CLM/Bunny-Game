@@ -108,6 +108,9 @@ void GameObject::DetermineFrame(unsigned int frameID)
 	const unsigned int frameCount = GetFrameCount();
 	FrameID = (!!frameCount) ? (frameID % frameCount) : 0;
 }
+void GameObject::AnimateIfZero(bool advanceFrame) {
+	DetermineFrame(FrameID + !advanceFrame);
+}
 
 void GameObject::Deactivate()
 {

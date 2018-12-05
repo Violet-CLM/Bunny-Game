@@ -11,3 +11,11 @@ class Bee : public Interactive {
 public:
 	Bee(ObjectStartPos&);
 };
+
+class NormalTurtle : public Interactive {
+	int Counter;
+	void Move(GameState&) override;
+	bool Die() override;
+public:
+	NormalTurtle(ObjectStartPos&);
+};

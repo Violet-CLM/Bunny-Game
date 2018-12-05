@@ -94,6 +94,31 @@ Bunny* BunnyObject::GetNearestPlayerRef(int& threshold) const {
 	return nearest;
 }
 
+void BunnyObject::PutOnGround(bool walker) {
+	if (walker) {
+		FrameID = 0;
+		PositionY -= 15; //start a bit higher 
+	}
+	const auto frame = GetFrame();
+	const int yStep = walker ? 1 : 4;
+
+	const auto px = int(PositionX) + (((frame.Width / 2) + frame.HotspotX));
+	const auto py = walker ? (frame.HotspotY - frame.ColdspotY) : (frame.HotspotY + frame.Height);
+	const auto& layer = HostLevel.Layers[SPRITELAYER];
+	const auto bottomOfLevel = float(layer.HeightPixels);
+
+	// Move object down until we've hit something
+	for (; PositionY < bottomOfLevel; PositionY += yStep)
+		if (layer.MaskedPixel(px, int(PositionY) + py)) break;
+}
+
+
+void BunnyObject::MakeRectangularCollisionShapeBasedOnCurrentFrame() {
+	CollisionShapes.clear();
+	const auto& frame = GetFrame();
+	CollisionShapes.emplace_back(frame.Width, frame.Height, float(DirectionX >= 0 ? (frame.HotspotX) : (-frame.Width - frame.HotspotX)), float(frame.HotspotY));
+}
+
 Interactive::Interactive(ObjectStartPos& start, bool enemy) : BunnyObject(start), IsEnemy(enemy), TriggersTNT(enemy) {
 	ObjectType = BunnyObjectType::Interactive;
 }
@@ -107,14 +132,17 @@ void Interactive::Draw(Layer* layers) const {
 bool Interactive::Hurt(unsigned int force, bool hurtByBullet) {
 	JustHit = 5; //FLASHTIME
 	if ((Energy -= force) <= 0) {
-		//todo points
-		//todo pickups
-		//todo particles
-		//todo sounds
-		Delete();
-		return true;
+		return Die();
 	}
 	return false;
+}
+bool Interactive::Die() {
+	//todo points
+	//todo pickups
+	//todo particles
+	//todo sounds
+	Delete();
+	return true;
 }
 void Interactive::HitBy(GameObject& other) {
 	if (other.ObjectType == BunnyObjectType::Player) {
