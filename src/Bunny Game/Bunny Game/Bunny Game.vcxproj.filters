@@ -80,6 +80,9 @@
     <ClCompile Include="AdditionalSprites.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Particles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Bunny Game.rc">
@@ -138,6 +141,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AdditionalSprites.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Particles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include "SFML/Config.hpp"
 #include "Tile.h"
 #include "Drawing.h"
@@ -6,6 +7,9 @@
 #include "Constants.h"
 
 class Level;
+#ifdef PARTICLECOUNT
+#include "Particles.h"
+#endif
 struct Layer : public VertexCollectionQueue, public sf::Transformable { //order of properties is arbitrary, not connected to any native JJ2 code
 private:
 	//sf::Uint32 LayerID;
@@ -58,6 +62,10 @@ public:
 	bool MaskedPixel(int, int) const;
 	unsigned int MaskedHLine(int, int, int) const;
 	unsigned int MaskedVLine(int, int, int) const;
+
+#ifdef PARTICLECOUNT
+	std::array<Particle, PARTICLECOUNT> Particles;
+#endif
 
 	std::vector<sf::Texture> AdditionalTextures;
 	bool Get_IsTextured() const { return IsTextured; }

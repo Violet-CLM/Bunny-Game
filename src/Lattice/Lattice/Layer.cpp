@@ -247,6 +247,11 @@ void Layer::Update(unsigned int gameTicks, sf::Vector2f camera)
 		PositionY += int(200 - WINDOW_HEIGHT_PIXELS);
 	setPosition(roundf(-PositionX), roundf(-PositionY)); //sub-pixel repositioning leads to tearing
 
+#ifdef PARTICLECOUNT
+	for (auto& it : Particles)
+		it.Behave();
+#endif
+
 	if (IsTextured && !Hook_ShouldTexturedLayerBeUpdated(TextureMode))
 		return;
 

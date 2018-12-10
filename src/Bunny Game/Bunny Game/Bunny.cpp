@@ -2614,8 +2614,8 @@ void Bunny::AdjustRabbit(unsigned int gameTicks) {
 						AssignAnimation(RabbitAnims::REV1, 4, true);
 				}
 				else if (runDash > 15) {
-					/*if (runDash > 35)
-						MyAddParticleSparks(PositionX - 0x60000 * DirectionX, PositionY + 0x160000, -DirectionX);*/ //todo particles
+					if (runDash > 35)
+						Particle::AddSpark(HostLevel.Layers[SPRITELAYER], sf::Vector2f(PositionX - 6 * DirectionX, PositionY + 22), -DirectionX);
 					fixAnim = 0;
 					AssignAnimation(RabbitAnims::REV2, std::max(1, 10 - runDash / 8));
 				}

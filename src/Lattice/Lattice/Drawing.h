@@ -212,6 +212,7 @@ public:
 class VertexCollectionQueue : public sf::Drawable {
 private:
 	std::vector<VertexCollection> Collections;
+	VertexVector Pixels;
 protected:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 public:
@@ -219,6 +220,7 @@ public:
 	void AppendSprite(const SpriteMode&, int, int, const AnimFrame&, bool = false, bool = false);
 	void AppendRectangle(const SpriteMode&, int, int, int, int, sf::Uint8);
 	void AppendPixel(const SpriteMode&, int, int, sf::Uint8);
+	void AppendPixel(int, int, sf::Uint8);
 	void AppendResizedSprite(const SpriteMode&, int, int, const AnimFrame&, float,float);
 	void AppendRotatedSprite(const SpriteMode&, int, int, const AnimFrame&, float, float=1.f,float=1.f);
 

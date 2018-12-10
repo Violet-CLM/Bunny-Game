@@ -107,6 +107,12 @@ void VertexCollectionQueue::draw(sf::RenderTarget & target, sf::RenderStates sta
 {
 	for (const auto& it : Collections)
 		target.draw(it, states);
+	if (!Pixels.empty()) {
+		states.shader = Shaders[DefaultShaders::Normal];
+		states.blendMode = sf::BlendNone;
+		states.texture = PaletteTexture;
+		target.draw(Pixels.data(), Pixels.size(), sf::Points, states);
+	}
 }
 
 
@@ -155,6 +161,10 @@ void VertexCollectionQueue::AppendRectangle(const SpriteMode& mode, int x, int y
 void VertexCollectionQueue::AppendPixel(const SpriteMode& mode, int x, int y, sf::Uint8 color)
 {
 	return AppendRectangle(mode, x, y, 1, 1, color);
+}
+void VertexCollectionQueue::AppendPixel(int x, int y, sf::Uint8 color)
+{
+	Pixels.emplace_back(sf::Vector2f(float(x), float(y)), sf::Vector2f(static_cast<float>(color), static_cast<float>(DefaultPaletteLineNames::Palette)));
 }
 void VertexCollectionQueue::AppendResizedSprite(const SpriteMode& mode, int x, int y, const AnimFrame& sprite, float scaleX, float scaleY)
 {
@@ -222,4 +232,5 @@ void VertexCollectionQueue::AppendRotatedSprite(const SpriteMode& mode, int x, i
 
 void VertexCollectionQueue::Clear() {
 	Collections.resize(0);
+	Pixels.resize(0);
 }

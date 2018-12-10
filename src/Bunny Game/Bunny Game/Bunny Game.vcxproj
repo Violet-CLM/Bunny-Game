@@ -124,9 +124,9 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>SUPPORT_QUADS;SFML_STATIC;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SUPPORT_QUADS;PARTICLECOUNT=1024;SFML_STATIC;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\Program Files\SFML-2.4.2\include;..\..\Lattice\Lattice</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Program Files\SFML-2.4.2\include;..\..\Lattice\Lattice;.\</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
@@ -177,6 +177,7 @@
     <ClCompile Include="BunnyMisc.cpp" />
     <ClCompile Include="BunnyObject.cpp" />
     <ClCompile Include="BunnyObjectList.cpp" />
+    <ClCompile Include="Particles.cpp" />
     <ClCompile Include="BunnyShaders.cpp" />
     <ClCompile Include="BunnyVersionDependentStuff.cpp" />
     <ClCompile Include="BunnyWeapons.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="BunnyMisc.h" />
     <ClInclude Include="BunnyObject.h" />
     <ClInclude Include="BunnyObjectList.h" />
+    <ClInclude Include="Particles.h" />
     <ClInclude Include="BunnySamples.h" />
     <ClInclude Include="BunnyShaders.h" />
     <ClInclude Include="BunnyVersionDependentStuff.h" />
