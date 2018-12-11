@@ -804,3 +804,49 @@ void ElectroBlasterBullet::Draw(Layer* layers) const {
 
 	DrawObjectToLightBuffer(*this);
 }
+
+IceBullet::IceBullet(ObjectStartPos& objStart, bool poweredUp) : PlayerBullet(objStart, Weapon::Ice, 4, true) {
+	AnimID = poweredUp ? 30 : 27;
+	CollisionShapes.emplace_back(18 + poweredUp * 9, 4 + poweredUp * 2);
+	SpeedX = float(6 + poweredUp);
+	AccelerationX = poweredUp ? 0.1875f : 0.125f;
+	killAnimID = 82;
+	damage = 2; //useless?
+	freeze = poweredUp ? 254 : 200;
+	lifeTime = AISPEED / 2 - poweredUp * 5;
+	MakeBright(10); //standard for all frozen objects
+	if (poweredUp) {
+		static int lastSineCounter = 512;
+		sineCounter = lastSineCounter;
+		lastSineCounter += 512;
+	}
+}
+void IceBullet::Draw(Layer* layers) const {
+	if (Counter >= 4) { //DONT DISPLAY THE BULLET WHEN STILL INSIDE CHARACTER!!
+		const auto angle = atan2((SpeedX < 0) ? SpeedY : -SpeedY, abs(SpeedX));
+		layers[SPRITELAYER].AppendRotatedSprite(SpriteMode::Paletted, int(PositionX + sin(angle) * sineOffset), int(PositionY + cos(angle) * sineOffset), GetFrame(), angle, float(DirectionX));
+	}
+	DrawObjectToLightBuffer(*this);
+}
+void IceBullet::Move(GameState& gameState) {
+	Event eventAtPixel;
+	if ((Counter > lifeTime) || (Counter > 0 && gameState.MaskedPixel(int(PositionX), int(PositionY), eventAtPixel) && (eventAtPixel.ID != EventIDs::RICOCHET || !Ricochet()))) {
+		PlaySample(Common, EXPSM1, sf::Vector2f(PositionX, PositionY), 58); //separate from Explode because ice bullets don't make a sound when they die from hitting an enemy
+		Explode();
+	} else {
+		++Counter;
+
+		PositionX += SpeedX + pxSpeed;
+		PositionY += SpeedY;
+
+		SpeedX += AccelerationX;
+		SpeedY += AccelerationY;
+
+		ApproachZeroByUnit(pxSpeed, 0.125f);
+
+		if (sineCounter)
+			sineOffset += sinTable(sineCounter += 64);
+
+		AnimateIfZero(!!(gameState.GameTicks & 3));
+	}
+}

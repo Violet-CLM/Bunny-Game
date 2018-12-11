@@ -128,3 +128,14 @@ class ElectroBlasterBullet : public PlayerBullet {
 public:
 	ElectroBlasterBullet(ObjectStartPos&, bool);
 };
+
+class IceBullet : public PlayerBullet {
+	int counter = 0;
+	int freeze;
+	int sineCounter = 0;
+	float sineOffset = 0;
+	void Move(GameState&) override;
+	void Draw(Layer*) const override;
+public:
+	IceBullet(ObjectStartPos&, bool);
+};

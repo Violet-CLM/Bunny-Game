@@ -18,7 +18,7 @@ const ObjectList& Hook_GetObjectList() {
 		ObjT(EXPLOSION, Ammo, Explosion),
 
 		ObjTC(GUN2AMMO3, Ammo, AmmoPickup, Weapon::Bouncer),
-		//ObjTC(GUN3AMMO3, Ammo, AmmoPickup, Weapon::Ice),
+		ObjTC(GUN3AMMO3, Ammo, AmmoPickup, Weapon::Ice),
 		ObjTC(GUN4AMMO3, Ammo, AmmoPickup, Weapon::Seeker),
 		ObjTC(GUN5AMMO3, Ammo, AmmoPickup, Weapon::RF),
 		ObjTC(GUN6AMMO3, Ammo, AmmoPickup, Weapon::Toaster),
@@ -30,6 +30,8 @@ const ObjectList& Hook_GetObjectList() {
 		ObjTC(PLAYERBULLETP1, Ammo, BlasterBullet, true),
 		ObjT(PLAYERBULLET2, Ammo, BouncerBullet),
 		ObjT(PLAYERBULLETP2, Ammo, BouncerBulletPU),
+		ObjTC(PLAYERBULLET3, Ammo, IceBullet, false),
+		ObjTC(PLAYERBULLETP3, Ammo, IceBullet, true),
 		ObjTC(PLAYERBULLET4, Ammo, SeekerBullet, false),
 		ObjTC(PLAYERBULLETP4, Ammo, SeekerBullet, true),
 		ObjTC(PLAYERBULLET5, Ammo, RFBullet, false),
