@@ -56,7 +56,7 @@
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
-    <Import Project="..\..\Lattice\Lattice\Lattice.vcxitems" Label="Shared" />
+    <Import Project="..\Lattice\Lattice.vcxitems" Label="Shared" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -92,14 +92,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>SFML_STATIC;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\Program Files\SFML-2.4.2\include;..\..\Lattice\Lattice</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Program Files\SFML-2.4.2\include;..\Lattice</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <PerUserRedirection>true</PerUserRedirection>
-      <AdditionalLibraryDirectories>D:\Program Files\SFML\lib\Debug;D:\Program Files\SFML-2.4.2\extlibs\libs-msvc\x86;..\..\Lattice\Lattice;C:\Users\Sam\Documents\Visual Studio 2015\Projects\zlib-1.2.11\contrib\vstudio\vc14\x86\ZlibStatDebug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\Program Files\SFML\lib\Debug;D:\Program Files\SFML-2.4.2\extlibs\libs-msvc\x86;..\Lattice;C:\Users\Sam\Documents\Visual Studio 2015\Projects\zlib-1.2.11\contrib\vstudio\vc14\x86\ZlibStatDebug</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-main-d.lib;sfml-graphics-s-d.lib;sfml-audio-s-d.lib;sfml-window-s-d.lib;sfml-system-s-d.lib;opengl32.lib;freetype.lib;jpeg.lib;winmm.lib;gdi32.lib;openal32.lib;flac.lib;vorbisenc.lib;vorbisfile.lib;vorbis.lib;ogg.lib;zlibstat.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>notelemetry.obj %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -126,7 +126,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>SUPPORT_QUADS;PARTICLECOUNT=1024;SFML_STATIC;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\Program Files\SFML-2.4.2\include;..\..\Lattice\Lattice;.\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Program Files\SFML-2.4.2\include;..\Lattice;.\</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
@@ -136,7 +136,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <PerUserRedirection>true</PerUserRedirection>
-      <AdditionalLibraryDirectories>D:\Program Files\SFML\lib\MinSizeRel;D:\Program Files\SFML-2.4.2\extlibs\libs-msvc\x86;..\..\Lattice\Lattice;C:\Users\Sam\Documents\Visual Studio 2015\Projects\zlib-1.2.11\contrib\vstudio\vc14\x86\ZlibStatReleaseWithoutAsm</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\Program Files\SFML\lib\MinSizeRel;D:\Program Files\SFML-2.4.2\extlibs\libs-msvc\x86;..\Lattice;C:\Users\Sam\Documents\Visual Studio 2015\Projects\zlib-1.2.11\contrib\vstudio\vc14\x86\ZlibStatReleaseWithoutAsm</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-main.lib;sfml-graphics-s.lib;sfml-audio-s.lib;sfml-window-s.lib;sfml-system-s.lib;opengl32.lib;freetype.lib;jpeg.lib;winmm.lib;gdi32.lib;openal32.lib;flac.lib;vorbisenc.lib;vorbisfile.lib;vorbis.lib;ogg.lib;zlibstat.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>notelemetry.obj %(AdditionalOptions)</AdditionalOptions>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>

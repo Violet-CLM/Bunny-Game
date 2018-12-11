@@ -4,7 +4,7 @@
 src/*
 !src/Bunny Game
 !src/Lattice
-/src/*/*/*/
+/src/*/*/
 
 *.suo
 *.vc.db

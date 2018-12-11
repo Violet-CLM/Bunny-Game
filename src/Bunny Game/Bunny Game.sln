@@ -5,11 +5,11 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bunny Game", "Bunny Game.vcxproj", "{270AB991-6D81-438E-ADE6-654076D0A5D0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lattice", "..\..\Lattice\Lattice\Lattice.vcxitems", "{45D41ACC-2C3C-43D2-BC10-02AA73FFC7C7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lattice", "..\Lattice\Lattice.vcxitems", "{45D41ACC-2C3C-43D2-BC10-02AA73FFC7C7}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\..\Lattice\Lattice\Lattice.vcxitems*{270ab991-6d81-438e-ade6-654076d0a5d0}*SharedItemsImports = 4
+		..\Lattice\Lattice.vcxitems*{270ab991-6d81-438e-ade6-654076d0a5d0}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
