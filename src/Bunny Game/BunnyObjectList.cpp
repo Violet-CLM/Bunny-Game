@@ -24,7 +24,7 @@ const ObjectList& Hook_GetObjectList() {
 		ObjTC(GUN6AMMO3, Ammo, AmmoPickup, Weapon::Toaster),
 		ObjTC(GUN7AMMO3, Ammo, AmmoPickup, Weapon::TNT),
 		ObjTC(GUN8AMMO3, Ammo, AmmoPickup, Weapon::Gun8),
-		//ObjTC(GUN9AMMO3, Ammo, AmmoPickup, Weapon::Gun9),
+		ObjTC(GUN9AMMO3, Ammo, AmmoPickup, Weapon::Gun9),
 
 		ObjTC(PLAYERBULLET1, Ammo, BlasterBullet, false),
 		ObjTC(PLAYERBULLETP1, Ammo, BlasterBullet, true),
@@ -39,6 +39,8 @@ const ObjectList& Hook_GetObjectList() {
 		ObjT(TNT, Ammo, TNTBullet),
 		ObjTC(PLAYERBULLET8, Ammo, PepperSprayBullet, false),
 		ObjTC(PLAYERBULLETP8, Ammo, PepperSprayBullet, true),
+		ObjTC(PLAYERBULLET9, Ammo, ElectroBlasterBullet, false),
+		ObjTC(PLAYERBULLETP9, Ammo, ElectroBlasterBullet, true),
 
 		ObjTC(APPLE, Pickups, Food, 1),
 		ObjTC(BANANA, Pickups, Food, 2),

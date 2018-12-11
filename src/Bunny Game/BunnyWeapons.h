@@ -116,3 +116,15 @@ class SeekerBullet : public PlayerBullet {
 public:
 	SeekerBullet(ObjectStartPos&, bool);
 };
+
+class ElectroBlasterBullet : public PlayerBullet {
+	int angle;
+	int counter = 0;
+	sf::Uint8 sparkColor;
+	SpriteMode mode;
+	void Move(GameState&) override;
+	void Explode() override;
+	void Draw(Layer*) const override;
+public:
+	ElectroBlasterBullet(ObjectStartPos&, bool);
+};

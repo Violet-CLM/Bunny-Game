@@ -1,4 +1,5 @@
 #include "Bunny.h"
+#include "BunnyShaders.h"
 #include "BunnyEffects.h"
 #include "BunnyWeapons.h"
 #include "BunnyObjectList.h"
@@ -216,8 +217,8 @@ bool PlayerBullet::Ricochet()
 		DirectionX = -DirectionX;
 		SpeedY = std::min(std::max(-SpeedY + Rand2Fac(0x7FFF) / 4096.f, -8.f), 8.f);
 
-		//for (t=0;t<8+(int)RandFac(7);t++)
-		//	AddParticleSparks(obj->xpos,obj->ypos,-obj->direction);
+		for (unsigned int t = 0; t < 8+RandFac(7); ++t)
+			Particle::AddSpark(HostLevel.Layers[SPRITELAYER], sf::Vector2f(PositionX, PositionY), -DirectionX);
 		PlaySampleAtObject(Ammo, BUL1 + RandFac(3));
 
 		ricos += 1;
@@ -755,3 +756,51 @@ int SeekerBullet::TraceLine(const GameState& gameState, float x0, float y0, floa
 
 	return 0;
 } //TraceLine()
+
+ElectroBlasterBullet::ElectroBlasterBullet(ObjectStartPos& start, bool poweredUp) : PlayerBullet(start, Weapon::Gun9), sparkColor(poweredUp ? 32 : 40), mode(SpriteMode(Shaders[BunnyShaders::Palshift], sf::Uint8(int(sparkColor) - 80))) {
+	AnimID = 75;
+	FrameID = 4;
+	CollisionShapes.emplace_back(4);
+	SpeedX = 4;
+	damage = 1 + (poweredUp << 1);
+	MakePoint2();
+	angle = RandFac(7) << 7;
+}
+void ElectroBlasterBullet::Explode() {
+	Delete();
+}
+void ElectroBlasterBullet::Move(GameState& gameState) {
+	if (++counter > 54)
+		Explode();
+	else {
+		PositionX += (SpeedX += AccelerationX) + pxSpeed;
+		PositionY += SpeedY += AccelerationY;
+
+		angle += (DirectionX << 5);
+	}
+}
+void ElectroBlasterBullet::Draw(Layer* layers) const {
+	int sparkCount = 8;
+	const int radius = 64 + (counter << 3);
+	int drawAngle = angle;
+	unsigned int random = RandFac(0xFFFFFFFFu);
+	const auto& frame = GetFrame();
+	do {
+		const auto x = PositionX + (radius*cosTable(drawAngle)) / 64;
+		const auto y = PositionY + (radius*sinTable(drawAngle)) / 64;
+		drawAngle += 96;
+
+		layers[SPRITELAYER].AppendSprite(mode, int(x), int(y), frame);
+		if (!(random & 3))
+			if (auto spark = Particle::Add(layers[SPRITELAYER], Particle::ParticleType::tSpark, sf::Vector2f(x, y))) {
+				spark->SpeedX = (x - PositionX) / 4;
+				spark->SpeedY = (y - PositionY) / 4;
+				spark->Spark.color = sparkColor;
+				spark->Spark.colorStop = sparkColor + 6;
+				spark->Spark.colorDelta = 1;
+			}
+		random >>= 2;
+	} while (--sparkCount);
+
+	DrawObjectToLightBuffer(*this);
+}

@@ -89,6 +89,7 @@ struct Particle {
 	void Behave();
 
 private:
+	friend class ElectroBlasterBullet;
 	static Particle* Add(Layer&);
 	static Particle* Add(Layer&, ParticleType, const sf::Vector2f&);
 public:
