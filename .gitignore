@@ -1,13 +1,14 @@
 # Other Projects
 # =========================
 
-*
-!README.md
-/src/Bunny Game/Bunny Game/Debug
-/src/Bunny Game/Bunny Game/Release
-/src/Lattice/Lattice/include
-/src/Lattice/Lattice/lib
+src/*
+!src/Bunny Game
+!src/Lattice
+/src/*/*/*/
+
 *.suo
+*.vc.db
+*.VC.VC.opendb
 
 
 # Compiled Object files
