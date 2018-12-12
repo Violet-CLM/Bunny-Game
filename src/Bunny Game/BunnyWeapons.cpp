@@ -513,12 +513,12 @@ void ToasterBullet::Move(GameState& gameState) {
 	}
 }
 
-TNTBullet::TNTBullet(ObjectStartPos& start) : Interactive(start, false) {
+TNTBullet::TNTBullet(ObjectStartPos& start) : Interactive(start, 0, false) {
 	AnimID = 59;
 	CollisionShapes.emplace_back(11);
 	MakePoint1();
 }
-bool TNTBullet::Hurt(unsigned int, bool fromBullet) {
+bool TNTBullet::Hurt(unsigned int, Bunny*, bool fromBullet) {
 	if (fromBullet) {
 		ObjectType = BunnyObjectType::NonInteractive;
 		Counter = FrameID = 0;
@@ -529,7 +529,7 @@ bool TNTBullet::Hurt(unsigned int, bool fromBullet) {
 void TNTBullet::Behave(GameState& gameState) {
 	if (ObjectType == BunnyObjectType::Interactive) { //hasn't started exploding yet
 		if (++Counter > 255)
-			Hurt(1, true);
+			Hurt(1, nullptr, true);
 		else if (!(Counter & 3)) {
 		//show counting animation
 			DetermineFrame(FrameID + 1);
@@ -541,7 +541,7 @@ void TNTBullet::Behave(GameState& gameState) {
 					if (dx > -64 && dx < 64) {
 						const auto dy = PositionY - it->PositionY;
 						if (dy > -64 && dy < 64) {
-							Hurt(1, true);
+							Hurt(1, nullptr, true);
 							break; //nomore
 						}	//dy
 					}	//dx

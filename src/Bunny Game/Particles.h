@@ -3,10 +3,10 @@
 #include "SFML/Graphics.hpp"
 
 struct Layer;
+class Animation;
 
 struct Particle {
 	float PositionX, PositionY, SpeedX, SpeedY;
-	sf::Uint32 special;
 	sf::Uint8 particleType;
 	sf::Uint8 size;
 	bool active;
@@ -84,6 +84,7 @@ struct Particle {
 		} GENERIC;
 	};
 
+	const Animation* AnimationPtr;
 	Layer* LayerPtr;
 
 	void Behave();
@@ -95,5 +96,6 @@ private:
 public:
 	static Particle* AddSpark(Layer&, const sf::Vector2f&, int);
 	static Particle* AddIceTrail(Layer&, const sf::Vector2f&);
+	static Particle* AddScore(Layer&, const sf::Vector2f&, int, const Animation* const);
 };
-static_assert(sizeof(Particle) == 32 + sizeof(Layer*), "Particle incorrect size!");
+static_assert(sizeof(Particle) == 28 + sizeof(Animation*) + sizeof(Layer*), "Particle incorrect size!");

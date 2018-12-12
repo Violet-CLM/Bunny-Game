@@ -5,7 +5,7 @@
 #include "BunnyVersionDependentStuff.h"
 #include "Bunny.h"
 
-Bee::Bee(ObjectStartPos& start) : Interactive(start) {
+Bee::Bee(ObjectStartPos& start) : Interactive(start, 200) {
 	CollisionShapes.emplace_back(24,33);
 	Energy = 1;
 	State = State::Idle;
@@ -70,7 +70,7 @@ void Bee::Move(GameState& gameState) {
 }
 
 
-NormalTurtle::NormalTurtle(ObjectStartPos& start) : Interactive(start) {
+NormalTurtle::NormalTurtle(ObjectStartPos& start) : Interactive(start, 100) {
 	Energy = 1;
 	DirectionX = 1;
 }
@@ -244,7 +244,7 @@ void NormalTurtle::Move(GameState& gameState) {
 
 	MakeRectangularCollisionShapeBasedOnCurrentFrame(); //turtles change their dimensions so much this is the easiest solution
 }
-bool NormalTurtle::Die() {
+bool NormalTurtle::Die(Bunny* play) {
 	const int explosionAnimIDs[] = { 7, 71 };
 	for (int i = 0; i < 2; ++i) {
 		auto& explosion = AddExplosion(AnimSets::Ammo, explosionAnimIDs[i]);
@@ -266,7 +266,7 @@ bool NormalTurtle::Die() {
 	obj->points = 100;
 	obj->load = aTURTLESHELL;*/
 
-	return Interactive::Die();
+	return Interactive::Die(play);
 }
 void NormalTurtle::HitBy(GameObject& other) {
 	if (!(CausesRicochet && other.ObjectType == BunnyObjectType::Player && static_cast<Bunny&>(other).GetAttackType(false) == Bunny::AttackTypes::NotAttacking)) //ignore non-violent collisions when not in shell

@@ -1,6 +1,7 @@
 #include "Particles.h"
 #include "Layer.h"
 #include "BunnyMisc.h"
+#include "CharStrings.h"
 void Particle::Behave() {
 	const auto gravity = 0.125f;
 	switch (ParticleType(particleType)) {
@@ -34,6 +35,17 @@ void Particle::Behave() {
 			LayerPtr->AppendPixel(int(PositionX), int(PositionY), IceTrail.color);
 			LayerPtr->AppendPixel(int(PositionX) + RandFac(1), int(PositionY) + RandFac(1), IceTrail.color);
 		}
+		return;
+	case ParticleType::tScore:
+		{
+			auto speed = SpeedX;
+			PositionX += SpeedX;
+			SpeedX += speed / 16;
+			speed = SpeedY;
+			PositionY += SpeedY;
+			SpeedY += speed / 16;
+		}
+		WriteText(GetWriteCharacterFunction(*LayerPtr), int(PositionX),int(PositionY), Score.text, *AnimationPtr->AnimFrames);
 		return;
 	default:
 		return;
@@ -80,6 +92,17 @@ Particle* Particle::AddIceTrail(Layer& layer, const sf::Vector2f& position) {
 		result->IceTrail.color = 32;
 		result->IceTrail.colorDelta = 1;
 		result->IceTrail.colorStop = 40;
+	}
+	return result;
+}
+
+Particle* Particle::AddScore(Layer& layer, const sf::Vector2f& position, int score, const Animation* const animPtr) {
+	auto result = Add(layer, ParticleType::tScore, position);
+	if (result != nullptr) {
+		result->SpeedX = (-32768 - int(RandFac(0x3FFF))) / 65536.f;
+		result->SpeedY = (-65536 - int(RandFac(0x7FFF))) / 65536.f;
+		result->AnimationPtr = animPtr;
+		sprintf_s(result->Score.text, "%d", score);
 	}
 	return result;
 }

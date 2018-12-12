@@ -60,13 +60,14 @@ public:
 	virtual void HitBy(GameObject&) {}
 
 	GameObject& AddObject(EventID, float, float, bool=false);
+
+	GameObject* Parent;
 	void Adopt(GameObject&);
 protected:
 	Level& HostLevel;
 	Event& HostEvent;
 	std::vector<ObjectCollisionShape> CollisionShapes;
 
-	GameObject* Parent;
 	std::list<GameObject*> Children;
 	void LostParent();
 	void LostChild(GameObject&);

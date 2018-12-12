@@ -24,6 +24,7 @@ protected:
 	Explosion& AddExplosion(int setID, int animID, bool makeChild = false);
 	Bunny* GetNearestPlayer(int distance) const;
 	Bunny* GetNearestPlayerRef(int& distance) const;
+	bool GivePoints(Bunny&, unsigned int&);
 	void PutOnGround(bool walker);
 	void MakeRectangularCollisionShapeBasedOnCurrentFrame();
 public:
@@ -54,9 +55,9 @@ protected:
 	void HitBy(GameObject&) override;
 	void Draw(Layer*) const override;
 public:
-	Interactive(ObjectStartPos&, bool=true);
-	virtual bool Hurt(unsigned int, bool);
-	virtual bool Die();
+	Interactive(ObjectStartPos&, unsigned int=0, bool=true);
+	virtual bool Hurt(unsigned int, Bunny*, bool);
+	virtual bool Die(Bunny*);
 	bool CausesRicochet = false;
 	bool IsEnemy, TriggersTNT; //separate from IsEnemy for purposes of destruct scenery
 };

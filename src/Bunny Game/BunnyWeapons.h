@@ -95,7 +95,7 @@ class TNTBullet : public Interactive {
 	void Draw(Layer*) const override;
 public:
 	TNTBullet(ObjectStartPos&);
-	bool Hurt(unsigned int, bool) override;
+	bool Hurt(unsigned int, Bunny*, bool) override;
 };
 
 

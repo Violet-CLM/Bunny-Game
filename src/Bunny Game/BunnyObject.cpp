@@ -3,6 +3,8 @@
 #include "BunnyObject.h"
 #include "BunnyWeapons.h"
 #include "BunnyShaders.h"
+#include "BunnyObjectList.h"
+#include "BunnyVersionDependentStuff.h"
 #include "Pickups.h"
 
 void BunnyObject::DrawNormally(Layer* layers, const SpriteMode& mode) const {
@@ -67,14 +69,14 @@ void BunnyObject::DoBlast(int forceRadius, bool doFullBlast) { //used by TNT, RF
 							nearestTNTDistance = dist;
 						}
 					} else {
-						static_cast<Interactive&>(*it).Hurt(force, true);
+						static_cast<Interactive&>(*it).Hurt(force, dynamic_cast<Bunny*>(Parent), true);
 					}
 				}
 			}
 		}
 	}
 	if (nearestTNT != nullptr) //trigger only nearest TNT!
-		nearestTNT->Hurt(1, true); //force amount doesn't matter
+		nearestTNT->Hurt(1, nullptr, true); //force amount doesn't matter
 }
 
 Bunny* BunnyObject::GetNearestPlayer(int threshold) const {
@@ -120,7 +122,22 @@ void BunnyObject::MakeRectangularCollisionShapeBasedOnCurrentFrame() {
 	CollisionShapes.emplace_back(frame.Width, frame.Height, float(DirectionX >= 0 ? (frame.HotspotX) : (-frame.Width - frame.HotspotX)), float(frame.HotspotY));
 }
 
-Interactive::Interactive(ObjectStartPos& start, bool enemy) : BunnyObject(start), IsEnemy(enemy), TriggersTNT(enemy) {
+bool BunnyObject::GivePoints(Bunny& play, unsigned int& points) {
+	if (points) {
+		Particle::AddScore(
+			HostLevel.Layers[SPRITELAYER],
+			sf::Vector2f(PositionX, PositionY),
+			int(points),
+			&HostLevel.GetAnimSet(GetVersionSpecificAnimationID(AnimSets::Font)).Animations[1]
+		);
+		play.PlayerProperties.Score += points;
+		points = 0;
+		return true;
+	}
+	return false;
+}
+
+Interactive::Interactive(ObjectStartPos& start, unsigned int points, bool enemy) : BunnyObject(start), Points(points), IsEnemy(enemy), TriggersTNT(enemy) {
 	ObjectType = BunnyObjectType::Interactive;
 }
 void Interactive::Behave(GameState& gameState) {
@@ -143,16 +160,18 @@ void Interactive::Draw(Layer* layers) const {
 		DrawLightToLightBuffer(LightType::Normal, 56, 80, sf::Vector2f(PositionX, PositionY));
 
 }
-bool Interactive::Hurt(unsigned int force, bool hurtByBullet) {
+bool Interactive::Hurt(unsigned int force, Bunny* play, bool hurtByBullet) {
 	JustHit = 5; //FLASHTIME
 	if ((Energy -= force) <= 0) {
-		return Die();
+		return Die(play);
 	}
 	return false;
 }
-bool Interactive::Die() {
-	//todo points
-	//todo pickups
+bool Interactive::Die(Bunny* play) {
+	if (play != nullptr) {
+		GivePoints(*play, Points);
+		//todo pickups
+	}
 	//todo particles
 	//todo sounds
 	Delete();
@@ -168,7 +187,7 @@ void Interactive::HitBy(GameObject& other) {
 		} else {
 			if (attackType != Bunny::AttackTypes::SpecialAttack || CancelSpecialAttacks) //only for bosses
 				play.HitEnemyUsingAttackType(attackType);
-			Hurt(4, false); //all physical attacks do 4 damage
+			Hurt(4, &play, false); //all physical attacks do 4 damage
 		}
 	} else { //player bullet
 		PlayerBullet& bullet = static_cast<PlayerBullet&>(other);
@@ -176,6 +195,6 @@ void Interactive::HitBy(GameObject& other) {
 		if (bullet.ammoID == Weapon::Ice)
 			Frozen = static_cast<IceBullet&>(other).freeze;
 		else
-			Hurt(bullet.damage, true);
+			Hurt(bullet.damage, dynamic_cast<Bunny*>(bullet.Parent), true);
 	}
 }
