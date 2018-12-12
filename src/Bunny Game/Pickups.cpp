@@ -8,8 +8,9 @@
 
 int Pickup::ExplosionSetID = 0;
 
-Pickup::Pickup(ObjectStartPos & objStart, int ai, int s) : BunnyObject(objStart) {
+Pickup::Pickup(ObjectStartPos & objStart, int ai, unsigned int p, int s) : BunnyObject(objStart) {
 	AnimID = ai;
+	Points = p;
 	Sample = s;
 	if (((int(OriginX) >> 5) & 1) != ((int(OriginY) >> 5) & 1)) //checkerboard
 		DirectionX = -1;
@@ -69,14 +70,15 @@ void Pickup::HitBy(GameObject& other)
 	if (other.ObjectType == BunnyObjectType::Player) {
 		if (TimeTillCollectable == 0) {
 			AddExplosion(ExplosionSetID, 86);
-			Collected(static_cast<Bunny&>(other));
+			auto& play = static_cast<Bunny&>(other);
+			Collected(play);
 			if (Sample) {
 				//if (Sample == Samples::sCommon_PICKUP1)
 					//PickupSample(PositionX, PositionY); //todo
 				//else
 					HostLevel.StartSound(AnimSets::Common, Sample, sf::Vector2f(PositionX, PositionY)); //almost all pickup samples are in Common, which helpfully is the same number in both 1.23 and TSF
 			}
-			//todo points
+			GivePoints(play, Points);
 			Delete();
 		} //else do nothing
 	} else if (other.ObjectType == BunnyObjectType::PlayerBullet && !InMotion()) {
@@ -91,7 +93,7 @@ void Pickup::Draw(Layer* layers) const
 	layers[SPRITELAYER].AppendSprite(SpriteMode::Paletted, int(PositionX), int(PositionY + BounceYOffset), GetFrame(), DirectionX < 0);
 }
 
-AmmoPickup::AmmoPickup(ObjectStartPos & objStart, int ai) : Pickup(objStart, ai, Samples::sCommon_PICKUPW1), AmmoID(ai), AnimIDNormal(AmmoIconAnimIDs[ai]), AnimIDPoweredUp(AmmoIconAnimIDs[ai]-1) {
+AmmoPickup::AmmoPickup(ObjectStartPos & objStart, int ai) : Pickup(objStart, ai, 100, Samples::sCommon_PICKUPW1), AmmoID(ai), AnimIDNormal(AmmoIconAnimIDs[ai]), AnimIDPoweredUp(AmmoIconAnimIDs[ai]-1) {
 	Shift = (AmmoID != Weapon::Toaster
 #ifdef BETAPEPPER
 		&& AmmoID != Weapon::Gun8

@@ -91,7 +91,7 @@ const ObjectList& Hook_GetObjectList() {
 		ObjTC(RECTGREENGEM, Pickups, Gem, 1),
 		ObjTC(RECTBLUEGEM, Pickups, Gem, 2),
 		ObjT(GUNFASTFIRE, Pickups, FastFire),
-		ObjTC(FASTFEET, Pickups, Pickup, 33),
+		ObjTC(FASTFEET, Pickups, Pickup, 33, 0),
 		ObjT(GOLDCOIN, Pickups, GoldCoin),
 		ObjT(FLYCARROT, Pickups, FlyCarrot),
 		ObjT(FREEZER, Pickups, FreezeEnemies),
@@ -99,7 +99,7 @@ const ObjectList& Hook_GetObjectList() {
 		ObjT(FULLENERGY, Pickups, FullEnergy),
 		ObjT(SILVERCOIN, Pickups, SilverCoin),
 		ObjT(STOPWATCH, Pickups, StopWatch),
-		ObjTC(EXTRATIME, Pickups, Pickup, 87),
+		ObjTC(EXTRATIME, Pickups, Pickup, 87, 0),
 
 		ObjT(STEADYLIGHT, Common, SteadyLight),
 		ObjT(FLICKERLIGHT, Common, FlickerLight),
