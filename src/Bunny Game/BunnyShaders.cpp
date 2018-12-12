@@ -57,6 +57,16 @@ void WriteBunnyShaders() {
 			}\
 			gl_FragColor = vec4(pixel.r, pixel.g, pixel.b, index.a);\
 		}",
+	//BunnyShaders::SimpleFrozen
+		sprintf_z("uniform sampler2D texture;\
+		uniform sampler2D tables;\
+		\
+		void main(void)\
+		{\
+			vec4 index = texture2D(texture, gl_TexCoord[0].xy);\
+			vec4 pixel = texture2D(tables, vec2(texture2D(tables, vec2(index.r, %f)).r, %f)); \
+			gl_FragColor = vec4(pixel.r, pixel.g, pixel.b, index.a * 0.5);\
+		}", TOPALLINE(BunnyPaletteLineNames::Brightness), TOPALLINE(BunnyPaletteLineNames::BrightnessToFreezeColors)),
 	//BunnyShaders::WarpHorizon
 		sprintf_z(
 			"uniform sampler2D texture256;\
@@ -215,11 +225,28 @@ void Hook_SetupPaletteTables(sf::Texture& tex, const sf::Color* const paletteCol
 	}
 
 	DestLUTEntry = buffer.data();
-	for (int i = 255; i >= 0; --i, ++DestLUTEntry) { //recreating sub_45E0E0
-		const unsigned __int64 v5 = abs(i - 256) << 7;
+	for (int i = COLORSPERPALETTE-1; i >= 0; --i, ++DestLUTEntry) { //recreating sub_45E0E0
+		const unsigned __int64 v5 = abs(i - COLORSPERPALETTE) << 7;
 		DestLUTEntry->r = ~std::min((unsigned int)((4928LL * v5 * v5) >> 33), 255u);
 	}
-	tex.update((sf::Uint8*)buffer.data(), 256, 1, 0, BunnyPaletteLineNames::TBGFadeIntensity);
+	tex.update((sf::Uint8*)buffer.data(), COLORSPERPALETTE, 1, 0, BunnyPaletteLineNames::TBGFadeIntensity);
+
+	DestLUTEntry = buffer.data();
+	for (int i = 0; i < COLORSPERPALETTE; ++i, ++DestLUTEntry) {
+		const auto color = paletteColors[i];
+		DestLUTEntry->r = (7499 * color.b + 38446 * color.g + 19591 * color.r) >> 16;
+		DestLUTEntry->a = UINT8_MAX;
+	}
+	tex.update((sf::Uint8*)buffer.data(), COLORSPERPALETTE, 1, 0, BunnyPaletteLineNames::Brightness);
+
+	DestLUTEntry = buffer.data();
+	for (int i = 0; i < COLORSPERPALETTE; ++i, ++DestLUTEntry) {
+		*DestLUTEntry = sf::Color(i >> 1, std::min(32 + (i << 1), 255), std::min(i * i + 32, 255), 128);
+	}
+	tex.update((sf::Uint8*)buffer.data(), COLORSPERPALETTE, 1, 0, BunnyPaletteLineNames::BrightnessToFreezeColors);
+
+	SpriteModeFrozen = SpriteMode(Shaders[BunnyShaders::SimpleFrozen], 0);
+	SpriteModeJustHit = SpriteMode(Shaders[DefaultShaders::SingleColorPaletted], 15);
 }
 
 bool Hook_ShouldTexturedLayerBeUpdated(unsigned int) {
@@ -238,3 +265,5 @@ bool Hook_ShouldTexturedLayerBeRendered(const Layer& layer, sf::RenderTarget& ta
 	target.draw(FullScreenShape.vertices, PrimitiveCount, OpenGLPrimitive, !isTunnel ? WarpHorizonRenderStates : TunnelRenderStates);
 	return false;
 }
+
+SpriteMode SpriteModeFrozen, SpriteModeJustHit;

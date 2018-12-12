@@ -2,6 +2,7 @@
 #include "BunnyMisc.h"
 #include "BunnyObject.h"
 #include "BunnyWeapons.h"
+#include "BunnyShaders.h"
 #include "Pickups.h"
 
 void BunnyObject::DrawNormally(Layer* layers, const SpriteMode& mode) const {
@@ -123,11 +124,21 @@ Interactive::Interactive(ObjectStartPos& start, bool enemy) : BunnyObject(start)
 	ObjectType = BunnyObjectType::Interactive;
 }
 void Interactive::Behave(GameState& gameState) {
-	Move(gameState);
-	LowerToZero(JustHit);
+	if (!Frozen) {
+		Move(gameState);
+		LowerToZero(JustHit);
+	} else {
+		--Frozen;
+	}
 }
 void Interactive::Draw(Layer* layers) const {
-	DrawNormally(layers, !JustHit ? SpriteMode::Paletted : SpriteMode(Shaders[DefaultShaders::SingleColorPaletted], 15));
+	DrawNormally(layers,
+		!JustHit ?
+			(Frozen == 0 || (Frozen < 30 && RandFac(1))) ?
+				SpriteMode::Paletted :
+			SpriteModeFrozen :
+		SpriteModeJustHit
+	);
 }
 bool Interactive::Hurt(unsigned int force, bool hurtByBullet) {
 	JustHit = 5; //FLASHTIME
@@ -147,9 +158,9 @@ bool Interactive::Die() {
 void Interactive::HitBy(GameObject& other) {
 	if (other.ObjectType == BunnyObjectType::Player) {
 		Bunny& play = static_cast<Bunny&>(other);
-		const auto attackType = play.GetAttackType(false); //false: Interactive is not frozen (todo)
+		const auto attackType = play.GetAttackType(Frozen);
 		if (attackType == Bunny::AttackTypes::NotAttacking) {
-			if (IsEnemy)
+			if (IsEnemy && !Frozen)
 				play.Hurt();
 		} else {
 			if (attackType != Bunny::AttackTypes::SpecialAttack || CancelSpecialAttacks) //only for bosses
@@ -157,9 +168,11 @@ void Interactive::HitBy(GameObject& other) {
 			Hurt(4, false); //all physical attacks do 4 damage
 		}
 	} else { //player bullet
-		//todo ice
 		PlayerBullet& bullet = static_cast<PlayerBullet&>(other);
 		bullet.Explode(); //don't need to worry about fireballs I guess
-		Hurt(bullet.damage, true);
+		if (bullet.ammoID == Weapon::Ice)
+			Frozen = static_cast<IceBullet&>(other).freeze;
+		else
+			Hurt(bullet.damage, true);
 	}
 }

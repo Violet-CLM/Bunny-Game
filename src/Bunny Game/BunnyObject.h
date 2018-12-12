@@ -48,6 +48,7 @@ protected:
 	bool CancelSpecialAttacks = false;
 	unsigned int Points = 0, JustHit = 0;
 	int Energy = 1;
+	int Frozen = 0;
 	virtual void Move(GameState&) {}
 	void Behave(GameState&) override;
 	void HitBy(GameObject&) override;

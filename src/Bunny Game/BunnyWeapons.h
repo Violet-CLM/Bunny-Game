@@ -30,7 +30,6 @@ private:
 	bool DrawAtAngle;
 	int lastRico = 0, ricos = 0;
 protected:
-	Weapon::Weapon ammoID;
 	int Counter = 0, CounterMustBeAtLeastThisHighToDrawBullet;
 	int lifeTime, killAnimID;
 	float AccelerationX, AccelerationY = 0, pxSpeed;
@@ -46,6 +45,7 @@ public:
 
 	int damage;
 	float SpeedX, SpeedY = 0;
+	Weapon::Weapon ammoID;
 };
 
 class BlasterBullet : public PlayerBullet {
@@ -131,11 +131,11 @@ public:
 
 class IceBullet : public PlayerBullet {
 	int counter = 0;
-	int freeze;
 	int sineCounter = 0;
 	float sineOffset = 0;
 	void Move(GameState&) override;
 	void Draw(Layer*) const override;
 public:
+	int freeze;
 	IceBullet(ObjectStartPos&, bool);
 };
