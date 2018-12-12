@@ -20,6 +20,21 @@ void Particle::Behave() {
 				LayerPtr->AppendPixel(int(xDrawPixel), int(yDrawPixel), Spark.color);
 		}
 		return;
+	case ParticleType::tIceTrail:
+		if (!(RandFac(7)))
+			if ((IceTrail.color += IceTrail.colorDelta) == IceTrail.colorStop)
+				break;
+		//if (particle->yPos <= GameGlobals->level.waterLevel) //todo water
+			SpeedY += gravity / 4;
+		//else
+		//	SpeedY += gravity / 16;
+		PositionY += SpeedY;
+		//PositionX += SpeedX; //not used
+		{ //draw
+			LayerPtr->AppendPixel(int(PositionX), int(PositionY), IceTrail.color);
+			LayerPtr->AppendPixel(int(PositionX) + RandFac(1), int(PositionY) + RandFac(1), IceTrail.color);
+		}
+		return;
 	default:
 		return;
 	}
@@ -54,6 +69,17 @@ Particle* Particle::AddSpark(Layer& layer, const sf::Vector2f& position, int Dir
 		result->Spark.color = 40;
 		result->Spark.colorDelta = 1;
 		result->Spark.colorStop = 46;
+	}
+	return result;
+}
+
+Particle* Particle::AddIceTrail(Layer& layer, const sf::Vector2f& position) {
+	auto result = Add(layer, ParticleType::tIceTrail, position);
+	if (result != nullptr) {
+		result->SpeedY = -((int)RandFac(0x7FFF)) / 65536.f;
+		result->IceTrail.color = 32;
+		result->IceTrail.colorDelta = 1;
+		result->IceTrail.colorStop = 40;
 	}
 	return result;
 }

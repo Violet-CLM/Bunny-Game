@@ -139,6 +139,9 @@ void Interactive::Draw(Layer* layers) const {
 			SpriteModeFrozen :
 		SpriteModeJustHit
 	);
+	if (Frozen)
+		DrawLightToLightBuffer(LightType::Normal, 56, 80, sf::Vector2f(PositionX, PositionY));
+
 }
 bool Interactive::Hurt(unsigned int force, bool hurtByBullet) {
 	JustHit = 5; //FLASHTIME

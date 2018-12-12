@@ -28,13 +28,13 @@ struct Particle {
 			//sf::Uint8 padding[8];
 		} Smoke; //particleType 3; ignores xSpeed, ySpeed
 		struct {
-			sf::Uint8 color; //23. increases, and drops drawing when it hits colorStop
+			sf::Uint8 color; //32. increases, and drops drawing when it hits colorStop
 			sf::Uint8 colorStop; //40
 			char colorDelta; //1
 			//sf::Uint8 padding[6];
 		} IceTrail; //particleType 4; ignores xSpeed
 		struct {
-			sf::Uint8 color; //23. increases, and drops drawing when it hits colorStop
+			sf::Uint8 color; //40. increases, and drops drawing when it hits colorStop
 			sf::Uint8 colorStop; //46
 			char colorDelta; //1
 			//sf::Uint8 padding[6];
@@ -94,5 +94,6 @@ private:
 	static Particle* Add(Layer&, ParticleType, const sf::Vector2f&);
 public:
 	static Particle* AddSpark(Layer&, const sf::Vector2f&, int);
+	static Particle* AddIceTrail(Layer&, const sf::Vector2f&);
 };
 static_assert(sizeof(Particle) == 32 + sizeof(Layer*), "Particle incorrect size!");

@@ -825,6 +825,8 @@ void IceBullet::Draw(Layer* layers) const {
 	if (Counter >= 4) { //DONT DISPLAY THE BULLET WHEN STILL INSIDE CHARACTER!!
 		const auto angle = atan2((SpeedX < 0) ? SpeedY : -SpeedY, abs(SpeedX));
 		layers[SPRITELAYER].AppendRotatedSprite(SpriteMode::Paletted, int(PositionX + sin(angle) * sineOffset), int(PositionY + cos(angle) * sineOffset), GetFrame(), angle, float(DirectionX));
+		if (!RandFac(1)) //todo not below water
+			Particle::AddIceTrail(HostLevel.Layers[SPRITELAYER], sf::Vector2f(PositionX, PositionY));
 	}
 	DrawObjectToLightBuffer(*this);
 }
