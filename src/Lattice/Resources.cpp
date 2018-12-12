@@ -60,7 +60,7 @@ bool AnimFile::ReadAnims(std::wstring& Filepath, const PreloadedAnimationsList& 
 		for (const auto& jt : it.Animations)
 			for (auto& kt : *jt.AnimFrames)
 				manager.AddFrame(kt);
-	manager.CreateAndAssignTextures();
+	manager.CreateAndAssignTextures(true);
 	manager.Clear();
 
 	return true;
@@ -94,7 +94,7 @@ void AnimFrame::AssignTextureCoordinates(const SpriteCoordinateRectangle* const 
 	Quad.vertices[3].texCoords = sf::Vector2<float>(float(textureCoordinates->left), float(textureCoordinates->top + textureCoordinates->height));
 }
 
-void AnimFrame::AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates, std::vector<std::unique_ptr<sf::Texture>>& SpriteTextures) {
+void AnimFrame::AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates, std::vector<std::unique_ptr<sf::Texture>>& SpriteTextures, bool saveImagesInCPU) {
 	AssignTextureCoordinates(textureCoordinates);
 
 	(Texture = SpriteTextures[Quad.TextureID = t].get())->update(
@@ -104,6 +104,10 @@ void AnimFrame::AssignTextureDetails(unsigned int t, const SpriteCoordinateRecta
 		textureCoordinates->left,
 		textureCoordinates->top
 	);
+	if (saveImagesInCPU) {
+		std::transform(Image.begin(), Image.end(), std::back_inserter(Image8Bit),
+			[](sf::Uint32 c) -> sf::Uint8 { return c; }); //get just "r" values (i.e. the palette indices), for any situation where the sprite's image might be wanted by the CPU (e.g. exploding into particles)
+	}
 	Image.resize(0); Image.shrink_to_fit();
 }
 
@@ -327,7 +331,7 @@ void SpriteManager::AddFrame(AnimFrame& newFrame) {
 	SpriteTexturesSortedBySize.push_back(&newFrame);
 }
 
-void SpriteManager::CreateAndAssignTextures() {
+void SpriteManager::CreateAndAssignTextures(bool saveImagesInCPU) {
 	if (SpriteTexturesSortedBySize.empty())
 		return;
 
@@ -360,7 +364,7 @@ void SpriteManager::CreateAndAssignTextures() {
 
 			SpriteCoordinateRectangle* textureCoordinates = SpriteTrees[textureID]->placeSprite(it->Width, it->Height);
 			if (textureCoordinates != nullptr) {
-				it->AssignTextureDetails(textureID, textureCoordinates, SpriteTextures);
+				it->AssignTextureDetails(textureID, textureCoordinates, SpriteTextures, saveImagesInCPU);
 				break;
 			}
 		}
@@ -371,7 +375,7 @@ void SpriteManager::CreateAndAssignTextures() {
 
 void SpriteManager::CreateAndAssignTextureForSingleFrame(AnimFrame& frame) {
 	AddFrame(frame);
-	CreateAndAssignTextures();
+	CreateAndAssignTextures(false);
 	//SpriteTextures[0].copyToImage().saveToFile("C:\\Games\\Jazz2\\LightingTexture.png");
 }
 

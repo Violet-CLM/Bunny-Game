@@ -19,7 +19,7 @@ void InitCreateAdditionalSprites() {
 
 	for (auto& it : AdditionalAnimFrames)
 		EffectSprites.AddFrame(it);
-	EffectSprites.CreateAndAssignTextures();
+	EffectSprites.CreateAndAssignTextures(false);
 	
 	MenuBottomGradientVertices.AppendResizedSprite(SpriteMode::Normal, 0, WINDOW_HEIGHT_PIXELS - MenuBottomGradientHeight, AdditionalAnimFrames[AdditionalSprites::MenuBottomGradient], WINDOW_WIDTH_PIXELS, 1);
 }

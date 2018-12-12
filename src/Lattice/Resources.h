@@ -66,12 +66,13 @@ private:
 		sf::Texture* Texture;
 	};
 	std::vector<sf::Uint32> Image;
+	std::vector<sf::Uint8> Image8Bit;
 	unsigned int Area; //for use in filling the sprite texture/s efficiently, a simple product of the frame's width/height
 	quad Quad;
 
 	void AssignTextureCoordinates(const SpriteCoordinateRectangle* const textureCoordinates);
 public:
-	void AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates, std::vector<std::unique_ptr<sf::Texture>>&);
+	void AssignTextureDetails(unsigned int t, const SpriteCoordinateRectangle* const textureCoordinates, std::vector<std::unique_ptr<sf::Texture>>&, bool saveImagesInCPU);
 	sf::Uint32* CreateImage(unsigned int w, unsigned int h);
 
 	AnimFrame(){}
@@ -135,7 +136,7 @@ friend class GameObject;
 
 public:
 	void AddFrame(AnimFrame&);
-	void CreateAndAssignTextures();
+	void CreateAndAssignTextures(bool);
 	void CreateAndAssignTextureForSingleFrame(AnimFrame&);
 	void Clear();
 
