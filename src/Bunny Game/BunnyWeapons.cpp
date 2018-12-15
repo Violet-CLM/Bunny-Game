@@ -456,6 +456,7 @@ ToasterBullet::ToasterBullet(ObjectStartPos& start, bool poweredUp) : PlayerBull
 	AccelerationX = 0.125f;
 	damage = 1 + poweredUp;
 	lifeTime = AISPEED / 2;
+	ParticleExplosionType = poweredUp ? ParticleExplosionType::BlueShards : ParticleExplosionType::OrangeShards;
 }
 void ToasterBullet::Explode() {
 	if (damage == 1) //not powered up
@@ -518,8 +519,8 @@ TNTBullet::TNTBullet(ObjectStartPos& start) : Interactive(start, 0, false) {
 	CollisionShapes.emplace_back(11);
 	MakePoint1();
 }
-bool TNTBullet::Hurt(unsigned int, Bunny*, bool fromBullet) {
-	if (fromBullet) {
+bool TNTBullet::Hurt(unsigned int, Bunny*, ParticleExplosionType causeOfDeath) {
+	if (causeOfDeath != ParticleExplosionType::PhysicalAttack) {
 		ObjectType = BunnyObjectType::NonInteractive;
 		Counter = FrameID = 0;
 		return true;
@@ -529,7 +530,7 @@ bool TNTBullet::Hurt(unsigned int, Bunny*, bool fromBullet) {
 void TNTBullet::Behave(GameState& gameState) {
 	if (ObjectType == BunnyObjectType::Interactive) { //hasn't started exploding yet
 		if (++Counter > 255)
-			Hurt(1, nullptr, true);
+			Hurt(1, nullptr, ParticleExplosionType::Bullet);
 		else if (!(Counter & 3)) {
 		//show counting animation
 			DetermineFrame(FrameID + 1);
@@ -541,7 +542,7 @@ void TNTBullet::Behave(GameState& gameState) {
 					if (dx > -64 && dx < 64) {
 						const auto dy = PositionY - it->PositionY;
 						if (dy > -64 && dy < 64) {
-							Hurt(1, nullptr, true);
+							Hurt(1, nullptr, ParticleExplosionType::Bullet);
 							break; //nomore
 						}	//dy
 					}	//dx
@@ -765,6 +766,7 @@ ElectroBlasterBullet::ElectroBlasterBullet(ObjectStartPos& start, bool poweredUp
 	damage = 1 + (poweredUp << 1);
 	MakePoint2();
 	angle = RandFac(7) << 7;
+	ParticleExplosionType = poweredUp ? ParticleExplosionType::BlueShards : ParticleExplosionType::OrangeShards;
 }
 void ElectroBlasterBullet::Explode() {
 	Delete();

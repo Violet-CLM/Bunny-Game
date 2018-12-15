@@ -15,7 +15,7 @@ public:
 class NormalTurtle : public Interactive {
 	int Counter;
 	void Move(GameState&) override;
-	bool Die(Bunny*) override;
+	bool Die(Bunny*, ParticleExplosionType) override;
 	void HitBy(GameObject&) override;
 public:
 	NormalTurtle(ObjectStartPos&);

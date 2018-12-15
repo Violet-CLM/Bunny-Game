@@ -69,14 +69,14 @@ void BunnyObject::DoBlast(int forceRadius, bool doFullBlast) { //used by TNT, RF
 							nearestTNTDistance = dist;
 						}
 					} else {
-						static_cast<Interactive&>(*it).Hurt(force, dynamic_cast<Bunny*>(Parent), true);
+						static_cast<Interactive&>(*it).Hurt(force, dynamic_cast<Bunny*>(Parent), ParticleExplosionType::Bullet);
 					}
 				}
 			}
 		}
 	}
 	if (nearestTNT != nullptr) //trigger only nearest TNT!
-		nearestTNT->Hurt(1, nullptr, true); //force amount doesn't matter
+		nearestTNT->Hurt(1, nullptr, ParticleExplosionType::Bullet); //force amount doesn't matter
 }
 
 Bunny* BunnyObject::GetNearestPlayer(int threshold) const {
@@ -160,19 +160,64 @@ void Interactive::Draw(Layer* layers) const {
 		DrawLightToLightBuffer(LightType::Normal, 56, 80, sf::Vector2f(PositionX, PositionY));
 
 }
-bool Interactive::Hurt(unsigned int force, Bunny* play, bool hurtByBullet) {
+bool Interactive::Hurt(unsigned int force, Bunny* play, ParticleExplosionType causeOfDeath) {
 	JustHit = 5; //FLASHTIME
 	if ((Energy -= force) <= 0) {
-		return Die(play);
+		return Die(play, causeOfDeath);
 	}
 	return false;
 }
-bool Interactive::Die(Bunny* play) {
-	if (play != nullptr) {
+void Interactive::Explode(ParticleExplosionType causeOfDeath) {
+	const auto& frame = GetFrame();
+	const auto left = PositionX + frame.HotspotX * DirectionX;
+	const auto top = PositionY + frame.HotspotY * DirectionY;
+	auto imageWithPaddingAtBottom(frame.Image8Bit);
+	imageWithPaddingAtBottom.resize(imageWithPaddingAtBottom.size() + frame.Width * 2); //some rows of transparent pixels
+	unsigned int maximumNumberOfParticlesToGenerate = (frame.Width * frame.Height) >> 4;
+	auto& layer = HostLevel.Layers[SPRITELAYER];
+	unsigned int numberOfUnsuccessfulAttemptsToFindAPixel = 0;
+	do {
+		const auto locationInImage = rand() % frame.Image8Bit.size();
+		sf::Uint8& pixel = imageWithPaddingAtBottom.at(locationInImage);
+		if (pixel) {
+			numberOfUnsuccessfulAttemptsToFindAPixel = 0;
+			const auto location = sf::Vector2f(
+				left + int(locationInImage % frame.Width) * DirectionX,
+				top + int(locationInImage / frame.Width) * DirectionY
+			);
+			auto particle = Particle::AddPixel(layer, location); //todo fire particles
+			if (particle) {
+				if (causeOfDeath == ParticleExplosionType::PhysicalAttack) { //more extreme
+					particle->SpeedX = (8 * int(RandFac(0x7FFF)) - 131064) / 65536.f;
+					particle->SpeedY = 8 * ((-16384 - int(RandFac(0x7FFF)))) / 65536.f;
+				}
+				else { //less extreme
+					particle->SpeedX = (4 * int(RandFac(0x7FFF)) - 65532) / 65536.f;
+					particle->SpeedY = 4 * ((-16384 - int(RandFac(0x7FFF)))) / 65536.f;
+
+				}
+				
+				auto* target = particle->Pixel.color;
+				for (int x = 0; x < particle->size; ++x)
+					for (int y = 0; y < particle->size; ++y)
+						*target++ = imageWithPaddingAtBottom[locationInImage + x + y*frame.Width];
+
+				pixel = 0; //don't sample this one again
+			}
+			else
+				break;
+		}
+		else if (++numberOfUnsuccessfulAttemptsToFindAPixel >= 16)
+			break;
+	} while (--maximumNumberOfParticlesToGenerate);
+}
+bool Interactive::Die(Bunny* play, ParticleExplosionType causeOfDeath) {
+	if (play != nullptr)
 		GivePoints(*play, Points);
-		//todo pickups
-	}
-	//todo particles
+	if (!Frozen)
+		Explode(causeOfDeath);
+	//else
+		//todo unfreeze
 	//todo sounds
 	Delete();
 	return true;
@@ -180,14 +225,14 @@ bool Interactive::Die(Bunny* play) {
 void Interactive::HitBy(GameObject& other) {
 	if (other.ObjectType == BunnyObjectType::Player) {
 		Bunny& play = static_cast<Bunny&>(other);
-		const auto attackType = play.GetAttackType(Frozen);
+		const auto attackType = play.GetAttackType(!!Frozen);
 		if (attackType == Bunny::AttackTypes::NotAttacking) {
 			if (IsEnemy && !Frozen)
 				play.Hurt();
 		} else {
 			if (attackType != Bunny::AttackTypes::SpecialAttack || CancelSpecialAttacks) //only for bosses
 				play.HitEnemyUsingAttackType(attackType);
-			Hurt(4, &play, false); //all physical attacks do 4 damage
+			Hurt(4, &play, ParticleExplosionType::PhysicalAttack); //all physical attacks do 4 damage
 		}
 	} else { //player bullet
 		PlayerBullet& bullet = static_cast<PlayerBullet&>(other);
@@ -195,6 +240,6 @@ void Interactive::HitBy(GameObject& other) {
 		if (bullet.ammoID == Weapon::Ice)
 			Frozen = static_cast<IceBullet&>(other).freeze;
 		else
-			Hurt(bullet.damage, dynamic_cast<Bunny*>(bullet.Parent), true);
+			Hurt(bullet.damage, dynamic_cast<Bunny*>(bullet.Parent), bullet.ParticleExplosionType);
 	}
 }

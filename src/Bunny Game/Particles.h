@@ -97,5 +97,6 @@ public:
 	static Particle* AddSpark(Layer&, const sf::Vector2f&, int);
 	static Particle* AddIceTrail(Layer&, const sf::Vector2f&);
 	static Particle* AddScore(Layer&, const sf::Vector2f&, int, const Animation* const);
+	static Particle* AddPixel(Layer&, const sf::Vector2f&, int = -1);
 };
 static_assert(sizeof(Particle) == 28 + sizeof(Animation*) + sizeof(Layer*), "Particle incorrect size!");

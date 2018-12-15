@@ -244,29 +244,31 @@ void NormalTurtle::Move(GameState& gameState) {
 
 	MakeRectangularCollisionShapeBasedOnCurrentFrame(); //turtles change their dimensions so much this is the easiest solution
 }
-bool NormalTurtle::Die(Bunny* play) {
-	const int explosionAnimIDs[] = { 7, 71 };
-	for (int i = 0; i < 2; ++i) {
-		auto& explosion = AddExplosion(AnimSets::Ammo, explosionAnimIDs[i]);
-		explosion.PositionX += Rand2Fac(32767) / 4096;
-		explosion.PositionY += Rand2Fac(32767) / 4096;
+bool NormalTurtle::Die(Bunny* play, ParticleExplosionType causeOfDeath) {
+	if (causeOfDeath != ParticleExplosionType::PhysicalAttack) {
+		const int explosionAnimIDs[] = { 7, 71 };
+		for (int i = 0; i < 2; ++i) {
+			auto& explosion = AddExplosion(AnimSets::Ammo, explosionAnimIDs[i]);
+			explosion.PositionX += Rand2Fac(32767) / 4096;
+			explosion.PositionY += Rand2Fac(32767) / 4096;
+		}
+		PlaySampleAtObject(Common, SWISH1 + RandFac(7));
+
+		/*obj->ProcPtr = &turtleshell;
+
+		AnimID = mTURTLE_REVSHELL;
+		SpeedY = -4 * 65536;
+
+		obj->objtype = oSPECIAL;
+		obj->nohit = 3; //dont
+		obj->energy = 2;
+
+		State = State::Start;	//skip random randpart
+		obj->points = 100;
+		obj->load = aTURTLESHELL;*/
 	}
-	PlaySampleAtObject(Common, SWISH1 + RandFac(7));
 
-	/*obj->ProcPtr = &turtleshell;
-
-	AnimID = mTURTLE_REVSHELL;
-	SpeedY = -4 * 65536;
-
-	obj->objtype = oSPECIAL;
-	obj->nohit = 3; //dont
-	obj->energy = 2;
-
-	State = State::Start;	//skip random randpart
-	obj->points = 100;
-	obj->load = aTURTLESHELL;*/
-
-	return Interactive::Die(play);
+	return Interactive::Die(play, causeOfDeath);
 }
 void NormalTurtle::HitBy(GameObject& other) {
 	if (!(CausesRicochet && other.ObjectType == BunnyObjectType::Player && static_cast<Bunny&>(other).GetAttackType(false) == Bunny::AttackTypes::NotAttacking)) //ignore non-violent collisions when not in shell

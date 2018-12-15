@@ -20,13 +20,16 @@ protected:
 	void Draw(Layer*) const override;
 	void Behave(GameState&) override;
 	void DoBlast(int, bool=false);
-	int DirectionX, DirectionY;
+	int DirectionX, DirectionY = 1;
 	Explosion& AddExplosion(int setID, int animID, bool makeChild = false);
 	Bunny* GetNearestPlayer(int distance) const;
 	Bunny* GetNearestPlayerRef(int& distance) const;
 	bool GivePoints(Bunny&, unsigned int&);
 	void PutOnGround(bool walker);
 	void MakeRectangularCollisionShapeBasedOnCurrentFrame();
+	enum class ParticleExplosionType {
+		Bullet, OrangeShards, BlueShards, GrayShards, PhysicalAttack
+	};
 public:
 	enum class State {
 		Start = 0, Sleep, Wake, Kill, Deactivate, Walk, Jump, Fire, Fly, Bounce,
@@ -56,8 +59,9 @@ protected:
 	void Draw(Layer*) const override;
 public:
 	Interactive(ObjectStartPos&, unsigned int=0, bool=true);
-	virtual bool Hurt(unsigned int, Bunny*, bool);
-	virtual bool Die(Bunny*);
+	virtual bool Hurt(unsigned int, Bunny*, ParticleExplosionType);
+	virtual bool Die(Bunny*, ParticleExplosionType);
+	void Explode(ParticleExplosionType);
 	bool CausesRicochet = false;
 	bool IsEnemy, TriggersTNT; //separate from IsEnemy for purposes of destruct scenery
 };

@@ -66,7 +66,6 @@ private:
 		sf::Texture* Texture;
 	};
 	std::vector<sf::Uint32> Image;
-	std::vector<sf::Uint8> Image8Bit;
 	unsigned int Area; //for use in filling the sprite texture/s efficiently, a simple product of the frame's width/height
 	quad Quad;
 
@@ -82,6 +81,8 @@ public:
 
 	void MovePositionToGunSpotX(float&, bool) const;
 	void MovePositionToGunSpotY(float&, bool) const;
+
+	std::vector<sf::Uint8> Image8Bit;
 };
 class Animation {
 private:

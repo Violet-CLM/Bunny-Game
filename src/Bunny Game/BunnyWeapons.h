@@ -46,6 +46,7 @@ public:
 	int damage;
 	float SpeedX, SpeedY = 0;
 	Weapon::Weapon ammoID;
+	ParticleExplosionType ParticleExplosionType = ParticleExplosionType::Bullet;
 };
 
 class BlasterBullet : public PlayerBullet {
@@ -95,7 +96,7 @@ class TNTBullet : public Interactive {
 	void Draw(Layer*) const override;
 public:
 	TNTBullet(ObjectStartPos&);
-	bool Hurt(unsigned int, Bunny*, bool) override;
+	bool Hurt(unsigned int, Bunny*, ParticleExplosionType) override;
 };
 
 

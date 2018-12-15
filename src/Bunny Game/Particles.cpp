@@ -25,7 +25,7 @@ void Particle::Behave() {
 		if (!(RandFac(7)))
 			if ((IceTrail.color += IceTrail.colorDelta) == IceTrail.colorStop)
 				break;
-		//if (particle->yPos <= GameGlobals->level.waterLevel) //todo water
+		//if (PositionY <= GameGlobals->level.waterLevel) //todo water
 			SpeedY += gravity / 4;
 		//else
 		//	SpeedY += gravity / 16;
@@ -46,6 +46,32 @@ void Particle::Behave() {
 			SpeedY += speed / 16;
 		}
 		WriteText(GetWriteCharacterFunction(*LayerPtr), int(PositionX),int(PositionY), Score.text, *AnimationPtr->AnimFrames);
+		return;
+	case ParticleType::tPixel:
+		{ //x movement
+			ApproachZeroByUnit(SpeedX, 0.00390625f);
+			const auto prospectiveXPos = PositionX + SpeedX;
+			if (LayerPtr->MaskedPixel(int(prospectiveXPos), int(PositionY))) //wall to side
+				SpeedX = -7 * SpeedX / 8; //rebound
+			else PositionX = prospectiveXPos;
+		}
+		PositionY += SpeedY;
+		//if (PositionY <= GameGlobals->level.waterLevel)
+			SpeedY += gravity / 2;
+		//else
+		//	SpeedY += gravity / 8;
+		if (LayerPtr->MaskedPixel(int(PositionX), int(PositionY))) {
+			SpeedY /= -2;
+			if (abs(SpeedY) < 0.25f)
+				break; //done
+			else PositionY += SpeedY; //extract from floor/ceiling=
+		}
+		{ //draw
+			const auto* src = Pixel.color;
+			for (int x = 0; x < size; ++x)
+				for (int y = 0; y < size; ++y)
+					LayerPtr->AppendPixel(int(PositionX) + x, int(PositionY) + y, *src++);
+		}
 		return;
 	default:
 		return;
@@ -103,6 +129,16 @@ Particle* Particle::AddScore(Layer& layer, const sf::Vector2f& position, int sco
 		result->SpeedY = (-65536 - int(RandFac(0x7FFF))) / 65536.f;
 		result->AnimationPtr = animPtr;
 		sprintf_s(result->Score.text, "%d", score);
+	}
+	return result;
+}
+
+Particle* Particle::AddPixel(Layer& layer, const sf::Vector2f& position, int size) {
+	auto result = Add(layer, ParticleType::tPixel, position);
+	if (result != nullptr) {
+		if (size < 0) size = RandFac(3);
+		if (unsigned(size) > 2) size = 2;
+		result->size = size + 1; //1, 2, or 3
 	}
 	return result;
 }
