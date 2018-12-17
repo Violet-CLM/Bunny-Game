@@ -172,7 +172,7 @@ void Interactive::Explode(ParticleExplosionType causeOfDeath) {
 	const auto left = PositionX + frame.HotspotX * DirectionX;
 	const auto top = PositionY + frame.HotspotY * DirectionY;
 	auto imageWithPaddingAtBottom(frame.Image8Bit);
-	imageWithPaddingAtBottom.resize(imageWithPaddingAtBottom.size() + frame.Width * 2); //some rows of transparent pixels
+	imageWithPaddingAtBottom.resize(imageWithPaddingAtBottom.size() + frame.Width * 2 + 2); //some rows of transparent pixels
 	unsigned int maximumNumberOfParticlesToGenerate = (frame.Width * frame.Height) >> 4;
 	auto& layer = HostLevel.Layers[SPRITELAYER];
 	unsigned int numberOfUnsuccessfulAttemptsToFindAPixel = 0;
@@ -185,29 +185,34 @@ void Interactive::Explode(ParticleExplosionType causeOfDeath) {
 				left + int(locationInImage % frame.Width) * DirectionX,
 				top + int(locationInImage / frame.Width) * DirectionY
 			);
-			auto particle = Particle::AddPixel(layer, location); //todo fire particles
-			if (particle) {
-				if (causeOfDeath == ParticleExplosionType::PhysicalAttack) { //more extreme
-					particle->SpeedX = (8 * int(RandFac(0x7FFF)) - 131064) / 65536.f;
-					particle->SpeedY = 8 * ((-16384 - int(RandFac(0x7FFF)))) / 65536.f;
-				}
-				else { //less extreme
-					particle->SpeedX = (4 * int(RandFac(0x7FFF)) - 65532) / 65536.f;
-					particle->SpeedY = 4 * ((-16384 - int(RandFac(0x7FFF)))) / 65536.f;
+			if (causeOfDeath == ParticleExplosionType::Bullet || causeOfDeath == ParticleExplosionType::PhysicalAttack) {
+				auto particle = Particle::AddPixel(layer, location);
+				if (particle) {
+					if (causeOfDeath == ParticleExplosionType::PhysicalAttack) { //more extreme
+						particle->SpeedX = (8 * int(RandFac(0x7FFF)) - 131064) / 65536.f;
+						particle->SpeedY = 8 * ((-16384 - int(RandFac(0x7FFF)))) / 65536.f;
+					} else { //less extreme
+						particle->SpeedX = (4 * int(RandFac(0x7FFF)) - 65532) / 65536.f;
+						particle->SpeedY = 4 * ((-16384 - int(RandFac(0x7FFF)))) / 65536.f;
+					}
 
-				}
-				
-				auto* target = particle->Pixel.color;
-				for (int x = 0; x < particle->size; ++x)
-					for (int y = 0; y < particle->size; ++y)
-						*target++ = imageWithPaddingAtBottom[locationInImage + x + y*frame.Width];
+					auto* target = particle->Pixel.color;
+					for (int x = 0; x < particle->size; ++x)
+						for (int y = 0; y < particle->size; ++y)
+							*target++ = imageWithPaddingAtBottom[locationInImage + x + y*frame.Width];
 
-				pixel = 0; //don't sample this one again
+				} else
+					break;
+			} else {
+				auto particle = Particle::AddFire(layer, location, causeOfDeath == ParticleExplosionType::OrangeShards ? 40 : causeOfDeath == ParticleExplosionType::BlueShards ? 32 : 72); //orange, blue, gray
+				if (particle) {
+					particle->SpeedY = RandFac(0x7FFF) / 65536.f;
+					particle->size = RandFac(3) + 1;
+				} else
+					break;
 			}
-			else
-				break;
-		}
-		else if (++numberOfUnsuccessfulAttemptsToFindAPixel >= 16)
+			pixel = 0; //don't sample this one again
+		} else if (++numberOfUnsuccessfulAttemptsToFindAPixel >= 16)
 			break;
 	} while (--maximumNumberOfParticlesToGenerate);
 }

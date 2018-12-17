@@ -45,7 +45,7 @@ void Bee::Move(GameState& gameState) {
 
 		PositionX += ApproachSpeedX;
 		PositionY += ApproachSpeedY;
-		DirectionX = int(ApproachSpeedX);
+		DirectionX = ApproachSpeedX >= 0 ? 1 : -1;
 
 		if (--Counter == 0) {
 			State = State::Fly;	//away

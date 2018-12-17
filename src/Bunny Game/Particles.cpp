@@ -73,6 +73,42 @@ void Particle::Behave() {
 					LayerPtr->AppendPixel(int(PositionX) + x, int(PositionY) + y, *src++);
 		}
 		return;
+	case ParticleType::tFire:
+		{
+			const auto r = RandFac(63);
+			if (!(r & 7)) {
+				if (!(r & 56)) {
+					/*Tparticle* newpart = AddParticle(particleSMOKE);
+					if (newpart) {
+						newpart->PositionX = PositionX;
+						newpart->PositionY = PositionY - 1;
+					}*/
+				}
+				if ((Fire.color += Fire.colorDelta) == Fire.colorStop)
+					break;
+			}
+		}
+		//if (PositionY <= GameGlobals->level.waterLevel)
+			SpeedY += gravity / 8;
+		//else
+		//	SpeedY += gravity / 32;
+		PositionY += SpeedY;
+		if (LayerPtr->MaskedPixel(int(PositionX), int(PositionY))) { //bounce
+			PositionY -= SpeedY;
+			SpeedY /= -2;
+		}
+		{ //draw
+			const static std::vector<sf::Vector2i> FireDrawLocations[] = {
+				{ {0,0} },
+				{ {1,0} },
+				{ {0,1}, {1,1} },
+				{ {2,0}, {-1,1}, {2,1}, {3,1}, {0,2}, {1,2}, {2,2} }
+			};
+			for (unsigned int i = 0; i < size; ++i)
+				for (const auto& it : FireDrawLocations[i])
+					LayerPtr->AppendPixel(int(PositionX) + it.x, int(PositionY) + it.y, Fire.color);
+		}
+		return;
 	default:
 		return;
 	}
@@ -139,6 +175,16 @@ Particle* Particle::AddPixel(Layer& layer, const sf::Vector2f& position, int siz
 		if (size < 0) size = RandFac(3);
 		if (unsigned(size) > 2) size = 2;
 		result->size = size + 1; //1, 2, or 3
+	}
+	return result;
+}
+
+Particle* Particle::AddFire(Layer& layer, const sf::Vector2f& position, sf::Uint8 startColor) {
+	auto result = Add(layer, ParticleType::tFire, position);
+	if (result != nullptr) {
+		result->Fire.color = startColor;
+		result->Fire.colorStop = (startColor & ~7) + 8;
+		result->Fire.colorDelta = 1;
 	}
 	return result;
 }

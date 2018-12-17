@@ -18,7 +18,7 @@ struct Particle {
 			sf::Uint8 color[9];
 		} Pixel;
 		struct {
-			sf::Uint8 color; //23. increases, and drops drawing when it hits colorStop
+			sf::Uint8 color; //40. increases, and drops drawing when it hits colorStop
 			sf::Uint8 colorStop; //48
 			char colorDelta; //1
 			//sf::Uint8 padding[6];
@@ -98,5 +98,6 @@ public:
 	static Particle* AddIceTrail(Layer&, const sf::Vector2f&);
 	static Particle* AddScore(Layer&, const sf::Vector2f&, int, const Animation* const);
 	static Particle* AddPixel(Layer&, const sf::Vector2f&, int = -1);
+	static Particle* AddFire(Layer&, const sf::Vector2f&, sf::Uint8);
 };
 static_assert(sizeof(Particle) == 28 + sizeof(Animation*) + sizeof(Layer*), "Particle incorrect size!");
