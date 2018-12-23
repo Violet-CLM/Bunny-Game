@@ -1,5 +1,6 @@
 #include <ctime>
 #include <random>
+#include "BunnyMisc.h"
 
 unsigned int RandFac(unsigned int andValue) {
 	static std::mt19937 twister((unsigned int)time(NULL));
@@ -16,3 +17,5 @@ float sintable(int a) {
 float costable(int a) {
 	return sintable(a + 256);
 }
+
+Difficulty GameDifficulty = Difficulty::Medium;

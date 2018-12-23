@@ -27,3 +27,8 @@ float sintable(int);
 float costable(int);
 #define sinTable sintable
 #define cosTable costable
+
+enum class Difficulty {
+	Easy, Medium, Hard, Turbo
+};
+extern Difficulty GameDifficulty;

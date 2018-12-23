@@ -24,7 +24,7 @@ bool Hook_CollideObjects(const GameObject& a, const GameObject& b) {
 
 void Hook_ActivateObjects(Level& level) {
 	level.ForEachEvent([&level](Event& ev, int xTile, int yTile) {
-		if (!ev.Active && !ev.Difficulty /* ev.ID >= EventIDs::GUN3AMMO3*/ && Lattice::ObjectInitializationList->count(ev.ID) && Lattice::ObjectInitializationList->at(ev.ID).CreateObjectFromEventMap) { //todo better difficulty check
+		if (!ev.Active && Lattice::ObjectInitializationList->count(ev.ID) && Lattice::ObjectInitializationList->at(ev.ID).CreateObjectFromEventMap) {
 			Lattice::ObjectInitializationList->at(ev.ID).AddObject(level, ev, float(xTile * TILEWIDTH + (TILEWIDTH/2)), float(yTile * TILEHEIGHT + (TILEHEIGHT/2)));
 			ev.Active = true;
 		}
@@ -95,6 +95,24 @@ void Hook_LevelLoad(Level& level) {
 			break;
 		}
 	}
+
+	//difficulty
+	level.ForEachEvent([&level](Event& ev, int xTile, int yTile) {
+		switch (ev.Difficulty) {
+		case 1: //Easy
+			if (GameDifficulty != Difficulty::Easy)
+				ev = 0;
+			break;
+		case 2: //Hard
+			if (GameDifficulty < Difficulty::Hard)
+				ev = 0;
+			break;
+		case 3: //MP-only
+			if (Players.size() <= 1)
+				ev = 0;
+			break;
+		}
+	});
 
 	//lighting
 	ClearLightingBuffer(AmbientLightingLevel = level.MinLight);
