@@ -21,6 +21,26 @@ void BunnyObject::Behave(GameState &) {
 	//todo deactivation?
 }
 
+bool BunnyObject::CheckActiveStatus() {
+	if (!(
+		(unsigned(PositionX + 320) < unsigned(HostLevel.WidthPixels + 320)) && //not outside horizontal level bounds
+		(unsigned(PositionY + 200) < unsigned(HostLevel.HeightPixels + 200)) && //not outside vertical level bounds
+		std::any_of(Players.begin(), Players.end(), [this](Player& it) { //at least one player can see it
+			#define INVIEWACTIVEX (320*3)
+			#define INVIEWACTIVEY (200*4)
+			const Bunny* const obj = it.Object;
+			return (
+				unsigned(PositionX + INVIEWACTIVEX - obj->PositionX) <= INVIEWACTIVEX * 2 &&
+				unsigned(PositionY + INVIEWACTIVEY - obj->PositionY) <= INVIEWACTIVEY * 2
+			);
+		})
+	)) {
+		Deactivate();
+		return false;
+	}
+	return true;
+}
+
 //helper function for DoBlastBase
 static float GetAdjustedBlastSpeed(float d, float limit) {
 	d /= 2;

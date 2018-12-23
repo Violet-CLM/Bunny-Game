@@ -31,7 +31,7 @@ bool Event::SetIlluminated(bool f)
 	if (f)
 		raw |= (1 << 10);
 	else
-		raw ^= ~(1 << 10);
+		raw &= ~(1 << 10);
 	return f;
 }
 
@@ -44,7 +44,7 @@ bool Event::SetActive(bool f)
 	if (f)
 		raw |= (1 << 11);
 	else
-		raw ^= ~(1 << 11);
+		raw &= ~(1 << 11);
 	return f;
 }
 

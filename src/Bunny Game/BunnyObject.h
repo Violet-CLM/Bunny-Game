@@ -39,6 +39,7 @@ public:
 	};
 	State State = State::Start, OldState;
 	LightType::LightType LightType; LightParam LightIntensity, LightRadius;
+	virtual bool CheckActiveStatus();
 protected: //series of convenience methods for turning JJ2 constants into their composite values
 	void MakePoint1() { LightType = LightType::Point; LightRadius = 20; LightIntensity = NormalIntensity >> 3; }
 	void MakePoint2() { LightType = LightType::Point; LightRadius = 20; LightIntensity = NormalIntensity >> 2; }

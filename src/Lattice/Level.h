@@ -53,6 +53,7 @@ private:
 
 	sf::Uint16 AnimCount;
 
+public:
 	unsigned int WidthTiles;
 	unsigned int WidthPixels;
 	unsigned int HeightTiles;
@@ -60,6 +61,7 @@ private:
 	float WidthPixelsF;
 	float HeightPixelsF;
 
+private:
 	char TileTypes[MAX_TILES];
 	std::vector<Tile> AnimatedTileFrames;
 	std::vector<AnimatedTile> AnimatedTiles;

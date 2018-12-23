@@ -68,6 +68,11 @@ void Hook_ActivateObjects(Level& level) {
 			play->LastEventActivationYTile = eventActivationYTile;
 		}
 	}
+
+
+	for (auto& it : level.Objects)
+		if (it->Active)
+			static_cast<BunnyObject*>(it.get())->CheckActiveStatus();
 }
 
 void Hook_GetAnimationList(Level&, PreloadedAnimationsList& animList) {
