@@ -3186,9 +3186,12 @@ void Bunny::ProcessAction(unsigned int gameTicks)
 	LowerToZero(stop); //is this ever used?
 	//playerTraces[0][(gameTicks & 0x3F) + (playerID << 6)] = (xPos >> 16) + (yPos & 0xFFFF0000); //todo traces
 }
-void Bunny::AdjustViewpoint(GameState& gameState) const
+void Bunny::AdjustViewpoint(GameState& gameState)
 {
-	gameState.CenterCamera(PositionX, PositionY);
+	gameState.SetCamera(
+		viewStartX = std::max(0.f, (PositionX - WINDOW_WIDTH_PIXELS / 2)),
+		viewStartY = std::max(0.f, (PositionY - WINDOW_HEIGHT_PIXELS / 2))
+	);
 }
 void Bunny::Behave(GameState& gameState)
 {

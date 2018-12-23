@@ -2,7 +2,12 @@
 #include "Layer.h"
 #include "BunnyMisc.h"
 #include "CharStrings.h"
+#include "Bunny.h"
+
 void Particle::Behave() {
+	if (particleType == ParticleType::tInactive)
+		return;
+
 	const auto gravity = 0.125f;
 	const static std::vector<sf::Vector2i> FireDrawLocations[] = {
 		{ { 0,0 } },
@@ -11,7 +16,17 @@ void Particle::Behave() {
 		{ { 2,0 },{ -1,1 },{ 2,1 },{ 3,1 },{ 0,2 },{ 1,2 },{ 2,2 } }
 	};
 
-	switch (ParticleType(particleType)) {
+	if (std::any_of(Players.begin(), Players.end(), [this](Player& it) { //at least one player can see it
+		const Bunny* const obj = it.Object;
+		const auto relativeX = PositionX - obj->viewStartX;
+		const auto relativeY = PositionY - obj->viewStartY;
+		return (
+			relativeX > -64 &&
+			relativeY > -128 &&
+			relativeX < WINDOW_WIDTH_PIXELS + 48 &&
+			relativeY < WINDOW_HEIGHT_PIXELS + 48
+		);
+	})) switch (ParticleType(particleType)) {
 	case ParticleType::tSpark:
 		if (!(RandFac(3)))
 			if ((Spark.color += Spark.colorDelta) == Spark.colorStop)

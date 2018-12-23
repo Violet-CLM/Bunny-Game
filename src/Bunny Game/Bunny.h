@@ -74,7 +74,7 @@ class Bunny : public BunnyObject {
 		void AddSingleBullet(float, sf::Vector2f, EventID, float,float, bool=false);
 		bool ProcessActionFire();
 		bool ProcessActionSpecialMove();
-	void AdjustViewpoint(GameState&) const;	//43E560
+	void AdjustViewpoint(GameState&);		//43E560
 
 	void DisableSpecialMove();
 
@@ -96,6 +96,7 @@ public:
 	int Health;
 	int freeze, invincibility, fly, fireType, lastFire;
 	int LastEventActivationXTile, LastEventActivationYTile;
+	float viewStartX, viewStartY;
 	const char* HelpString; int HelpStringCounter = 0;
 	Player PlayerProperties;
 };
