@@ -4,6 +4,13 @@
 #include "CharStrings.h"
 void Particle::Behave() {
 	const auto gravity = 0.125f;
+	const static std::vector<sf::Vector2i> FireDrawLocations[] = {
+		{ { 0,0 } },
+		{ { 1,0 } },
+		{ { 0,1 },{ 1,1 } },
+		{ { 2,0 },{ -1,1 },{ 2,1 },{ 3,1 },{ 0,2 },{ 1,2 },{ 2,2 } }
+	};
+
 	switch (ParticleType(particleType)) {
 	case ParticleType::tSpark:
 		if (!(RandFac(3)))
@@ -77,13 +84,8 @@ void Particle::Behave() {
 		{
 			const auto r = RandFac(63);
 			if (!(r & 7)) {
-				if (!(r & 56)) {
-					/*Tparticle* newpart = AddParticle(particleSMOKE);
-					if (newpart) {
-						newpart->PositionX = PositionX;
-						newpart->PositionY = PositionY - 1;
-					}*/
-				}
+				if (!r)
+					AddSmoke(*LayerPtr, sf::Vector2f(PositionX, PositionY - 1));
 				if ((Fire.color += Fire.colorDelta) == Fire.colorStop)
 					break;
 			}
@@ -98,15 +100,22 @@ void Particle::Behave() {
 			SpeedY /= -2;
 		}
 		{ //draw
-			const static std::vector<sf::Vector2i> FireDrawLocations[] = {
-				{ {0,0} },
-				{ {1,0} },
-				{ {0,1}, {1,1} },
-				{ {2,0}, {-1,1}, {2,1}, {3,1}, {0,2}, {1,2}, {2,2} }
-			};
 			for (unsigned int i = 0; i < size; ++i)
 				for (const auto& it : FireDrawLocations[i])
 					LayerPtr->AppendPixel(int(PositionX) + it.x, int(PositionY) + it.y, Fire.color);
+		}
+		return;
+	case ParticleType::tSmoke:
+		if (!RandFac(0xF))
+			if (--Smoke.lifetime < 64)
+				break;
+		PositionY += -2 * int(RandFac(0x7FFF)) / 65536.f;
+		PositionX += sintable(RandFac(1023));
+		{ //draw
+			unsigned int size = (Smoke.lifetime & 3) + 1;
+			while (size--)
+				for (const auto& it : FireDrawLocations[size]) //also serves as SmokeDrawLocations I guess
+					LayerPtr->AppendPixel(int(PositionX) + it.x, int(PositionY) + it.y, Smoke.lifetime);
 		}
 		return;
 	default:
@@ -185,6 +194,14 @@ Particle* Particle::AddFire(Layer& layer, const sf::Vector2f& position, sf::Uint
 		result->Fire.color = startColor;
 		result->Fire.colorStop = (startColor & ~7) + 8;
 		result->Fire.colorDelta = 1;
+	}
+	return result;
+}
+
+Particle* Particle::AddSmoke(Layer& layer, const sf::Vector2f& position) {
+	auto result = Add(layer, ParticleType::tSmoke, position);
+	if (result != nullptr) {
+		result->Smoke.lifetime = 71;
 	}
 	return result;
 }

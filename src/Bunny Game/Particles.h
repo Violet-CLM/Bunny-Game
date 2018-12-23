@@ -99,5 +99,6 @@ public:
 	static Particle* AddScore(Layer&, const sf::Vector2f&, int, const Animation* const);
 	static Particle* AddPixel(Layer&, const sf::Vector2f&, int = -1);
 	static Particle* AddFire(Layer&, const sf::Vector2f&, sf::Uint8);
+	static Particle* AddSmoke(Layer&, const sf::Vector2f&);
 };
 static_assert(sizeof(Particle) == 28 + sizeof(Animation*) + sizeof(Layer*), "Particle incorrect size!");
