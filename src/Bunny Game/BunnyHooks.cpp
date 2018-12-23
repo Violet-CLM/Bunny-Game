@@ -22,20 +22,60 @@ bool Hook_CollideObjects(const GameObject& a, const GameObject& b) {
 	return false;
 }
 
-void Hook_ActivateObjects(Level& level) {
-	level.ForEachEvent([&level](Event& ev, int xTile, int yTile) {
+class ObjectActivationOperation {
+	Level& level;
+public:
+	ObjectActivationOperation(Level& l) : level(l) { }
+
+	void operator()(Event& ev, int xTile, int yTile) {
 		if (!ev.Active && Lattice::ObjectInitializationList->count(ev.ID) && Lattice::ObjectInitializationList->at(ev.ID).CreateObjectFromEventMap) {
 			Lattice::ObjectInitializationList->at(ev.ID).AddObject(level, ev, float(xTile * TILEWIDTH + (TILEWIDTH/2)), float(yTile * TILEHEIGHT + (TILEHEIGHT/2)));
 			ev.Active = true;
 		}
-	});
+	}
+};
+void Hook_ActivateObjects(Level& level) {
+	const ObjectActivationOperation activationFunction(level);
+
+	for (auto& it : Players) {
+		Bunny* play = it.Object;
+		const int eventActivationXTile = int(play->PositionX) >> 5;
+		const int xDiff = eventActivationXTile - play->LastEventActivationXTile;
+		if (xDiff) {
+			level.ForEachEvent(
+				activationFunction,
+				sf::Rect<int>(
+					play->LastEventActivationXTile + (xDiff > 0 ? 20 : -20),
+					play->LastEventActivationYTile - 20,
+					abs(xDiff),
+					(20 * 2) + 1
+				)
+			);
+			play->LastEventActivationXTile = eventActivationXTile;
+		}
+		const int eventActivationYTile = int(play->PositionY) >> 5;
+		const int yDiff = eventActivationYTile - play->LastEventActivationYTile;
+		if (yDiff) {
+			level.ForEachEvent(
+				activationFunction,
+				sf::Rect<int>(
+					play->LastEventActivationXTile - 20,
+					play->LastEventActivationYTile + (yDiff > 0 ? 20 : -20),
+					(20 * 2) + 1,
+					abs(yDiff)
+				)
+			);
+			play->LastEventActivationYTile = eventActivationYTile;
+		}
+	}
 }
 
 void Hook_GetAnimationList(Level&, PreloadedAnimationsList& animList) {
 	animList = DefaultAnimationsList;
 }
 void Hook_LevelLoad(Level& level) {
-	{ //place one (1) player character
+	const ObjectActivationOperation activationFunction(level);
+	for (auto& player : Players) {
 		EventID soughtEventID = EventIDs::JAZZSTART;
 		std::vector<sf::Vector2i> StartPositions;
 		auto FindStartPositions = [&level, &StartPositions, &soughtEventID](Event& ev,int xTile,int yTile) -> void {
@@ -68,7 +108,17 @@ void Hook_LevelLoad(Level& level) {
 					float(bunnyStartPosition.y * TILEHEIGHT + 15),
 					GetVersionSpecificAnimationID(AnimSetsAssociatedWithEachRabbit[characterID])
 				),
-				characterID
+				characterID,
+				player
+			)
+		);
+		level.ForEachEvent(
+			activationFunction, //activate all object events in a 41x41 square around the player's starting position
+			sf::Rect<int>(
+				bunnyStartPosition.x - 20,
+				bunnyStartPosition.y - 20,
+				(20 * 2) + 1,
+				(20 * 2) + 1
 			)
 		);
 	}

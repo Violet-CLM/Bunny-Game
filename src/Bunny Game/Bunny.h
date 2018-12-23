@@ -84,7 +84,7 @@ public:
 	enum AttackTypes {
 		NotAttacking, Buttstomp, SugarRush, SpecialAttack, RunThroughFrozenEnemy
 	};
-	Bunny(ObjectStartPos& objStart, int);
+	Bunny(ObjectStartPos& objStart, int, Player&);
 
 	void EatFood();
 	bool Hurt(unsigned int = 1);
@@ -95,6 +95,7 @@ public:
 
 	int Health;
 	int freeze, invincibility, fly, fireType, lastFire;
+	int LastEventActivationXTile, LastEventActivationYTile;
 	const char* HelpString; int HelpStringCounter = 0;
 	Player PlayerProperties;
 };

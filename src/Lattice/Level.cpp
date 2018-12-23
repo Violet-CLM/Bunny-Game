@@ -71,6 +71,35 @@ void Level::ForEachEvent(std::function<void(Event&, int, int)> func)
 			func(ev, i % WidthTiles, i / WidthTiles);
 	}
 }
+void Level::ForEachEvent(std::function<void(Event&, int, int)> func, sf::Rect<int>& bounds)
+{
+	//ensure sane bounds
+	if (bounds.left < 0) {
+		if ((bounds.width += bounds.left) < 0)
+			return;
+		bounds.left = 0;
+	}
+	if (bounds.top < 0) {
+		if ((bounds.height += bounds.top) < 0)
+			return;
+		bounds.top = 0;
+	}
+	if (unsigned int(bounds.left + bounds.width) > WidthTiles)
+		bounds.width = WidthTiles - bounds.left;
+	if (unsigned int(bounds.top + bounds.height) > HeightTiles)
+		bounds.height = HeightTiles - bounds.top;
+
+
+	Event* eventPtr = &GetEvent(bounds.left, bounds.top);
+	for (int y = 0; y < bounds.height; ++y) {
+		for (int x = 0; x < bounds.width; ++x) {
+			Event& ev = *eventPtr++;
+			if (ev.ID)
+				func(ev, x + bounds.left, y + bounds.top);
+		}
+		eventPtr += WidthTiles - bounds.width;
+	}
+}
 Level* Level::LoadLevel(std::wstring& Filepath)
 {
 	if (!(Filepath.length() > 4 && Filepath.substr(Filepath.length() - 4, 4) == L".j2l"))

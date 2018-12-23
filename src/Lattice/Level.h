@@ -4,6 +4,7 @@
 #include <forward_list>
 #include <memory>
 #include "SFML/Config.hpp"
+#include "SFML/Graphics.hpp"
 #include "Files.h"
 #include "Tileset.h"
 #include "Layer.h"
@@ -90,6 +91,7 @@ public:
 
 	Event& GetEvent(unsigned int, unsigned int);
 	void ForEachEvent(std::function<void(Event&, int, int)>);
+	void ForEachEvent(std::function<void(Event&, int, int)> func, sf::Rect<int>& bounds);
 	Tile GetRealTile(Tile) const;
 
 	void Update(const KeyStates&) override;
